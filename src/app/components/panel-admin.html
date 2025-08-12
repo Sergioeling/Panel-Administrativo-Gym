@@ -1,0 +1,113 @@
+<div class="admin-layout">
+  <!-- Header mejorado -->
+  <header class="modern-header">
+    <div class="header-left">
+      <button mat-icon-button class="menu-toggle" (click)="showMenu()" [class.active]="isDrawerOpen">
+        <i class="bi bi-list"></i>
+      </button>
+      <div class="brand-section">
+        <i class="bi bi-lightning-charge brand-icon"></i>
+        <h1 class="brand-title">PowerGym</h1>
+        <span class="brand-subtitle">Admin Panel</span>
+      </div>
+    </div> 
+
+    <div class="header-center">
+      <div class="search-container">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" placeholder="Buscar..." class="search-input">
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="user-section">
+        <span class="welcome-text">Bienvenido</span>
+        <span class="user-name">{{ user }}</span>
+      </div>
+
+      <div class="header-actions">
+        <button mat-icon-button class="action-btn" title="Notificaciones">
+          <i class="bi bi-bell notification-icon"></i>
+          <span class="notification-badge">3</span>
+        </button>
+
+        <button mat-icon-button class="action-btn" (click)="redirectTo('dashboard')" title="Inicio">
+          <i class="bi bi-house"></i>
+        </button>
+
+        <button mat-icon-button class="action-btn" (click)="redirectTo('dashboard/perfil')" title="Perfil">
+          <i class="bi bi-person-circle"></i>
+        </button>
+
+        <button mat-icon-button class="action-btn logout-btn" (click)="redirectTo('web')" title="Salir">
+          <i class="bi bi-box-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar mejorado -->
+  <mat-drawer-container class="drawer-container">
+    <mat-drawer #drawer mode="side" class="modern-sidebar" [opened]="isDrawerOpen">
+      <div class="sidebar-content">
+        <div class="sidebar-header">
+          <div class="user-avatar">
+
+            <i class="bi bi-person-circle avatar-icon"></i>
+          </div>
+          <div class="user-info" *ngIf="isDrawerOpen">
+            <h3>{{ user }}</h3>
+            <p>Administrador</p>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-section" *ngFor="let mn of menu">
+            <div class="nav-category" *ngIf="!active(mn.role)">
+              <!-- Menú principal -->
+              <button class="nav-item category-btn" (click)="toggleMenu(mn.id)"
+                [class.expanded]="isMenuExpanded(mn.id)">
+                <div class="nav-item-content">
+                  <div class="nav-icon">
+                    <!-- Ícono dinámico con Bootstrap Icons -->
+                    <i *ngIf="mn.bi" class="{{ mn.bi }}"></i>
+                    <!-- Si quieres compatibilidad con el campo mn.icon -->
+                    <i *ngIf="mn.icon" class="bi bi-{{ mn.icon }}"></i>
+                  </div>
+                  <span class="nav-text" *ngIf="isDrawerOpen">{{ mn.title }}</span>
+                  <!-- Icono de expandir/cerrar -->
+                  <i class="expand-icon bi" *ngIf="isDrawerOpen"
+                    [ngClass]="isMenuExpanded(mn.id) ? 'bi-chevron-up' : 'bi-chevron-down'">
+                  </i>
+                </div>
+              </button>
+
+              <!-- Submenú -->
+              <div class="submenu" [class.expanded]="isMenuExpanded(mn.id)" *ngIf="isDrawerOpen">
+                <button class="nav-item submenu-item" *ngFor="let itm of mn.options"
+                  (click)="redirectTo('dashboard/'+itm.route)" [class.active]="isActiveRoute(itm.route)"
+                  [class.d-none]="activePermissions(itm.permission, itm.role)">
+                  <div class="nav-item-content">
+                    <div class="nav-icon submenu-icon">
+                      <mat-icon *ngIf="itm.icon">{{itm.icon}}</mat-icon>
+                      <i *ngIf="itm.bi" class="{{itm.bi}}"></i>
+                    </div>
+                    <span class="nav-text">{{itm.title}}</span>
+                  </div>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </nav>
+      </div>
+    </mat-drawer>
+
+    <!-- Contenido principal -->
+    <mat-drawer-content class="main-content">
+      <div class="content-wrapper">
+        <router-outlet></router-outlet>
+      </div>
+    </mat-drawer-content>
+  </mat-drawer-container>
+</div>

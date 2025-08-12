@@ -1,1 +1,23 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --primary-color: #E74C3C;
+  --primary-dark: #C0392B;
+  --primary-light: #EC7063;
+  --accent-color: #F39C12;
+  --text-primary: #2C3E50;
+  --text-secondary: #7F8C8D;
+  --background: #F8F9FA;
+  --sidebar-bg: #FFFFFF;
+  --shadow: 0 2px 12px rgba(0,0,0,0.1);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+}
