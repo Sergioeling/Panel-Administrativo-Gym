@@ -10,7 +10,7 @@
         <h1 class="brand-title">PowerGym</h1>
         <span class="brand-subtitle">Admin Panel</span>
       </div>
-    </div> 
+    </div>
 
     <div class="header-center">
       <div class="search-container">
@@ -69,13 +69,10 @@
                 [class.expanded]="isMenuExpanded(mn.id)">
                 <div class="nav-item-content">
                   <div class="nav-icon">
-                    <!-- Ícono dinámico con Bootstrap Icons -->
                     <i *ngIf="mn.bi" class="{{ mn.bi }}"></i>
-                    <!-- Si quieres compatibilidad con el campo mn.icon -->
                     <i *ngIf="mn.icon" class="bi bi-{{ mn.icon }}"></i>
                   </div>
                   <span class="nav-text" *ngIf="isDrawerOpen">{{ mn.title }}</span>
-                  <!-- Icono de expandir/cerrar -->
                   <i class="expand-icon bi" *ngIf="isDrawerOpen"
                     [ngClass]="isMenuExpanded(mn.id) ? 'bi-chevron-up' : 'bi-chevron-down'">
                   </i>

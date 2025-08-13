@@ -33,8 +33,8 @@ export class PanelAdmin implements OnInit {
   private router = inject(Router);
 
   protected menu: any[] = [];
-  protected user: string = 'Admin PowerGym';
-  protected userRole: string = 'ADMIN';
+  protected user: string = '';
+  protected userRole: string = '';
   protected activeRoute: string = '';
   protected isDrawerOpen: boolean = true;
   protected expandedMenus: { [key: string]: boolean } = {};
@@ -51,7 +51,13 @@ export class PanelAdmin implements OnInit {
 
   ngOnInit() {
     this.InitMenu();
+    this.loadUserData();
     this.expandedMenus['dashboard'] = true;
+  }
+
+  loadUserData() {
+    this.user = this.auth.getUserName();
+    this.userRole = this.auth.getUserRole() || 'USUARIO';
   }
 
   toggleMenu(menuId: string) {
@@ -73,7 +79,7 @@ export class PanelAdmin implements OnInit {
     if (url == 'web') {
       localStorage.clear();
     }
-    this.router.navigate([url]);
+    this.auth.redirectTo(url);
   }
 
   InitMenu() {
@@ -85,8 +91,7 @@ export class PanelAdmin implements OnInit {
       },
       {
         title: 'Gestión de Miembros', icon: null, bi: 'bi-people', id: 'miembros', role: 'ADMIN', options: [
-          { title: 'Lista de Miembros', route: 'miembros', role: 'ADMIN', icon: null, bi: 'bi-person-check' },
-          { title: 'Registro Nuevo', route: 'registro-miembros', role: 'ADMIN,RECEPCIONISTA', icon: null, bi: 'bi-person-plus' },
+          { title: 'Lista de Miembros', route: 'miembros', role: 'ADMIN, ENTRENADOR', icon: null, bi: 'bi-person-check' },
         ]
       },
       {
@@ -96,8 +101,7 @@ export class PanelAdmin implements OnInit {
       },
       {
         title: 'Nutrición y Ejercicios', icon: null, bi: 'bi-apple', id: 'nutricion', role: 'ADMIN,ENTRENADOR', options: [
-          { title: 'Planes de Dietas', route: 'dietas', role: 'ADMIN,ENTRENADOR', icon: null, bi: 'bi-egg-fried' },
-          { title: 'Rutinas de Ejercicio', route: 'ejercicios', role: 'ADMIN,ENTRENADOR', icon: null, bi: 'bi-activity' },
+          { title: 'Planes de Dietas', route: 'dietas', role: 'ADMIN', icon: null, bi: 'bi-egg-fried' },
         ]
       },
 
@@ -135,7 +139,4 @@ export class PanelAdmin implements OnInit {
     }
   }
 
-  openContent(value: any) {
-    // Lógica para abrir contenido
-  }
 }

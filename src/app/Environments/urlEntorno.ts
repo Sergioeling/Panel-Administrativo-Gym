@@ -3,7 +3,7 @@ export const URLS_ENTORNO = {
     API_ENDPOINT: 'ruta del servidor de producción :p'
   }
   ,local: {
-    API_ENDPOINT: 'http://localhost:8081'
+    API_ENDPOINT: 'http://localhost/Backend/Rutas.php?'
   }
 };
     

@@ -1,1 +1,48 @@
-<p>login works!</p>
+<div class="modern-login-modal">
+    <button type="button" class="close-btn" (click)="activeModal.dismiss('Cross click')" aria-label="Cerrar">
+        <i class="bi bi-x"></i>
+    </button>
+
+    <!-- Formulario -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <div class="form-title">
+            <h2>Iniciar Sesión</h2>
+            <p>Ingresa tus credenciales para acceder</p>
+        </div>
+
+        <!-- Email -->
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="correo" placeholder="tu@email.com">
+            <mat-icon matSuffix>email</mat-icon>
+            <mat-error *ngIf="loginForm.get('correo')?.invalid && loginForm.get('correo')?.touched">
+                {{ getErrorMessage('correo') }}
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Contraseña -->
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Contraseña</mat-label>
+            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="contrasena"
+                placeholder="Tu contraseña">
+            <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()"
+                [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword">
+                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched">
+                {{ getErrorMessage('contrasena') }}
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Botón de submit -->
+        <button mat-raised-button color="primary" type="submit" class="login-button full-width" [disabled]="isLoading">
+            <span *ngIf="!isLoading">Iniciar Sesión</span>
+            <span *ngIf="isLoading" class="loading-text">
+                <mat-icon class="spinning">refresh</mat-icon>
+                Iniciando sesión...
+            </span>
+        </button>
+
+    </form>
+
+</div>

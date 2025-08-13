@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { PanelAdmin } from "./panel-admin";
-import { Dietas } from './dashboard/dietas/dietas';
+import path from 'path';
 
 const userRoutes = {
   ADMIN: [
@@ -22,7 +22,7 @@ const userRoutes = {
   RECEPCIONISTA: [
     { path: 'registro-miembros', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } },
     { path: 'pagos-recepcion', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } }
-  ]
+  ],
 };
 
 const routes: Routes = [
