@@ -32,7 +32,6 @@ export class AuthServices {
   private platformId = inject(PLATFORM_ID);
   readonly panelOpenState = signal(false);
   private appReady = signal(false);
-  private initialNavigationDone = false;
 
 
   constructor() {
@@ -91,18 +90,10 @@ export class AuthServices {
 
   private forceLogout() {
     console.error('ACCESO BLOQUEADO POR SEGURIDAD');
-
-    // Limpiar TODO
     this.clearStorage();
     this.role.next('');
-
-    // Bloquear temporalmente (opcional)
     localStorage.setItem('security_block', Date.now().toString());
-
-    // Redirigir a web inmediatamente
     this.route.navigate(['/web'], { replaceUrl: true });
-
-    // Mostrar alerta de seguridad
     Swal.fire({
       title: 'Acceso Bloqueado',
       text: 'Se detectó manipulación del sistema. Por seguridad, se cerró la sesión.',
@@ -113,7 +104,6 @@ export class AuthServices {
     });
   }
 
-  // Registrar violaciones de seguridad
   private logSecurityViolation(reason: string) {
     const violation = {
       timestamp: new Date().toISOString(),
@@ -122,10 +112,7 @@ export class AuthServices {
       url: window.location.href
     };
 
-    console.error('🔐 VIOLACIÓN DE SEGURIDAD:', violation);
-
-    // Podrías enviar esto a tu backend para auditoría
-    // this.http.post('security/violation', violation).subscribe();
+    console.error(violation);
   }
 
   private isBrowser(): boolean {
@@ -138,14 +125,10 @@ export class AuthServices {
       if (token && !this.isTokenExpired()) {
         this.setRole();
       }
-      // Marcar la app como lista
       this.appReady.set(true);
     }
   }
 
-  // ============ MÉTODOS DE DECODIFICACIÓN JWT ============
-
-  // Decodificar el token JWT y extraer datos del usuario
   decodeToken(): any {
     const token = this.getToken();
     if (!token) return null;
@@ -165,38 +148,28 @@ export class AuthServices {
     }
   }
 
-  // Obtener datos del usuario desde el token
   getUserFromToken(): any {
     return this.decodeToken();
   }
 
-  // Método de prueba para verificar decodificación
   testTokenDecoding(): void {
     const tokenData = this.decodeToken();
     if (tokenData) {
-      console.log('=== DATOS DECODIFICADOS DEL TOKEN ===');
-      console.log(tokenData);
-    } else {
-      console.log('No se pudo decodificar el token');
+
     }
   }
 
-  // ============ MÉTODOS DE SEGURIDAD ============
-
-  // Generar checksum para validar integridad
   private generateTokenChecksum(token: string): string {
     const hash = btoa(token.split('').reverse().join('')).slice(0, 16);
     return hash;
   }
 
-  // Generar checksum para todos los datos del usuario
   private generateDataChecksum(userData: any): string {
     const dataString = JSON.stringify(userData);
     const hash = btoa(dataString.split('').reverse().join('')).slice(0, 20);
     return hash;
   }
 
-  // Validar integridad completa del localStorage
   validateTokenIntegrity(): boolean {
     try {
       const token = localStorage.getItem('token');
@@ -207,14 +180,12 @@ export class AuthServices {
         return false;
       }
 
-      // Verificar integridad del token
       const expectedTokenChecksum = this.generateTokenChecksum(token);
       if (storedTokenChecksum !== expectedTokenChecksum) {
         console.warn('Token manipulado detectado');
         return false;
       }
 
-      // Verificar integridad de los datos del usuario
       const userData = {
         Role: localStorage.getItem('Role'),
         id_Usuario: localStorage.getItem('id_Usuario'),
@@ -236,8 +207,6 @@ export class AuthServices {
     }
   }
 
-  // ============ MÉTODOS DE AUTENTICACIÓN ============
-
   login(credenciales: { correo: string; contrasena: string }): Observable<any> {
     return new Observable(observer => {
       this.http.login(credenciales).subscribe({
@@ -252,25 +221,18 @@ export class AuthServices {
               correo: response.data.usuario.correo
             };
 
-            // Guardar todos los datos
             this.setStorage({ item: 'token', value: token });
             this.setStorage({ item: 'Role', value: userData.Role });
             this.setStorage({ item: 'id_Usuario', value: userData.id_Usuario });
             this.setStorage({ item: 'user_id', value: userData.user_id });
             this.setStorage({ item: 'nombre', value: userData.nombre });
             this.setStorage({ item: 'correo', value: userData.correo });
-
-            // Generar y guardar checksums de seguridad
             this.setStorage({ item: 'token_checksum', value: this.generateTokenChecksum(token) });
             this.setStorage({ item: 'data_checksum', value: this.generateDataChecksum(userData) });
-
-            // Actualizar rol actual
             this.setRole();
 
-            // Marcar la app como lista después del login
             this.appReady.set(true);
 
-            // Mostrar mensaje de éxito
             Swal.fire({
               title: '¡Bienvenido!',
               text: `Hola ${response.data.usuario.nombre}`,
@@ -302,7 +264,7 @@ export class AuthServices {
     if (this.isBrowser()) {
       this.clearStorage();
       this.role.next('');
-      this.route.navigate(['/web']);  // Cambiar a /web
+      this.route.navigate(['/web']);
 
       Swal.fire({
         title: 'Sesión Cerrada',
@@ -328,13 +290,13 @@ export class AuthServices {
   }
 
   getUserRole(): string | null {
-    // Priorizar datos del token sobre localStorage
     const tokenData = this.decodeToken();
     if (tokenData?.rol) {
-      return tokenData.rol.toUpperCase();
+      const tokenRole = tokenData.rol.toUpperCase();
+      return tokenRole;
     }
-    // Fallback al localStorage
-    return this.isBrowser() ? localStorage.getItem('Role') : null;
+    const storageRole = this.isBrowser() ? localStorage.getItem('Role') : null;
+    return storageRole;
   }
 
   hasRole(requiredRole: string | string[]): boolean {
@@ -342,8 +304,9 @@ export class AuthServices {
     if (!userRole) return false;
 
     if (Array.isArray(requiredRole)) {
-      return requiredRole.includes(userRole.toLowerCase());
+      return requiredRole.some(role => userRole.toLowerCase() === role.toLowerCase());
     }
+
     return userRole.toLowerCase() === requiredRole.toLowerCase();
   }
 
@@ -352,10 +315,8 @@ export class AuthServices {
 
     const token = this.getToken();
     if (!token) return false;
-
-    // Verificar integridad del localStorage (SÚPER ESTRICTO)
     if (!this.validateTokenIntegrity()) {
-      console.warn('🚨 Integridad comprometida en isAuthenticated()');
+      console.warn('Integridad comprometida en isAuthenticated()');
       this.forceLogout();
       return false;
     }
@@ -373,10 +334,8 @@ export class AuthServices {
     if (!this.isBrowser()) return null;
 
     const token = localStorage.getItem('token');
-
-    // Validación adicional cada vez que se obtiene el token
     if (token && !this.quickIntegrityCheck()) {
-      console.warn('🚨 Token comprometido detectado');
+      console.warn('Token comprometido detectado');
       this.forceLogout();
       return null;
     }
@@ -384,7 +343,6 @@ export class AuthServices {
     return token;
   }
 
-  // Verificación rápida de integridad
   private quickIntegrityCheck(): boolean {
     try {
       const token = localStorage.getItem('token');
@@ -398,7 +356,6 @@ export class AuthServices {
     }
   }
 
-  //GESTIÓN DE ROLES
   setRole() {
     if (this.isBrowser()) {
       const ses = localStorage.getItem('Role');
@@ -415,29 +372,23 @@ export class AuthServices {
     return this.role.getValue() ? this.role.getValue() : false;
   }
 
-  // GESTIÓN DE USUARIOS
   getIdUser(): number {
-    // Priorizar datos del token
     const tokenData = this.decodeToken();
     if (tokenData?.id) {
       return parseInt(tokenData.id);
     }
-    // Fallback al localStorage
     return this.isBrowser() ? parseInt(this.getStorage('id_Usuario') || '0') : 0;
   }
 
   getUser(): string {
-    // Priorizar datos del token
     const tokenData = this.decodeToken();
     if (tokenData?.user_id) {
       return tokenData.user_id;
     }
-    // Fallback al localStorage
     return this.isBrowser() ? (this.getStorage('user_id') || '0') : '0';
   }
 
   getUserName(): string {
-    // Para el nombre, usar localStorage ya que no está en el token
     return this.isBrowser() ? this.getStorage('nombre') || 'Usuario' : 'Usuario';
   }
 

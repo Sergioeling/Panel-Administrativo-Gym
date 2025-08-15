@@ -85,34 +85,32 @@ export class PanelAdmin implements OnInit {
   InitMenu() {
     this.menu = [
       {
-        title: 'Dashboard', icon: null, bi: 'bi-speedometer2', id: 'dashboard', options: [
-          { title: 'Inicio', route: 'inicio', role: 'general', icon: null, bi: 'bi-house' },
+        title: 'Dashboard', icon: null, bi: 'bi-house', id: 'dashboard', role: '', options: [
+          { title: 'Inicio', route: 'inicio', role: '', icon: null, bi: 'bi-house-door' },
+          { title: 'Mi Perfil', route: 'perfil', role: '', icon: null, bi: 'bi-person' },
         ]
       },
       {
-        title: 'Gestión de Miembros', icon: null, bi: 'bi-people', id: 'miembros', role: 'ADMIN', options: [
-          { title: 'Lista de Miembros', route: 'miembros', role: 'ADMIN, ENTRENADOR', icon: null, bi: 'bi-person-check' },
+        title: 'Administración', icon: null, bi: 'bi-gear', id: 'admin', role: 'ADMIN', options: [
+          { title: 'Lista de Usuarios', route: 'miembros', role: 'ADMIN', icon: null, bi: 'bi-people' },
         ]
       },
       {
-        title: 'Personal', icon: null, bi: 'bi-people-fill', id: 'personal', role: 'ADMIN', options: [
-          { title: 'Entrenadores', route: 'entrenadores', role: 'ADMIN', icon: null, bi: 'bi-person-arms-up' },
+        title: 'Gestión de Dietas', icon: null, bi: 'bi-egg-fried', id: 'dietas', role: 'ADMIN,NUTRICIONISTA,USUARIO', options: [
+          { title: 'Planes de Dietas', route: 'dietas', role: 'ADMIN,NUTRICIONISTA,USUARIO', icon: null, bi: 'bi-egg-fried' },
         ]
       },
-      {
-        title: 'Nutrición y Ejercicios', icon: null, bi: 'bi-apple', id: 'nutricion', role: 'ADMIN,ENTRENADOR', options: [
-          { title: 'Planes de Dietas', route: 'dietas', role: 'ADMIN', icon: null, bi: 'bi-egg-fried' },
-        ]
-      },
-
 
     ];
   }
 
   activeButtons(role: any) {
-    if (!role) return true;
-    const roles = role.split(',');
-    return roles.includes(this.userRole);
+    // Si no hay role especificado, es accesible para todos
+    if (!role || role === '') return true;
+
+    const roles = role.split(',').map((r: string) => r.trim());
+    const hasAccess = roles.includes(this.userRole);
+    return hasAccess;
   }
 
   isActiveRoute(route: string): boolean {
@@ -135,7 +133,8 @@ export class PanelAdmin implements OnInit {
     if (role == undefined) {
       return false;
     } else {
-      return !this.activeButtons(role);
+      const shouldHide = !this.activeButtons(role);
+      return shouldHide;
     }
   }
 

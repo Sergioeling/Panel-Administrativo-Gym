@@ -5,23 +5,14 @@ import path from 'path';
 
 const userRoutes = {
   ADMIN: [
-    { path: 'miembros', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } },
-    { path: 'entrenadores', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } },
+    { path: 'miembros', loadComponent: () => import('./dashboard/lista-users/lista-users').then(m => m.ListaUsers), data: { permission: null } },
     { path: 'dietas', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } },
-    { path: 'ejercicios', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } },
-    { path: 'pagos', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } },
-    { path: 'equipos', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } },
-    { path: 'horarios', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } },
-    { path: 'reportes', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } }
   ],
-  ENTRENADOR: [
-    { path: 'mis-clientes', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } },
-    { path: 'rutinas', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } },
-    { path: 'dietas-entrenador', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } }
+  NUTRICIONISTA: [
+    { path: 'dietas', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } },
   ],
-  RECEPCIONISTA: [
-    { path: 'registro-miembros', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } },
-    { path: 'pagos-recepcion', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } }
+  USUARIO: [
+    { path: 'dietas', loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas), data: { permission: null } },
   ],
 };
 
@@ -32,20 +23,20 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'inicio', 
+        redirectTo: 'inicio',
         pathMatch: 'full'
       },
       {
         path: 'inicio',
-        loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas) 
+        loadComponent: () => import('./dashboard/inicio/inicio').then(m => m.Inicio)
       },
       {
         path: 'perfil',
-        loadComponent: () => import('./dashboard/dietas/dietas').then(m => m.Dietas)
+        loadComponent: () => import('./dashboard/perfil/perfil').then(m => m.Perfil)
       },
-      ...userRoutes.ADMIN.map(route => ({ ...route, data: { userRole: 'ADMIN', permission: route.data.permission }})),
-      ...userRoutes.ENTRENADOR.map(route => ({ ...route, data: { userRole: 'ENTRENADOR', permission: route.data.permission }})),
-      ...userRoutes.RECEPCIONISTA.map(route => ({ ...route, data: { userRole: 'RECEPCIONISTA', permission: route.data.permission }}))
+      ...userRoutes.ADMIN.map(route => ({ ...route, data: { userRole: 'ADMIN', permission: route.data.permission } })),
+      ...userRoutes.NUTRICIONISTA.map(route => ({ ...route, data: { userRole: 'NUTRICIONISTA', permission: route.data.permission } })),
+      ...userRoutes.USUARIO.map(route => ({ ...route, data: { userRole: 'USUARIO', permission: route.data.permission } }))
     ]
   }
 ];
