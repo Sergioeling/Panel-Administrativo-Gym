@@ -24,13 +24,16 @@ interface LoginResponse {
 @Injectable({
   providedIn: 'root'
 })
-export class AuthServices { 
+export class AuthServices {
   public role = new BehaviorSubject<string>('GENERAL');
   private route = inject(Router);
   private toastr = inject(ToastrService);
   private http = inject(HttpServices);
   private platformId = inject(PLATFORM_ID);
   readonly panelOpenState = signal(false);
+  private appReady = signal(false);
+  private initialNavigationDone = false;
+
 
   constructor() {
     this.role.next('');
@@ -38,32 +41,30 @@ export class AuthServices {
     this.startSecurityMonitoring();
   }
 
+  isAppReady(): boolean {
+    return this.appReady();
+  }
+
   private startSecurityMonitoring() {
     if (this.isBrowser()) {
-      // Verificar integridad cada 5 segundos (SÚPER AGRESIVO)
       setInterval(() => {
         if (this.getToken() && !this.validateTokenIntegrity()) {
-          console.warn('🚨 ¡MANIPULACIÓN DETECTADA! Cerrando sesión por seguridad.');
+          console.warn('¡MANIPULACIÓN DETECTADA! Cerrando sesión por seguridad.');
           this.logSecurityViolation('Verificación periódica detectó manipulación');
           this.forceLogout();
         }
-      }, 5000); // 5 segundos
-
-      // Detectar cambios en localStorage en tiempo real
+      }, 5000);
       window.addEventListener('storage', (e) => {
         if (e.key && ['token', 'Role', 'nombre', 'correo', 'id_Usuario', 'user_id'].includes(e.key)) {
-          console.warn('🚨 ¡MANIPULACIÓN EN TIEMPO REAL DETECTADA!');
+          console.warn('¡MANIPULACIÓN EN TIEMPO REAL DETECTADA!');
           this.logSecurityViolation(`Campo manipulado: ${e.key}`);
           this.forceLogout();
         }
       });
-
-      // Monitoreo adicional con MutationObserver para cambios de DOM
       this.startDOMMonitoring();
     }
   }
 
-  // Monitoreo adicional del DOM para detectar scripts maliciosos
   private startDOMMonitoring() {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
@@ -72,7 +73,7 @@ export class AuthServices {
             if (node.nodeType === Node.ELEMENT_NODE) {
               const element = node as Element;
               if (element.tagName === 'SCRIPT' && !element.hasAttribute('data-trusted')) {
-                console.warn('🚨 Script no autorizado detectado');
+                console.warn('Script no autorizado detectado');
                 this.logSecurityViolation('Script malicioso insertado');
                 this.forceLogout();
               }
@@ -88,23 +89,22 @@ export class AuthServices {
     });
   }
 
-  // Logout forzado con bloqueo total
   private forceLogout() {
-    console.error('🔒 ACCESO BLOQUEADO POR SEGURIDAD');
-    
+    console.error('ACCESO BLOQUEADO POR SEGURIDAD');
+
     // Limpiar TODO
     this.clearStorage();
     this.role.next('');
-    
+
     // Bloquear temporalmente (opcional)
     localStorage.setItem('security_block', Date.now().toString());
-    
+
     // Redirigir a web inmediatamente
     this.route.navigate(['/web'], { replaceUrl: true });
-    
+
     // Mostrar alerta de seguridad
     Swal.fire({
-      title: '🚨 Acceso Bloqueado',
+      title: 'Acceso Bloqueado',
       text: 'Se detectó manipulación del sistema. Por seguridad, se cerró la sesión.',
       icon: 'error',
       confirmButtonText: 'Entendido',
@@ -121,9 +121,9 @@ export class AuthServices {
       userAgent: navigator.userAgent,
       url: window.location.href
     };
-    
+
     console.error('🔐 VIOLACIÓN DE SEGURIDAD:', violation);
-    
+
     // Podrías enviar esto a tu backend para auditoría
     // this.http.post('security/violation', violation).subscribe();
   }
@@ -138,8 +138,10 @@ export class AuthServices {
       if (token && !this.isTokenExpired()) {
         this.setRole();
       }
+      // Marcar la app como lista
+      this.appReady.set(true);
     }
-  } 
+  }
 
   // ============ MÉTODOS DE DECODIFICACIÓN JWT ============
 
@@ -200,7 +202,7 @@ export class AuthServices {
       const token = localStorage.getItem('token');
       const storedTokenChecksum = localStorage.getItem('token_checksum');
       const storedDataChecksum = localStorage.getItem('data_checksum');
-      
+
       if (!token || !storedTokenChecksum || !storedDataChecksum) {
         return false;
       }
@@ -241,7 +243,6 @@ export class AuthServices {
       this.http.login(credenciales).subscribe({
         next: (response: LoginResponse) => {
           if (response.status === 'success' && response.data?.token) {
-            // Guardar token y generar checksum para seguridad
             const token = response.data.token;
             const userData = {
               Role: response.data.usuario.rol.toUpperCase(),
@@ -265,6 +266,9 @@ export class AuthServices {
 
             // Actualizar rol actual
             this.setRole();
+
+            // Marcar la app como lista después del login
+            this.appReady.set(true);
 
             // Mostrar mensaje de éxito
             Swal.fire({
@@ -299,7 +303,7 @@ export class AuthServices {
       this.clearStorage();
       this.role.next('');
       this.route.navigate(['/web']);  // Cambiar a /web
-      
+
       Swal.fire({
         title: 'Sesión Cerrada',
         text: 'Has cerrado sesión exitosamente',
@@ -345,38 +349,38 @@ export class AuthServices {
 
   isAuthenticated(): boolean {
     if (!this.isBrowser()) return false;
-    
+
     const token = this.getToken();
     if (!token) return false;
-    
+
     // Verificar integridad del localStorage (SÚPER ESTRICTO)
     if (!this.validateTokenIntegrity()) {
       console.warn('🚨 Integridad comprometida en isAuthenticated()');
       this.forceLogout();
       return false;
     }
-    
+
     // Verificar expiración
     if (this.isTokenExpired()) {
       this.logout();
       return false;
     }
-    
+
     return true;
   }
 
   getToken(): string | null {
     if (!this.isBrowser()) return null;
-    
+
     const token = localStorage.getItem('token');
-    
+
     // Validación adicional cada vez que se obtiene el token
     if (token && !this.quickIntegrityCheck()) {
       console.warn('🚨 Token comprometido detectado');
       this.forceLogout();
       return null;
     }
-    
+
     return token;
   }
 
@@ -385,9 +389,9 @@ export class AuthServices {
     try {
       const token = localStorage.getItem('token');
       const tokenChecksum = localStorage.getItem('token_checksum');
-      
+
       if (!token || !tokenChecksum) return false;
-      
+
       return this.generateTokenChecksum(token) === tokenChecksum;
     } catch {
       return false;
@@ -438,16 +442,13 @@ export class AuthServices {
   }
 
   getUserEmail(): string {
-    // Priorizar datos del token
     const tokenData = this.decodeToken();
     if (tokenData?.correo) {
       return tokenData.correo;
     }
-    // Fallback al localStorage
     return this.isBrowser() ? this.getStorage('correo') || '' : '';
   }
 
-  //STORAGE MANAGEMENT
   setStorage(values: any) {
     if (this.isBrowser()) {
       localStorage.setItem(values.item, values.value);
@@ -470,13 +471,11 @@ export class AuthServices {
     }
   }
 
-  //NAVEGACIÓN
   redirectTo(url: string) {
     this.setRole();
     this.route.navigate([url], { replaceUrl: true });
   }
 
-  //GESTIÓN DE MENÚ
   setMenu(value: any) {
     this.panelOpenState.set(value);
   }
@@ -485,7 +484,6 @@ export class AuthServices {
     return this.panelOpenState;
   }
 
-  // ============ MÉTODOS DE UTILIDAD ============
 
   generateNotification(message: string, title: string, type: string) {
     // @ts-ignore
@@ -499,32 +497,7 @@ export class AuthServices {
       this.generateNotification('La tabla ' + tbl + ' no cuenta con registros', 'Error', 'error');
   }
 
-  // Método para verificar permisos
-  checkPermissions(permission: string): boolean {
-    const userRole = this.getUserRole();
-    if (!userRole) return false;
 
-    // Definir permisos por rol
-    const rolePermissions = {
-      'ADMIN': ['*'], // Admin tiene todos los permisos
-      'NUTRICIONISTA': ['dietas', 'usuarios', 'reportes'],
-      'USUARIO': ['perfil', 'dietas_asignadas']
-    };
-
-    const permissions = rolePermissions[userRole as keyof typeof rolePermissions] || [];
-    return permissions.includes('*') || permissions.includes(permission);
-  }
-
-  checkPermissionsUser(permissions: string) {
-    if (this.isBrowser()) {
-      const activePermissions = localStorage.getItem('PERMISSIONS');
-      if (activePermissions) {
-        const perm = activePermissions.split(',');
-        return perm.includes(permissions);
-      }
-    }
-    return false;
-  }
 
   checkGeneralRutes(type: any, state?: any) {
     if (this.isBrowser()) {
@@ -533,7 +506,7 @@ export class AuthServices {
     return false;
   }
 
-  // Métodos de compatibilidad (mantener para no romper código existente)
+
   DataByTokenPromise(data: any, Ruta: string) {
     return new Promise((resolve, reject) => {
       this.http.changeDataByToken(data, Ruta).subscribe(

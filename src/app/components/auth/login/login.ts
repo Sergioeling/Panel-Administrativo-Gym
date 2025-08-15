@@ -50,16 +50,19 @@ export class Login {
   onSubmit() {
     if (this.loginForm.valid && !this.isLoading) {
       this.isLoading = true;
-      
+
       const credenciales = this.loginForm.value;
-      
+
       this.authService.login(credenciales).subscribe({
         next: (response) => {
-          // Redirigir según el rol
-          const userRole = this.authService.getUserRole();
-          if (userRole) {
-            this.router.navigate(['/dashboard']);
-          }
+          this.activeModal.close('success');
+          setTimeout(() => {
+            const userRole = this.authService.getUserRole();
+            if (userRole) {
+              this.router.navigate(['/dashboard']);
+            }
+          }, 100);
+
           this.isLoading = false;
         },
         error: (error) => {
@@ -81,19 +84,19 @@ export class Login {
 
   getErrorMessage(fieldName: string): string {
     const field = this.loginForm.get(fieldName);
-    
+
     if (field?.hasError('required')) {
       return `${fieldName === 'correo' ? 'Email' : 'Contraseña'} es requerido`;
     }
-    
+
     if (field?.hasError('email')) {
       return 'Email no válido';
     }
-    
+
     if (field?.hasError('minlength')) {
       return 'La contraseña debe tener al menos 6 caracteres';
     }
-    
+
     return '';
   }
 
