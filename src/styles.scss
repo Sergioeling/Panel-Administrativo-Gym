@@ -29,4 +29,39 @@ body {
   border-bottom: 5px solid #3a6c85;
   border-radius: 12px;
 }
+/*----------*/
+.full-width {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.custom-input .mat-form-field-outline {
+  color: transparent; 
+}
+
+.custom-input .mat-form-field-outline-start,
+.custom-input .mat-form-field-outline-end {
+  border-radius: 30px; 
+}
+
+.custom-input .mat-form-field-outline-thick {
+  border-radius: 30px; 
+}
+
+.custom-input .mat-form-field-flex {
+  background-color: rgb(255, 255, 255); 
+  border-radius: 30px;      
+}
+
+::ng-deep .custom-input.mat-form-field-appearance-outline .mat-form-field-flex {
+  background-color: white !important;
+  border-radius: 30px !important;
+}
+
+::ng-deep .custom-input.mat-form-field-appearance-outline .mat-form-field-outline,
+::ng-deep .custom-input.mat-form-field-appearance-outline .mat-form-field-outline-start,
+::ng-deep .custom-input.mat-form-field-appearance-outline .mat-form-field-outline-end,
+::ng-deep .custom-input.mat-form-field-appearance-outline .mat-form-field-outline-thick {
+  border-radius: 30px !important;
+}
 

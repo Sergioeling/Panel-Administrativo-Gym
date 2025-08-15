@@ -1,8 +1,7 @@
 <div class="modern-login-modal">
   <!-- Panel izquierdo con imagen -->
   <div class="modal-left">
-    <!-- <img src="/../../../assets/logo-nutricion.jpg" alt="Logo Nutrición" class="logo" /> -->
-    <img src="/assets/logo-nutricion.jpg" alt="Logo Nutrición" class="logo" />
+    <img src="/assets/logo-nutricion.png" alt="Logo Nutrición" class="logo" />
   </div>
 
   <!-- Panel derecho con formulario -->
@@ -40,7 +39,7 @@
         </mat-error>
       </mat-form-field>
 
-      <!-- Botón -->
+      <!-- Botón Iniciar sesion-->
       <button mat-raised-button color="primary" type="submit" class="login-button" [disabled]="isLoading">
         <span *ngIf="!isLoading">Iniciar sesión</span>
         <span *ngIf="isLoading" class="loading-text">
