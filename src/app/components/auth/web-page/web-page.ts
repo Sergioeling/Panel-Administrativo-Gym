@@ -23,6 +23,7 @@ export class WebPage {
     const modalRef = this.modalService.open(Login, {
       backdrop: 'static',
       size: 'lg',
+      windowClass: 'modal-height-xl' // clase personalizada para altura
     });
   }
  

@@ -29,3 +29,14 @@ body {
   border-bottom: 5px solid #3a6c85;
   border-radius: 12px;
 }
+
+
+.modal-height-xl .modal-dialog {
+  height: 85vh; /* 90% de la altura de la ventana */
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-height-xl .modal-content {
+  flex: 1; /* hace que el contenido llene la altura */
+}

@@ -1,0 +1,112 @@
+.modern-login-modal {
+  display: flex;
+  max-width: 800px;
+  width: 100%;
+  height: 85vh;
+  background: #ffffff; //f5fdf8
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+
+  .modal-left {
+    background: var(--primary-dark);
+    color: white;
+    width: 50%; //40
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+
+    .logo {
+      width: 100%; //150px
+      //margin-bottom: 20px;//20px
+      height: 85vh;
+      //height: auto;
+    }
+  }
+
+  /* Íconos de Angular Material */
+  mat-icon {
+    color: white !important;
+  }
+
+  .modal-right {
+    background: linear-gradient(180deg, var(--primary-light), var(--primary-dark));
+    width: 50%;
+    padding: 30px; //30
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+
+      mat-icon {
+        font-size: 22px;
+        color: #ff0000;
+      }
+    }
+
+    .form-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      color: #ffffff;
+
+      .icon-title {
+        font-size: 30px;
+      }
+
+      h2 {
+        font-size: 1.6rem;
+        font-weight: 600;
+      }
+    }
+
+    .full-width {
+      width: 100%;
+      margin-bottom: 15px;
+      border-radius: 6px; /* esquinas ligeramente circulares */
+    }
+
+    .login-button {
+      background: var(--accent-color);
+      color: white;
+      font-weight: 600;
+      padding: 10px 0;
+      border-radius: 6px; /* esquinas ligeramente circulares */
+
+      &:hover {
+        background: var(--primary-color);
+      }
+    }
+
+    .loading-text {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      .spinning {
+        animation: spin 1s linear infinite;
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
