@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { PanelAdmin } from "./panel-admin";
-import path from 'path';
+import { authGuard } from '../core/guards/auth.guard';
 
 const userRoutes = {
   ADMIN: [
@@ -28,15 +28,17 @@ const routes: Routes = [
       },
       {
         path: 'inicio',
-        loadComponent: () => import('./dashboard/inicio/inicio').then(m => m.Inicio)
+        loadComponent: () => import('./dashboard/inicio/inicio').then(m => m.Inicio),
+        canActivate: [authGuard]
       },
       {
         path: 'perfil',
-        loadComponent: () => import('./dashboard/perfil/perfil').then(m => m.Perfil)
+        loadComponent: () => import('./dashboard/perfil/perfil').then(m => m.Perfil),
+        canActivate: [authGuard]
       },
-      ...userRoutes.ADMIN.map(route => ({ ...route, data: { userRole: 'ADMIN', permission: route.data.permission } })),
-      ...userRoutes.NUTRICIONISTA.map(route => ({ ...route, data: { userRole: 'NUTRICIONISTA', permission: route.data.permission } })),
-      ...userRoutes.USUARIO.map(route => ({ ...route, data: { userRole: 'USUARIO', permission: route.data.permission } }))
+      ...userRoutes.ADMIN.map(route => ({...route,canActivate: [authGuard],data: { userRole: 'ADMIN', permission: route.data.permission }})),
+      ...userRoutes.NUTRICIONISTA.map(route => ({...route,canActivate: [authGuard],data: { userRole: 'NUTRICIONISTA', permission: route.data.permission }})),
+      ...userRoutes.USUARIO.map(route => ({...route,canActivate: [authGuard],data: { userRole: 'USUARIO', permission: route.data.permission }}))
     ]
   }
 ];
