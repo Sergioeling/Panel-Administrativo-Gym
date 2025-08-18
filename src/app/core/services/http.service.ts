@@ -77,6 +77,7 @@ export class HttpServices {
   }
 
 
+  //services
   obtenerDietas(): Observable<any> {
     return this.get('obtener-dietas');
   }
