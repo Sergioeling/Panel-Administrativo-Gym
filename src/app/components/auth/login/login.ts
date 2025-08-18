@@ -1,5 +1,4 @@
-//import { Component, inject } from '@angular/core';
-import { Component, inject, ViewEncapsulation } from '@angular/core';//LALO
+import { Component, inject, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthServices } from '../../../core/services/auth.service';
@@ -25,9 +24,8 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     MatIconModule
   ],
   templateUrl: './login.html',
-  //styleUrl: './login.scss'
-  styleUrls: ['./login.scss'], // 👈 LALO
- encapsulation: ViewEncapsulation.None   // 👈 LALO
+  styleUrls: ['./login.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class Login {
   public activeModal = inject(NgbActiveModal);
@@ -63,6 +61,7 @@ export class Login {
             const userRole = this.authService.getUserRole();
             if (userRole) {
               this.router.navigate(['/dashboard']);
+              window.location.reload();
             }
           }, 100);
 

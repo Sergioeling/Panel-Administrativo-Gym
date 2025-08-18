@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { WebPage } from './components/auth/web-page/web-page';
+import { WebPage } from './components/web-page/web-page';
 import { Login } from './components/auth/login/login';
 import { authGuard } from './core/guards/auth.guard';
 

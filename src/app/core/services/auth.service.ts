@@ -32,12 +32,128 @@ export class AuthServices {
   private platformId = inject(PLATFORM_ID);
   readonly panelOpenState = signal(false);
   private appReady = signal(false);
+  private secretKey = 'PowerGym2024SecretKey!@#$';
 
 
   constructor() {
     this.role.next('');
     this.initializeAuth();
     this.startSecurityMonitoring();
+  }
+
+  private btoa64(str: string): string {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+
+  private atob64(str: string): string {
+    return decodeURIComponent(escape(atob(str)));
+  }
+
+  private encrypt(text: string): string {
+    if (!text) return '';
+    
+    let encrypted = '';
+    for (let i = 0; i < text.length; i++) {
+      const textChar = text.charCodeAt(i);
+      const keyChar = this.secretKey.charCodeAt(i % this.secretKey.length);
+      encrypted += String.fromCharCode(textChar ^ keyChar);
+    }
+    
+    return this.btoa64(encrypted);
+  }
+
+  private decrypt(encryptedText: string): string {
+    if (!encryptedText) return '';
+    
+    try {
+      const encrypted = this.atob64(encryptedText);
+      let decrypted = '';
+      
+      for (let i = 0; i < encrypted.length; i++) {
+        const encryptedChar = encrypted.charCodeAt(i);
+        const keyChar = this.secretKey.charCodeAt(i % this.secretKey.length);
+        decrypted += String.fromCharCode(encryptedChar ^ keyChar);
+      }
+      
+      return decrypted;
+    } catch (error) {
+      console.error('Error decrypting:', error);
+      return '';
+    }
+  }
+
+  private setSecureItem(key: string, value: string): void {
+    if (this.isBrowser() && value) {
+      const encryptedValue = this.encrypt(value);
+      localStorage.setItem(key, encryptedValue);
+    }
+  }
+
+  private getSecureItem(key: string): string {
+    if (!this.isBrowser()) return '';
+    
+    const encryptedValue = localStorage.getItem(key);
+    if (!encryptedValue) return '';
+    
+    return this.decrypt(encryptedValue);
+  }
+
+  private cleanOldStorage(): void {
+    if (!this.isBrowser()) return;
+    
+    const keysToCheck = ['token', 'Role', 'id_Usuario', 'user_id', 'nombre', 'correo', 'token_checksum', 'data_checksum'];
+    
+    keysToCheck.forEach(key => {
+      const value = localStorage.getItem(key);
+      if (value) {
+        try {
+          this.decrypt(value);
+        } catch {
+          localStorage.removeItem(key);
+        }
+      }
+    });
+  }
+
+  private migrateOldData(): void {
+    if (!this.isBrowser()) return;
+    
+    const keysToMigrate = ['token', 'Role', 'id_Usuario', 'user_id', 'nombre', 'correo', 'token_checksum', 'data_checksum'];
+    const oldData: { [key: string]: string } = {};
+    
+    keysToMigrate.forEach(key => {
+      const value = localStorage.getItem(key);
+      if (value) {
+        try {
+          this.decrypt(value);
+        } catch {
+          oldData[key] = value;
+          localStorage.removeItem(key);
+        }
+      }
+    });
+    
+    Object.entries(oldData).forEach(([key, value]) => {
+      this.setSecureItem(key, value);
+    });
+  }
+
+  forceCleanStorage(): void {
+    if (this.isBrowser()) {
+      localStorage.clear();
+    }
+  }
+
+  showStorageContents(): void {
+    if (this.isBrowser()) {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key) {
+          const encryptedValue = localStorage.getItem(key);
+          const decryptedValue = this.getSecureItem(key);
+        }
+      }
+    }
   }
 
   isAppReady(): boolean {
@@ -121,6 +237,7 @@ export class AuthServices {
 
   private initializeAuth() {
     if (this.isBrowser()) {
+      this.migrateOldData();
       const token = this.getToken();
       if (token && !this.isTokenExpired()) {
         this.setRole();
@@ -172,9 +289,9 @@ export class AuthServices {
 
   validateTokenIntegrity(): boolean {
     try {
-      const token = localStorage.getItem('token');
-      const storedTokenChecksum = localStorage.getItem('token_checksum');
-      const storedDataChecksum = localStorage.getItem('data_checksum');
+      const token = this.getSecureItem('token');
+      const storedTokenChecksum = this.getSecureItem('token_checksum');
+      const storedDataChecksum = this.getSecureItem('data_checksum');
 
       if (!token || !storedTokenChecksum || !storedDataChecksum) {
         return false;
@@ -187,11 +304,11 @@ export class AuthServices {
       }
 
       const userData = {
-        Role: localStorage.getItem('Role'),
-        id_Usuario: localStorage.getItem('id_Usuario'),
-        user_id: localStorage.getItem('user_id'),
-        nombre: localStorage.getItem('nombre'),
-        correo: localStorage.getItem('correo')
+        Role: this.getSecureItem('Role'),
+        id_Usuario: this.getSecureItem('id_Usuario'),
+        user_id: this.getSecureItem('user_id'),
+        nombre: this.getSecureItem('nombre'),
+        correo: this.getSecureItem('correo')
       };
 
       const expectedDataChecksum = this.generateDataChecksum(userData);
@@ -212,6 +329,8 @@ export class AuthServices {
       this.http.login(credenciales).subscribe({
         next: (response: LoginResponse) => {
           if (response.status === 'success' && response.data?.token) {
+            localStorage.clear();
+            
             const token = response.data.token;
             const userData = {
               Role: response.data.usuario.rol.toUpperCase(),
@@ -267,8 +386,8 @@ export class AuthServices {
       this.route.navigate(['/web']);
 
       Swal.fire({
-        title: 'Sesión Cerrada',
-        text: 'Has cerrado sesión exitosamente',
+        title: 'Tu sesión ha expirado',
+        text: 'Ingrese sus credenciales nuevamente',
         icon: 'info',
         timer: 1500,
         showConfirmButton: false
@@ -333,7 +452,7 @@ export class AuthServices {
   getToken(): string | null {
     if (!this.isBrowser()) return null;
 
-    const token = localStorage.getItem('token');
+    const token = this.getSecureItem('token');
     if (token && !this.quickIntegrityCheck()) {
       console.warn('Token comprometido detectado');
       this.forceLogout();
@@ -345,8 +464,8 @@ export class AuthServices {
 
   private quickIntegrityCheck(): boolean {
     try {
-      const token = localStorage.getItem('token');
-      const tokenChecksum = localStorage.getItem('token_checksum');
+      const token = this.getSecureItem('token');
+      const tokenChecksum = this.getSecureItem('token_checksum');
 
       if (!token || !tokenChecksum) return false;
 
@@ -358,7 +477,7 @@ export class AuthServices {
 
   setRole() {
     if (this.isBrowser()) {
-      const ses = localStorage.getItem('Role');
+      const ses = this.getSecureItem('Role');
       if (ses) {
         this.role.next(ses.toUpperCase());
       } else {
@@ -402,12 +521,12 @@ export class AuthServices {
 
   setStorage(values: any) {
     if (this.isBrowser()) {
-      localStorage.setItem(values.item, values.value);
+      this.setSecureItem(values.item, values.value);
     }
   }
 
   getStorage(value: any) {
-    return this.isBrowser() ? localStorage.getItem(value) : '';
+    return this.isBrowser() ? this.getSecureItem(value) : '';
   }
 
   removeStorage(value: any) {
@@ -452,7 +571,7 @@ export class AuthServices {
 
   checkGeneralRutes(type: any, state?: any) {
     if (this.isBrowser()) {
-      return this.getRole() == type || type == 'general' && localStorage.getItem('Role') != undefined;
+      return this.getRole() == type || type == 'general' && this.getSecureItem('Role') != undefined;
     }
     return false;
   }
