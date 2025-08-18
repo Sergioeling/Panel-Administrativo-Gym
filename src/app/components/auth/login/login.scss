@@ -9,9 +9,9 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 
   .modal-left {
-    background: var(--primary-dark);
+    background: var(--sidebar-bg);
     color: white;
-    width: 50%; //40
+    width: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -19,10 +19,8 @@
     padding: 20px;
 
     .logo {
-      width: 100%; //150px
-      //margin-bottom: 20px;//20px
-      height: 85vh;
-      //height: auto;
+      width: 430px;
+      height: auto;
     }
   }
 
@@ -42,27 +40,31 @@
 
     .close-btn {
       position: absolute;
-      top: 15px;
-      right: 15px;
+      top: 5px;
+      right: 5px;
       background: transparent;
       border: none;
       cursor: pointer;
+    }
 
-      mat-icon {
-        font-size: 22px;
-        color: #ff0000;
-      }
+    .close-btn i {
+      font-size: 40px;
+      color: #000000;
     }
 
     .form-title {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 10px;
       margin-bottom: 20px;
       color: #ffffff;
 
       .icon-title {
-        font-size: 30px;
+        font-size: 40px;
+        height: 40px;
+        width: 40px;
+        line-height: 40px;
       }
 
       h2 {
@@ -73,8 +75,8 @@
 
     .full-width {
       width: 100%;
-      margin-bottom: 15px;
-      border-radius: 6px; /* esquinas ligeramente circulares */
+      margin-bottom: 20px;
+      border-radius: 6px;
     }
 
     .login-button {
@@ -82,7 +84,10 @@
       color: white;
       font-weight: 600;
       padding: 10px 0;
-      border-radius: 6px; /* esquinas ligeramente circulares */
+      border-radius: 20px;
+      width: 100%;
+      display: block;
+      text-align: center;
 
       &:hover {
         background: var(--primary-color);
@@ -100,6 +105,10 @@
     }
   }
 }
+
+/*--------*/
+
+/*-----------*/
 
 @keyframes spin {
   0% {

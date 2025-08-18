@@ -29,4 +29,41 @@ body {
   border-bottom: 5px solid #3a6c85;
   border-radius: 12px;
 }
+/*----------*/
+/* Contenedor del input */
+.custom-input .mat-mdc-text-field-wrapper {
+  border-radius: 12px !important;  /* Borde redondeado */
+  overflow: hidden;                /* Quita cortes del notch */
+  background-color: var(--accent-color)!important; /* Fondo del input*/
+}
 
+/* Bordes */
+.custom-input .mdc-notched-outline__leading,
+.custom-input .mdc-notched-outline__trailing,
+.custom-input .mdc-notched-outline__notch {
+  border-color: var(--accent-color) !important;
+  border-width: 2px !important;
+  border-radius: 0 !important;
+  background-color: transparent !important; /* Que no pinten raro */
+}
+
+/* Texto */
+.custom-input .mat-mdc-input-element {
+  color: #000000 !important;
+}
+
+/* Label */
+.custom-input .mdc-floating-label {
+  color: #ffffff !important;
+}
+
+/* Placeholder 
+.custom-input .mat-mdc-input-element::placeholder {
+  color: #fff !important;
+  opacity: 0.8 !important;
+}
+*/
+/* Icono */
+.custom-input mat-icon {
+  color: #fff !important;
+}

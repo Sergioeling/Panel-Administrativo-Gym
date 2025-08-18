@@ -1,8 +1,7 @@
 <div class="modern-login-modal">
   <!-- Panel izquierdo con imagen -->
   <div class="modal-left">
-    <!-- <img src="/../../../assets/logo-nutricion.jpg" alt="Logo Nutrición" class="logo" /> -->
-    <img src="/assets/logo-nutricion.jpg" alt="Logo Nutrición" class="logo" />
+    <img src="/assets/logo-nutricion.png" alt="Logo Nutrición" class="logo" />
   </div>
 
   <!-- Panel derecho con formulario -->
@@ -18,8 +17,8 @@
         <h2>Iniciar sesión</h2>
       </div>
 
-      <!-- Usuario -->
-      <mat-form-field appearance="outline" class="full-width">
+      <!-- Usuario appearance="outline"-->
+      <mat-form-field class="custom-input full-width">
         <mat-label>Usuario/Correo Electrónico</mat-label>
         <input matInput type="email" formControlName="correo" placeholder="ejemplo@email.com">
         <mat-icon matSuffix>email</mat-icon>
@@ -29,7 +28,7 @@
       </mat-form-field>
 
       <!-- Contraseña -->
-      <mat-form-field appearance="outline" class="full-width">
+      <mat-form-field class="custom-input full-width">
         <mat-label>Contraseña</mat-label>
         <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="contrasena" placeholder="••••••">
         <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()">
@@ -40,7 +39,7 @@
         </mat-error>
       </mat-form-field>
 
-      <!-- Botón -->
+      <!-- Botón Iniciar sesion-->
       <button mat-raised-button color="primary" type="submit" class="login-button" [disabled]="isLoading">
         <span *ngIf="!isLoading">Iniciar sesión</span>
         <span *ngIf="isLoading" class="loading-text">
