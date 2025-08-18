@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+//import { Component, inject } from '@angular/core';
+import { Component, inject, ViewEncapsulation } from '@angular/core';//LALO
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthServices } from '../../../core/services/auth.service';
@@ -24,7 +25,9 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     MatIconModule
   ],
   templateUrl: './login.html',
-  styleUrl: './login.scss'
+  //styleUrl: './login.scss'
+  styleUrls: ['./login.scss'], // 👈 LALO
+ encapsulation: ViewEncapsulation.None   // 👈 LALO
 })
 export class Login {
   public activeModal = inject(NgbActiveModal);

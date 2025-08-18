@@ -17,8 +17,8 @@
         <h2>Iniciar sesión</h2>
       </div>
 
-      <!-- Usuario -->
-      <mat-form-field appearance="outline" class="full-width">
+      <!-- Usuario appearance="outline"-->
+      <mat-form-field class="custom-input full-width">
         <mat-label>Usuario/Correo Electrónico</mat-label>
         <input matInput type="email" formControlName="correo" placeholder="ejemplo@email.com">
         <mat-icon matSuffix>email</mat-icon>
@@ -28,7 +28,7 @@
       </mat-form-field>
 
       <!-- Contraseña -->
-      <mat-form-field appearance="outline" class="full-width">
+      <mat-form-field class="custom-input full-width">
         <mat-label>Contraseña</mat-label>
         <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="contrasena" placeholder="••••••">
         <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()">

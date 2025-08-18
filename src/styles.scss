@@ -30,38 +30,40 @@ body {
   border-radius: 12px;
 }
 /*----------*/
-.full-width {
-  width: 100%;
-  margin-bottom: 15px;
+/* Contenedor del input */
+.custom-input .mat-mdc-text-field-wrapper {
+  border-radius: 12px !important;  /* Borde redondeado */
+  overflow: hidden;                /* Quita cortes del notch */
+  background-color: var(--accent-color)!important; /* Fondo del input*/
 }
 
-.custom-input .mat-form-field-outline {
-  color: transparent; 
+/* Bordes */
+.custom-input .mdc-notched-outline__leading,
+.custom-input .mdc-notched-outline__trailing,
+.custom-input .mdc-notched-outline__notch {
+  border-color: var(--accent-color) !important;
+  border-width: 2px !important;
+  border-radius: 0 !important;
+  background-color: transparent !important; /* Que no pinten raro */
 }
 
-.custom-input .mat-form-field-outline-start,
-.custom-input .mat-form-field-outline-end {
-  border-radius: 30px; 
+/* Texto */
+.custom-input .mat-mdc-input-element {
+  color: #000000 !important;
 }
 
-.custom-input .mat-form-field-outline-thick {
-  border-radius: 30px; 
+/* Label */
+.custom-input .mdc-floating-label {
+  color: #ffffff !important;
 }
 
-.custom-input .mat-form-field-flex {
-  background-color: rgb(255, 255, 255); 
-  border-radius: 30px;      
+/* Placeholder 
+.custom-input .mat-mdc-input-element::placeholder {
+  color: #fff !important;
+  opacity: 0.8 !important;
 }
-
-::ng-deep .custom-input.mat-form-field-appearance-outline .mat-form-field-flex {
-  background-color: white !important;
-  border-radius: 30px !important;
+*/
+/* Icono */
+.custom-input mat-icon {
+  color: #fff !important;
 }
-
-::ng-deep .custom-input.mat-form-field-appearance-outline .mat-form-field-outline,
-::ng-deep .custom-input.mat-form-field-appearance-outline .mat-form-field-outline-start,
-::ng-deep .custom-input.mat-form-field-appearance-outline .mat-form-field-outline-end,
-::ng-deep .custom-input.mat-form-field-appearance-outline .mat-form-field-outline-thick {
-  border-radius: 30px !important;
-}
-
