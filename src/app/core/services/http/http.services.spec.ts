@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { HttpServices } from './http.service';
 
 describe('HttpServices', () => {

@@ -3,7 +3,7 @@ import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import { MatDrawer, MatDrawerContainer, MatSidenavModule } from "@angular/material/sidenav";
 import { MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
-import { AuthServices } from "../core/services/auth.service";
+import { AuthServices } from '../../core/services/auth/auth.service';
 import { NgClass, NgForOf, NgIf } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { MatCardModule } from '@angular/material/card';

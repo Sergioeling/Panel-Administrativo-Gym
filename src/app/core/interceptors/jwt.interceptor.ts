@@ -1,7 +1,7 @@
 import { HttpInterceptorFn, HttpErrorResponse, HttpEvent } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthServices } from '../services/auth.service';
+import { AuthServices } from '../services/auth/auth.service';
 import { catchError } from 'rxjs/operators';
 import { throwError, Observable } from 'rxjs';
 import Swal from 'sweetalert2';

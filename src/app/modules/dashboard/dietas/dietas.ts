@@ -1,6 +1,6 @@
 import { Component, inject, OnInit} from '@angular/core';
-import { AuthServices } from '../../../core/services/auth.service';
-import { HttpServices } from '../../../core/services/http.service';
+import { AuthServices } from '../../../core/services/auth/auth.service';
+import { HttpServices } from '../../../core/services/http/http.service';
 
 @Component({
   selector: 'app-dietas',

@@ -1,7 +1,7 @@
 import { Component, inject, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthServices } from '../../../core/services/auth.service';
+import { AuthServices } from '../../../core/services/auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';

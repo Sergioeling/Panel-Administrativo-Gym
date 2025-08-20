@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthServices } from '../../core/services/auth.service';
+import { AuthServices } from '../../../core/services/auth/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Login } from '../auth/login/login';
+import { Login } from '../../auth/login/login';
 
 @Component({
   selector: 'app-web-page',
