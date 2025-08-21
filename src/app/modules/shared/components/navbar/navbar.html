@@ -1,1 +1,45 @@
-<p>navbar works!</p>
+<header class="modern-header">
+    <div class="header-left">
+        <button mat-icon-button class="menu-toggle" (click)="onToggleDrawer()" [class.active]="isDrawerOpen">
+            <i class="bi bi-list"></i>
+        </button>
+        <div class="brand-section">
+            <i class="bi bi-lightning-charge brand-icon"></i>
+            <h1 class="brand-title">PowerGym</h1>
+            <span class="brand-subtitle">Admin Panel</span>
+        </div>
+    </div>
+
+    <div class="header-center">
+        <div class="search-container">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" placeholder="Buscar..." class="search-input">
+        </div>
+    </div>
+
+    <div class="header-right">
+        <div class="user-section">
+            <span class="welcome-text">Bienvenido</span>
+            <span class="user-name">{{ user }}</span>
+        </div>
+
+        <div class="header-actions">
+            <button mat-icon-button class="action-btn" title="Notificaciones">
+                <i class="bi bi-bell notification-icon"></i>
+                <span class="notification-badge">3</span>
+            </button>
+
+            <button mat-icon-button class="action-btn" (click)="onRedirectTo('dashboard')" title="Inicio">
+                <i class="bi bi-house"></i>
+            </button>
+
+            <button mat-icon-button class="action-btn" (click)="onRedirectTo('dashboard/perfil')" title="Perfil">
+                <i class="bi bi-person-circle"></i>
+            </button>
+
+            <button mat-icon-button class="action-btn logout-btn" (click)="onRedirectTo('web')" title="Salir">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</header>

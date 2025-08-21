@@ -1,25 +1,10 @@
 <ng-container *ngIf="auth.isAppReady()">
 <div class="gym-landing">
-    <!-- Header -->
-    <header class="header">
-        <div class="nav-container">
-            <div class="logo">
-                <i class="bi bi-lightning-charge"></i>
-                PowerGym
-            </div>
-            <nav class="nav-menu">
-                <a href=""><i class="bi bi-house-door"></i> Inicio</a>
-                <a href="#servicios"><i class="bi bi-heart-pulse"></i> Servicios</a>
-                <a href="#entrenadores"><i class="bi bi-people"></i> Entrenadores</a>
-                <a href="#planes"><i class="bi bi-star"></i> Planes</a>
-                <a href="#contacto"><i class="bi bi-telephone"></i> Contacto</a>
-            </nav>
-            <button class="cta-button" (click)="openAddModal(undefined, false)">
-                <i class="bi bi-box-arrow-in-right"></i>
-                Iniciar Sesión
-            </button>
-        </div>
-    </header>
+    <!-- Navbar Component -->
+    <app-navbar-public 
+        (openLoginModal)="onOpenLoginModal()"
+        (scrollToSection)="onScrollToSection($event)">
+    </app-navbar-public>
 
     <!-- Hero Section -->
     <section class="hero" id="inicio">
@@ -217,67 +202,7 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer" id="contacto">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3><i class="bi bi-lightning-charge"></i> PowerGym</h3>
-                <p>
-                    Tu gimnasio de confianza donde los resultados son reales. Únete a nuestra familia fitness
-                    y descubre de qué estás hecho.
-                </p>
-                <div class="social-links">
-                    <a href="#"><i class="bi bi-facebook"></i></a>
-                    <a href="#"><i class="bi bi-instagram"></i></a>
-                    <a href="#"><i class="bi bi-tiktok"></i></a>
-                    <a href="#"><i class="bi bi-youtube"></i></a>
-                </div>
-            </div>
-
-            <div class="footer-section">
-                <h3><i class="bi bi-geo-alt"></i> Ubicación</h3>
-                <div class="contact-info">
-                    <i class="bi bi-pin-map"></i>
-                    <span>Av. Reforma 123, Centro, Puebla, Pue.</span>
-                </div>
-                <div class="contact-info">
-                    <i class="bi bi-telephone"></i>
-                    <span>(222) 123-4567</span>
-                </div>
-                <div class="contact-info">
-                    <i class="bi bi-envelope"></i>
-                    <span>hola&#64;powergym.com</span>
-                </div>
-                <div class="contact-info">
-                    <i class="bi bi-whatsapp"></i>
-                    <span>WhatsApp: (222) 987-6543</span>
-                </div>
-            </div>
-
-            <div class="footer-section">
-                <h3><i class="bi bi-clock"></i> Horarios</h3>
-                <ul>
-                    <li><i class="bi bi-calendar-week"></i> Lunes a Viernes: 5:00 AM - 11:00 PM</li>
-                    <li><i class="bi bi-calendar-date"></i> Sábados: 6:00 AM - 10:00 PM</li>
-                    <li><i class="bi bi-calendar-day"></i> Domingos: 7:00 AM - 9:00 PM</li>
-                    <li><i class="bi bi-lightning"></i> Acceso 24/7 para miembros Premium y Elite</li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h3><i class="bi bi-lightning"></i> Acceso Rápido</h3>
-                <ul>
-                    <li><a href="#planes"><i class="bi bi-star"></i> Ver Planes</a></li>
-                    <li><a href="#" (click)="openAddModal(undefined, false)"><i class="bi bi-person-circle"></i> Área de
-                            Miembros</a></li>
-                    <li><a href="#servicios"><i class="bi bi-heart-pulse"></i> Nuestros Servicios</a></li>
-                    <li><a href="#contacto"><i class="bi bi-chat-dots"></i> Clase de Prueba Gratis</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="footer-bottom">
-            <p>&copy; 2025 PowerGym. Todos los derechos reservados. | Tu transformación es nuestro compromiso 💪</p>
-        </div>
-    </footer>
+    <!-- Footer Component -->
+    <app-footer-public></app-footer-public>
 </div>
+</ng-container>

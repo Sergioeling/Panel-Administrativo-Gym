@@ -1,2 +1,232 @@
-<p>dietas works!</p>
-jhahah
+<div class="w-full max-w-screen-2xl mx-auto p-4 sm:p-6 bg-[var(--background)] min-h-screen">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div class="flex items-center gap-3">
+      <div class="p-2 rounded-xl bg-gradient-to-br from-[var(--primary-color)] to-[var(--primary-dark)] shadow-lg">
+        <i class="bi bi-list-ul text-white text-xl"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold text-[var(--text-primary)] mb-1">Listado de Dietas</h1>
+        <p class="text-sm text-[var(--text-secondary)]">Gestiona y consulta la información nutricional</p>
+      </div>
+    </div>
+
+    <div class="relative">
+      <mat-form-field appearance="outline" class="custom-input w-full sm:w-80">
+        <mat-label>
+          <i class=" me-2"></i>Buscar dieta...
+        </mat-label>
+        <input matInput [value]="search" (keyup)="applyFilter($any($event.target).value)"
+          placeholder="Nombre, categoría o unidad" />
+        <button mat-icon-button matSuffix aria-label="Buscar" class="search-btn">
+          <i class="bi bi-search"></i>
+        </button>
+      </mat-form-field>
+
+      <div *ngIf="search && filteredData.length > 0"
+        class="absolute -bottom-6 left-0 text-xs text-[var(--text-secondary)] fade-in">
+        <i class="bi bi-check-circle me-1 text-green-500"></i>
+        {{ filteredData.length }} resultado(s) encontrado(s)
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-card">
+    <div class="flex items-center justify-center gap-3">
+      <div class="spinner"></div>
+      <span class="text-[var(--text-primary)]">Cargando dietas...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && errorMsg" class="error-card">
+    <div class="flex items-center gap-3">
+      <i class="bi bi-exclamation-triangle text-red-500 text-xl"></i>
+      <div>
+        <p class="font-semibold text-red-700">Error al cargar</p>
+        <p class="text-sm text-red-600">{{ errorMsg }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && dataSource.data.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="stat-card">
+      <div class="stat-icon bg-blue-100">
+        <i class="bi bi-collection text-blue-600"></i>
+      </div>
+      <div class="stat-content">
+        <p class="stat-number">{{ dataSource.data.length }}</p>
+        <p class="stat-label">Total dietas</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon bg-green-100">
+        <i class="bi bi-lightning-charge text-green-600"></i>
+      </div>
+      <div class="stat-content">
+        <p class="stat-number">{{ avgCalories }}</p>
+        <p class="stat-label">Promedio kcal</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon bg-orange-100">
+        <i class="bi bi-egg text-orange-600"></i>
+      </div>
+      <div class="stat-content">
+        <p class="stat-number">{{ avgProtein }}g</p>
+        <p class="stat-label">Prom. proteína</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon bg-purple-100">
+        <i class="bi bi-tags text-purple-600"></i>
+      </div>
+      <div class="stat-content">
+        <p class="stat-number">{{ uniqueCategories }}</p>
+        <p class="stat-label">Categorías</p>
+      </div>
+    </div>
+  </div>
+  <div class="hidden md:block">
+    <div class="table-container">
+      <table mat-table [dataSource]="dataSource" matSort class="nutrition-table">
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            <i class="bi bi-card-text me-2"></i>Alimento
+          </th>
+          <td mat-cell *matCellDef="let el" class="font-medium text-[var(--text-primary)]">
+            <div class="flex items-center gap-2">
+              <div class="food-icon">
+                <i class="bi bi-circle-fill text-[var(--primary-color)] text-xs"></i>
+              </div>
+              {{ el.nombre }}
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="categoria_id">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            <i class="bi bi-tag me-2"></i>Categoría
+          </th>
+          <td mat-cell *matCellDef="let el">
+            <span class="category-badge">{{ el.categoria_id }}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="cantidad_sugerida">
+          <th mat-header-cell *matHeaderCellDef>
+            <i class="bi bi-rulers me-2"></i>Porción
+          </th>
+          <td mat-cell *matCellDef="let el">
+            <span class="portion-text">{{ el.cantidad_sugerida }} {{ el.unidad }}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="energia_kcal">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            <i class="bi bi-lightning-charge me-2"></i>Energía
+          </th>
+          <td mat-cell *matCellDef="let el">
+            <span class="calorie-badge">{{ el.energia_kcal }} kcal</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="proteina_g">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            <i class="bi bi-egg me-2"></i>Proteína
+          </th>
+          <td mat-cell *matCellDef="let el">
+            <span class="macro-value protein">{{ el.proteina_g }}g</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="hidratos_de_carbono_g">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            <i class="bi bi-bread-slice me-2"></i>Carbohidratos
+          </th>
+          <td mat-cell *matCellDef="let el">
+            <span class="macro-value carbs">{{ el.hidratos_de_carbono_g }}g</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="lipidos_g">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            <i class="bi bi-droplet me-2"></i>Grasas
+          </th>
+          <td mat-cell *matCellDef="let el">
+            <span class="macro-value fats">{{ el.lipidos_g }}g</span>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="table-header"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
+      </table>
+
+      <mat-paginator [pageSize]="10" [pageSizeOptions]="[5,10,25,50]" class="paginator-custom" showFirstLastButtons>
+      </mat-paginator>
+    </div>
+  </div>
+
+  <div class="grid md:hidden gap-4">
+    <div *ngFor="let el of filteredData; trackBy: trackById; let i = index" class="nutrition-card">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div class="flex items-start gap-3">
+          <div class="food-avatar">
+            <i class="bi bi-circle-fill text-[var(--primary-color)]"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-[var(--text-primary)] leading-tight">{{ el.nombre }}</h3>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="category-tag">
+                <i class="bi bi-tag me-1"></i>{{ el.categoria_id }}
+              </span>
+              <span class="portion-tag">
+                <i class="bi bi-rulers me-1"></i>{{ el.cantidad_sugerida }} {{ el.unidad }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="calorie-highlight">
+          <span class="calorie-number">{{ el.energia_kcal }}</span>
+          <span class="calorie-unit">kcal</span>
+        </div>
+      </div>
+      <div class="macro-grid-simple">
+        <div class="macro-simple">
+          <i class="bi bi-egg text-green-600"></i>
+          <span>{{ el.proteina_g }}g</span>
+        </div>
+        <div class="macro-simple">
+          <i class="bi bi-bread-slice text-orange-600"></i>
+          <span>{{ el.hidratos_de_carbono_g }}g</span>
+        </div>
+        <div class="macro-simple">
+          <i class="bi bi-droplet text-blue-600"></i>
+          <span>{{ el.lipidos_g }}g</span>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="!loading && filteredData.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-search text-4xl text-[var(--text-secondary)]"></i>
+      </div>
+      <h3 class="text-lg font-semibold text-[var(--text-primary)] mb-2">No se encontraron resultados</h3>
+      <p class="text-[var(--text-secondary)] mb-4">
+        No hay dietas que coincidan con <strong>"{{ search }}"</strong>
+      </p>
+      <button (click)="clearSearch()" class="clear-search-btn">
+        <i class="bi bi-arrow-counterclockwise me-2"></i>
+        Limpiar búsqueda
+      </button>
+    </div>
+  </div>
+  
+  <div *ngIf="search && filteredData.length > 0" class="mobile-stats-float md:hidden">
+    <div class="flex items-center justify-between">
+      <span class="text-sm text-white">
+        <i class="bi bi-funnel me-1"></i>{{ filteredData.length }} resultados
+      </span>
+      <button (click)="clearSearch()" class="text-white/80 hover:text-white">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+</div>

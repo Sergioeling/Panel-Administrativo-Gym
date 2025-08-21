@@ -1,0 +1,120 @@
+// Header público
+.header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    padding: 1rem 0;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow);
+
+    .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 2rem;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 700;
+
+        i {
+            margin-right: 0.5rem;
+            color: var(--accent-color);
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+    }
+
+    .nav-menu {
+        display: flex;
+        gap: 2rem;
+
+        a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+                transform: translateY(-2px);
+            }
+
+            i {
+                font-size: 1rem;
+            }
+        }
+    }
+
+    .cta-button {
+        background: var(--accent-color);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+
+        &:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        i {
+            font-size: 1rem;
+        }
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .header {
+        .nav-container {
+            padding: 0 1rem;
+        }
+
+        .nav-menu {
+            display: none;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+        }
+
+        .cta-button {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        .nav-container {
+            padding: 0 0.5rem;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+        }
+    }
+}

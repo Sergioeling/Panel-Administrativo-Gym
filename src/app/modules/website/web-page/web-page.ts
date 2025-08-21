@@ -4,10 +4,12 @@ import { Router } from '@angular/router';
 import { AuthServices } from '../../../core/services/auth/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Login } from '../../auth/login/login';
+import { NavbarPublic } from '../../shared/components/navbar-public/navbar-public';
+import { FooterPublic } from '../../shared/components/footer-public/footer-public';
 
 @Component({
   selector: 'app-web-page',
-  imports: [CommonModule],
+  imports: [CommonModule, NavbarPublic, FooterPublic],
   templateUrl: './web-page.html',
   styleUrl: './web-page.scss'
 })
@@ -37,6 +39,14 @@ export class WebPage {
       backdrop: 'static',
       size: 'lg',
     });
+  }
+
+  onOpenLoginModal(): void {
+    this.openAddModal();
+  }
+
+  onScrollToSection(sectionId: string): void {
+    this.scrollToSection(sectionId);
   }
 
   scrollToSection(sectionId: string): void {

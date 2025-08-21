@@ -1,0 +1,30 @@
+<!-- Header público -->
+<header class="header">
+    <div class="nav-container">
+        <div class="logo">
+            <i class="bi bi-lightning-charge"></i>
+            PowerGym
+        </div>
+        <nav class="nav-menu">
+            <a href="" (click)="onScrollToSection('inicio'); $event.preventDefault()">
+                <i class="bi bi-house-door"></i> Inicio
+            </a>
+            <a href="#servicios" (click)="onScrollToSection('servicios'); $event.preventDefault()">
+                <i class="bi bi-heart-pulse"></i> Servicios
+            </a>
+            <a href="#entrenadores" (click)="onScrollToSection('entrenadores'); $event.preventDefault()">
+                <i class="bi bi-people"></i> Entrenadores
+            </a>
+            <a href="#planes" (click)="onScrollToSection('planes'); $event.preventDefault()">
+                <i class="bi bi-star"></i> Planes
+            </a>
+            <a href="#contacto" (click)="onScrollToSection('contacto'); $event.preventDefault()">
+                <i class="bi bi-telephone"></i> Contacto
+            </a>
+        </nav>
+        <button class="cta-button" (click)="onOpenLogin()">
+            <i class="bi bi-box-arrow-in-right"></i>
+            Iniciar Sesión
+        </button>
+    </div>
+</header>

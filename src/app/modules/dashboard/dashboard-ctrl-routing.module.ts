@@ -2,19 +2,10 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { PanelAdmin } from './panel-admin';
 import { authGuard } from '../../core/guards/auth.guard';
-
-const userRoutes = {
-  ADMIN: [
-    { path: 'miembros', loadComponent: () => import('./lista-users/lista-users').then(m => m.ListaUsers), data: { permission: null } },
-    { path: 'dietas', loadComponent: () => import('./dietas/dietas').then(m => m.Dietas), data: { permission: null } },
-  ],
-  NUTRICIONISTA: [
-    { path: 'dietas', loadComponent: () => import('./dietas/dietas').then(m => m.Dietas), data: { permission: null } },
-  ],
-  USUARIO: [
-    { path: 'dietas', loadComponent: () => import('./dietas/dietas').then(m => m.Dietas), data: { permission: null } },
-  ],
-};
+import { Inicio } from './inicio/inicio';
+import { Perfil } from './perfil/perfil';
+import { ListaUsers } from './lista-users/lista-users';
+import { Dietas } from './dietas/dietas';
 
 const routes: Routes = [
   {
@@ -28,17 +19,20 @@ const routes: Routes = [
       },
       {
         path: 'inicio',
-        loadComponent: () => import('./inicio/inicio').then(m => m.Inicio),
-        canActivate: [authGuard]
+        component: Inicio,
       },
       {
         path: 'perfil',
-        loadComponent: () => import('./perfil/perfil').then(m => m.Perfil),
-        canActivate: [authGuard]
+        component: Perfil,
       },
-      ...userRoutes.ADMIN.map(route => ({...route,canActivate: [authGuard],data: { userRole: 'ADMIN', permission: route.data.permission }})),
-      ...userRoutes.NUTRICIONISTA.map(route => ({...route,canActivate: [authGuard],data: { userRole: 'NUTRICIONISTA', permission: route.data.permission }})),
-      ...userRoutes.USUARIO.map(route => ({...route,canActivate: [authGuard],data: { userRole: 'USUARIO', permission: route.data.permission }}))
+      {
+        path: 'miembros',
+        component: ListaUsers,
+      },
+      {
+        path: 'dietas',
+        component: Dietas,
+      }
     ]
   }
 ];

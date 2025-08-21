@@ -1,13 +1,13 @@
 import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import { MatDrawer, MatDrawerContainer, MatSidenavModule } from "@angular/material/sidenav";
-import { MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { AuthServices } from '../../core/services/auth/auth.service';
-import { NgClass, NgForOf, NgIf } from "@angular/common";
+import { NgForOf, NgIf } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
+import { Navbar } from '../shared/components/navbar/navbar';
 
 @Component({
   selector: 'app-panel-admin',
@@ -18,12 +18,12 @@ import { CommonModule } from '@angular/common';
     MatDrawerContainer,
     MatDrawer,
     MatSidenavModule,
-    MatIconButton,
     MatIcon,
     NgForOf,
     NgIf,
     FormsModule,
-    CommonModule
+    CommonModule,
+    Navbar
   ],
   templateUrl: './panel-admin.html',
   styleUrl: './panel-admin.scss'
@@ -75,6 +75,14 @@ export class PanelAdmin implements OnInit {
     }
   }
 
+  onToggleDrawer() {
+    this.showMenu();
+  }
+
+  onNavbarRedirect(url: string) {
+    this.redirectTo(url);
+  }
+
   redirectTo(url: any) {
     if (url == 'web') {
       localStorage.clear();
@@ -93,6 +101,7 @@ export class PanelAdmin implements OnInit {
       {
         title: 'Administración', icon: null, bi: 'bi-gear', id: 'admin', role: 'ADMIN', options: [
           { title: 'Lista de Usuarios', route: 'miembros', role: 'ADMIN', icon: null, bi: 'bi-people' },
+
         ]
       },
       {
@@ -105,7 +114,6 @@ export class PanelAdmin implements OnInit {
   }
 
   activeButtons(role: any) {
-    // Si no hay role especificado, es accesible para todos
     if (!role || role === '') return true;
 
     const roles = role.split(',').map((r: string) => r.trim());
