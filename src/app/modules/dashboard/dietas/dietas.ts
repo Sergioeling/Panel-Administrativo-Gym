@@ -109,8 +109,6 @@ export class Dietas implements OnInit, AfterViewInit, OnDestroy {
           if (this.paginator) this.dataSource.paginator = this.paginator;
           if (this.sort) this.dataSource.sort = this.sort;
           this._statsDirty = true;
-
-          console.log('Total dietas en tabla:', this.dataSource.data.length);
           this.loading = false;
         },
         error: (err) => {

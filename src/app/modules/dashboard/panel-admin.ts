@@ -3,10 +3,9 @@ import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import { MatDrawer, MatDrawerContainer, MatSidenavModule } from "@angular/material/sidenav";
 import { MatIcon } from "@angular/material/icon";
 import { AuthServices } from '../../core/services/auth/auth.service';
-import { NgForOf, NgIf } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { MatCardModule } from '@angular/material/card';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf, NgForOf } from '@angular/common';
 import { Navbar } from '../shared/components/navbar/navbar';
 
 @Component({

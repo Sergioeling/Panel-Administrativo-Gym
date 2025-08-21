@@ -1,45 +1,71 @@
-<header class="modern-header">
-    <div class="header-left">
-        <button mat-icon-button class="menu-toggle" (click)="onToggleDrawer()" [class.active]="isDrawerOpen">
-            <i class="bi bi-list"></i>
-        </button>
-        <div class="brand-section">
-            <i class="bi bi-lightning-charge brand-icon"></i>
-            <h1 class="brand-title">PowerGym</h1>
-            <span class="brand-subtitle">Admin Panel</span>
-        </div>
-    </div>
+<header class="sticky top-0 z-[1000] text-white shadow-md"
+    style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark))">
+    <div class="mx-auto flex min-h-16 items-center justify-between gap-4 px-4 md:px-6">
+        <!-- Lado izquierdo -->
+        <div class="flex items-center gap-4">
+            <button mat-icon-button (click)="onToggleDrawer()" [ngClass]="{ 'bg-white/10 scale-105': isDrawerOpen }"
+                class="rounded-full p-2 transition-all duration-300 hover:bg-white/10 active:scale-95">
+                <i class="bi bi-list text-xl leading-none"></i>
+            </button>
 
-    <div class="header-center">
-        <div class="search-container">
-            <i class="bi bi-search search-icon"></i>
-            <input type="text" placeholder="Buscar..." class="search-input">
-        </div>
-    </div>
-
-    <div class="header-right">
-        <div class="user-section">
-            <span class="welcome-text">Bienvenido</span>
-            <span class="user-name">{{ user }}</span>
+            <div class="flex items-center gap-3">
+                <i class="bi bi-lightning-charge text-2xl"
+                    style="color: var(--accent-color); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));"></i>
+                <div class="flex flex-col">
+                    <h1 class="text-lg font-bold tracking-tight md:text-xl">PowerGym</h1>
+                    <span class="hidden text-xs font-light opacity-80 sm:inline">Admin Panel</span>
+                </div>
+            </div>
         </div>
 
-        <div class="header-actions">
-            <button mat-icon-button class="action-btn" title="Notificaciones">
-                <i class="bi bi-bell notification-icon"></i>
-                <span class="notification-badge">3</span>
-            </button>
+        <!-- Centro (search) -->
+        <div class="hidden w-full max-w-md md:block">
+            <div class="relative rounded-full px-4 py-2 backdrop-blur"
+                style="background-color: rgba(255, 255, 255, 0.15);">
+                <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 opacity-70"></i>
+                <input type="text" placeholder="Buscar..."
+                    class="w-full bg-transparent pl-7 pr-3 text-sm text-white placeholder-white/70 outline-none" />
+            </div>
+        </div>
 
-            <button mat-icon-button class="action-btn" (click)="onRedirectTo('dashboard')" title="Inicio">
-                <i class="bi bi-house"></i>
-            </button>
+        <!-- Lado derecho -->
+        <div class="flex items-center gap-2 md:gap-4">
+            <!-- Usuario (oculto en móvil) -->
+            <div class="hidden flex-col items-end md:flex">
+                <span class="text-[0.75rem] opacity-80">Bienvenido</span>
+                <span class="truncate text-sm font-semibold max-w-[160px]">{{ user }}</span>
+            </div>
 
-            <button mat-icon-button class="action-btn" (click)="onRedirectTo('dashboard/perfil')" title="Perfil">
-                <i class="bi bi-person-circle"></i>
-            </button>
+            <!-- Botones -->
+            <div class="flex items-center gap-1 md:gap-2">
+                <button mat-icon-button
+                    class="relative rounded-full p-2 transition-all duration-300 hover:bg-white/10 active:scale-95"
+                    title="Notificaciones">
+                    <i class="bi bi-bell text-lg"></i>
+                    <span
+                        class="absolute -top-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-[var(--accent-color)] text-black text-[10px] font-semibold">
+                        3
+                    </span>
+                </button>
 
-            <button mat-icon-button class="action-btn logout-btn" (click)="onRedirectTo('web')" title="Salir">
-                <i class="bi bi-box-arrow-right"></i>
-            </button>
+                <button mat-icon-button (click)="onRedirectTo('dashboard')"
+                    class="rounded-full p-2 transition-all duration-300 hover:bg-white/10 active:scale-95"
+                    title="Inicio">
+                    <i class="bi bi-house text-lg"></i>
+                </button>
+
+                <button mat-icon-button (click)="onRedirectTo('dashboard/perfil')"
+                    class="rounded-full p-2 transition-all duration-300 hover:bg-white/10 active:scale-95"
+                    title="Perfil">
+                    <i class="bi bi-person-circle text-lg"></i>
+                </button>
+
+                <button mat-icon-button (click)="onRedirectTo('web')"
+                    class="rounded-full p-2 transition-all duration-300 hover:bg-red-500/30 active:scale-95"
+                    title="Salir">
+                    <i class="bi bi-box-arrow-right text-lg"></i>
+                </button>
+            </div>
         </div>
     </div>
 </header>
