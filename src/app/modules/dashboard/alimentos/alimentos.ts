@@ -9,9 +9,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { Subject, takeUntil } from 'rxjs';
 import { HttpServices } from '../../../core/services/http/http.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { AltaAlimento } from '../../shared/modales/alta-alimento/alta-alimento';
+
 
 @Component({
-  selector: 'app-dietas',
+  selector: 'app-alimentos',
   standalone: true,
   imports: [
     CommonModule,
@@ -24,11 +27,14 @@ import { HttpServices } from '../../../core/services/http/http.service';
     MatIconModule,
     NgIf
   ],
-  templateUrl: './dietas.html',
-  styleUrl: './dietas.scss',
+  templateUrl: './alimentos.html',
+  styleUrl: './alimentos.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Dietas implements OnInit, AfterViewInit, OnDestroy {
+export class alimentos implements OnInit, AfterViewInit, OnDestroy {
+
+  constructor(private modalService: NgbModal) { }
+
   private http = inject(HttpServices);
   private destroy$ = new Subject<void>();
 
@@ -99,7 +105,7 @@ export class Dietas implements OnInit, AfterViewInit, OnDestroy {
     this.loading = true;
     this.errorMsg = null;
 
-    this.http.obtenerDietas()
+    this.http.obtenerAlimentos()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (resp: any) => {
@@ -215,4 +221,34 @@ export class Dietas implements OnInit, AfterViewInit, OnDestroy {
     const index = key.charCodeAt(0) % colors.length;
     return colors[index];
   }
+
+  openModalAlimentos(item?: any, edit?: boolean): void {
+    const modalRef = this.modalService.open(AltaAlimento, {
+      backdrop: 'static',
+      size: 'lg', 
+      scrollable: true
+    });
+
+    if (item && edit) {
+      // modalRef.componentInstance.alimentoData = item;
+      // modalRef.componentInstance.isEdit = true;
+    }
+
+    modalRef.result.then(
+      (result) => {
+        if (result && result.success) {
+          console.log('Alimento creado exitosamente:', result.data);
+          this.obtenerDietas();
+
+          // Opcional: Mostrar mensaje de éxito
+          // this.showSuccessMessage('Alimento agregado correctamente');
+        }
+      },
+      (dismissed) => {
+        console.log('Modal cerrado sin guardar');
+      }
+    );
+  }
+
+
 }

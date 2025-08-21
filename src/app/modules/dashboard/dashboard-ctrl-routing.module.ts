@@ -4,7 +4,7 @@ import { PanelAdmin } from './panel-admin';
 import { Inicio } from './inicio/inicio';
 import { Perfil } from './perfil/perfil';
 import { ListaUsers } from './lista-users/lista-users';
-import { Dietas } from './dietas/dietas';
+import { alimentos } from './alimentos/alimentos';
 
 const routes: Routes = [
   {
@@ -29,8 +29,8 @@ const routes: Routes = [
         component: ListaUsers,
       },
       {
-        path: 'dietas',
-        component: Dietas,
+        path: 'alimentos',
+        component: alimentos,
       }
     ]
   }

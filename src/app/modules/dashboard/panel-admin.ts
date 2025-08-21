@@ -104,8 +104,8 @@ export class PanelAdmin implements OnInit {
         ]
       },
       {
-        title: 'Gestión de Dietas', icon: null, bi: 'bi-egg-fried', id: 'dietas', role: 'ADMIN,NUTRICIONISTA,USUARIO', options: [
-          { title: 'Planes de Dietas', route: 'dietas', role: 'ADMIN,NUTRICIONISTA,USUARIO', icon: null, bi: 'bi-egg-fried' },
+        title: 'Gestión de Alimentos', icon: null, bi: 'bi-egg-fried', id: 'dietas', role: 'ADMIN,NUTRICIONISTA,USUARIO', options: [
+          { title: 'Alimentos', route: 'alimentos', role: 'ADMIN,NUTRICIONISTA,USUARIO', icon: null, bi: 'bi-egg-fried' },
         ]
       },
 

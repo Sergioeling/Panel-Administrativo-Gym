@@ -78,8 +78,12 @@ export class HttpServices {
 
 
   //services
-  obtenerDietas(): Observable<any> {
-    return this.get('obtener-dietas');
+  obtenerAlimentos(): Observable<any> {
+    return this.get('alimentos');
+  }
+
+  crearAlimento(alimentoData: any): Observable<any> {
+    return this.post('alimentos', alimentoData);
   }
 
   login(credenciales: any): Observable<any> {

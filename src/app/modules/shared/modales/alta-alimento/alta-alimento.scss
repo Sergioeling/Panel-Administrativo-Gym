@@ -1,0 +1,404 @@
+
+// MODAL HEADER
+.modal-header {
+  border-bottom: 3px solid var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+  
+  .modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    
+    i {
+      font-size: 1.1rem;
+      margin-right: 0.5rem;
+    }
+  }
+  
+  .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+    transition: var(--transition);
+    
+    &:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+}
+
+// MODAL BODY
+.modal-body {
+  background: linear-gradient(145deg, #ffffff, var(--background));
+  padding: 1rem;
+  
+  @media (min-width: 768px) {
+    padding: 1.5rem;
+  }
+  
+  // CARDS
+  .card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: var(--transition);
+    
+    &:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+    
+    .card-header {
+      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+      padding: 1rem;
+      
+      h5 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        
+        i {
+          margin-right: 0.5rem;
+          font-size: 1rem;
+        }
+      }
+      
+      // Colores específicos para cada sección
+      &.bg-primary { background: linear-gradient(135deg, #3498db, #2980b9) !important; }
+      &.bg-success { background: linear-gradient(135deg, #27ae60, #229954) !important; }
+      &.bg-warning { background: linear-gradient(135deg, #f39c12, #e67e22) !important; }
+      &.bg-info { background: linear-gradient(135deg, #17a2b8, #138496) !important; }
+      &.bg-secondary { background: linear-gradient(135deg, #6c757d, #545b62) !important; }
+      &.bg-dark { background: linear-gradient(135deg, #343a40, #23272b) !important; }
+    }
+    
+    .card-body {
+      padding: 1.25rem;
+      background: white;
+    }
+  }
+  
+  // FORM LABELS
+  .form-label {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    
+    &::after {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      margin-left: 0.25rem;
+      opacity: 0.7;
+    }
+  }
+  
+  // FORM CONTROLS
+  .form-control, .form-select {
+    border-radius: var(--border-radius);
+    border: 2px solid #e9ecef;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    background-color: white;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    
+    &:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+      outline: none;
+      transform: translateY(-1px);
+    }
+    
+    &:hover:not(:focus):not(.is-invalid) {
+      border-color: var(--primary-light);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    &.is-invalid {
+      border-color: #dc3545;
+      animation: shake 0.5s ease-in-out;
+      
+      &:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+      }
+    }
+    
+    // Placeholders más sutiles
+    &::placeholder {
+      color: #adb5bd;
+      font-style: italic;
+    }
+  }
+  
+  // INVALID FEEDBACK
+  .invalid-feedback {
+    display: block;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    color: #dc3545;
+    font-weight: 500;
+    
+    &::before {
+      content: "⚠ ";
+      margin-right: 0.25rem;
+    }
+  }
+  
+  // ALERT
+  .alert {
+    border-radius: var(--border-radius);
+    border: none;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+    
+    &.alert-danger {
+      background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+      color: #721c24;
+      border-left: 4px solid #dc3545;
+      
+      i {
+        color: #dc3545;
+        margin-right: 0.5rem;
+      }
+    }
+    
+    .btn-close {
+      filter: none;
+      opacity: 0.7;
+      
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+// MODAL FOOTER
+.modal-footer {
+  border-top: 2px solid #e9ecef;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(145deg, white, var(--background));
+  border-radius: 0 0 0.5rem 0.5rem;
+  
+  .btn {
+    border-radius: var(--border-radius);
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: var(--transition);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+    min-height: 44px; // Mejor accesibilidad táctil
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+    
+    &:hover::before {
+      left: 100%;
+    }
+    
+    &.btn-success {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      border-color: var(--primary-color);
+      color: white;
+      
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, var(--primary-dark), #a93226);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(231, 76, 60, 0.3);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+      
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+      }
+    }
+    
+    &.btn-secondary {
+      background: linear-gradient(135deg, var(--text-secondary), #566573);
+      border-color: var(--text-secondary);
+      color: white;
+      
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #566573, #34495e);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(127, 140, 141, 0.3);
+      }
+    }
+  }
+  
+  .spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+// ANIMACIONES
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+// MODAL CONTENT GENERAL
+.modal-content {
+  animation: fadeInUp 0.3s ease-out;
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  max-width: none;
+}
+
+// CUSTOM GRID PARA MINERALES (5 columnas)
+.col-md-2-4 {
+  @media (min-width: 768px) {
+    flex: 0 0 auto;
+    width: 20%; // 100% / 5 = 20%
+  }
+}
+
+// RESPONSIVO
+@media (max-width: 575.98px) {
+  // Extra small devices
+  .modal-body {
+    padding: 0.75rem;
+    
+    .card {
+      margin-bottom: 1rem;
+      
+      .card-header {
+        padding: 0.75rem;
+        
+        h5 {
+          font-size: 1rem;
+        }
+      }
+      
+      .card-body {
+        padding: 1rem;
+      }
+    }
+    
+    .form-control, .form-select {
+      padding: 0.65rem 0.85rem;
+      font-size: 0.85rem;
+    }
+    
+    .form-label {
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+    }
+  }
+  
+  .modal-header {
+    padding: 0.75rem 1rem;
+    
+    .modal-title {
+      font-size: 1.1rem;
+    }
+  }
+  
+  .modal-footer {
+    padding: 0.75rem 1rem;
+    
+    .btn {
+      width: 100%;
+      margin-bottom: 0.5rem;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+  // Small devices
+  .modal-body {
+    .card-body {
+      padding: 1.125rem;
+    }
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  // Medium devices
+  .modal-dialog {
+    max-width: 700px;
+  }
+}
+
+@media (min-width: 992px) {
+  // Large devices and up
+  .modal-dialog {
+    max-width: 900px;
+  }
+  
+  .modal-body {
+    max-height: 75vh;
+  }
+}
+
+// MEJORAS DE ACCESIBILIDAD
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// FOCUS VISIBLE
+.form-control:focus-visible,
+.form-select:focus-visible,
+.btn:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+// HIGH CONTRAST MODE
+@media (prefers-contrast: high) {
+  .card {
+    border: 2px solid #000;
+  }
+  
+  .form-control,
+  .form-select {
+    border: 2px solid #000;
+  }
+}

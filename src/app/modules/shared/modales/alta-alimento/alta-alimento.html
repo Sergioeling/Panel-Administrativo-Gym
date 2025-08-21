@@ -1,0 +1,502 @@
+<!-- Modal Header con gradiente -->
+<div class="modal-header" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));">
+  <h4 class="modal-title fw-bold text-white d-flex align-items-center">
+    <i class="fas fa-plus-circle me-2"></i>
+    Agregar Nuevo Alimento
+  </h4>
+  <button type="button" class="btn-close btn-close-white" (click)="onCancel()"></button>
+</div>
+
+<div class="modal-body p-3 p-md-4" style="max-height: 80vh; overflow-y: auto;">
+  <!-- Error Alert -->
+  <div *ngIf="errorMsg" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ errorMsg }}
+    <button type="button" class="btn-close" (click)="clearError()"></button>
+  </div>
+
+  <form [formGroup]="alimentoForm" (ngSubmit)="onSubmit()">
+    
+    <!-- INFORMACIÓN BÁSICA -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0 d-flex align-items-center">
+          <i class="fas fa-info-circle me-2"></i>
+          Información Básica
+        </h5>
+      </div>
+      <div class="card-body p-3 p-md-4">
+        <div class="row g-3">
+          <!-- Nombre del alimento -->
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold text-gray-700">Nombre del Alimento *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('nombre')"
+              formControlName="nombre"
+              placeholder="Ej: Manzana roja"
+            />
+            <div *ngIf="isFieldInvalid('nombre')" class="invalid-feedback">{{ getFieldError('nombre') }}</div>
+          </div>
+
+          <!-- Categoría -->
+          <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold text-gray-700">Categoría *</label>
+            <select 
+              class="form-select"
+              [class.is-invalid]="isFieldInvalid('categoria_id')"
+              formControlName="categoria_id"
+            >
+              <option value="">Seleccionar...</option>
+              <option *ngFor="let cat of categoriaOptions" [value]="cat.id">{{ cat.nombre }}</option>
+            </select>
+            <div *ngIf="isFieldInvalid('categoria_id')" class="invalid-feedback">{{ getFieldError('categoria_id') }}</div>
+          </div>
+
+          <!-- Unidad -->
+          <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold text-gray-700">Unidad *</label>
+            <select 
+              class="form-select"
+              [class.is-invalid]="isFieldInvalid('unidad')"
+              formControlName="unidad"
+            >
+              <option *ngFor="let unidad of unidadOptions" [value]="unidad">{{ unidad }}</option>
+            </select>
+            <div *ngIf="isFieldInvalid('unidad')" class="invalid-feedback">{{ getFieldError('unidad') }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFORMACIÓN NUTRICIONAL BÁSICA -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0 d-flex align-items-center">
+          <i class="fas fa-weight me-2"></i>
+          Información Nutricional Básica
+        </h5>
+      </div>
+      <div class="card-body p-3 p-md-4">
+        <div class="row g-3">
+          <!-- Cantidad Sugerida -->
+          <div class="col-6 col-md-3">
+            <label class="form-label fw-semibold">Cantidad Sugerida *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('cantidad_sugerida')"
+              formControlName="cantidad_sugerida"
+              placeholder="100"
+            />
+            <div *ngIf="isFieldInvalid('cantidad_sugerida')" class="invalid-feedback">{{ getFieldError('cantidad_sugerida') }}</div>
+          </div>
+
+          <!-- Peso Bruto -->
+          <div class="col-6 col-md-3">
+            <label class="form-label fw-semibold">Peso Bruto (g) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('peso_bruto_g')"
+              formControlName="peso_bruto_g"
+              placeholder="120"
+            />
+            <div *ngIf="isFieldInvalid('peso_bruto_g')" class="invalid-feedback">{{ getFieldError('peso_bruto_g') }}</div>
+          </div>
+
+          <!-- Peso Neto -->
+          <div class="col-6 col-md-3">
+            <label class="form-label fw-semibold">Peso Neto (g) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('peso_neto_g')"
+              formControlName="peso_neto_g"
+              placeholder="100"
+            />
+            <div *ngIf="isFieldInvalid('peso_neto_g')" class="invalid-feedback">{{ getFieldError('peso_neto_g') }}</div>
+          </div>
+
+          <!-- Energía -->
+          <div class="col-6 col-md-3">
+            <label class="form-label fw-semibold">Energía (kcal) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('energia_kcal')"
+              formControlName="energia_kcal"
+              placeholder="52"
+            />
+            <div *ngIf="isFieldInvalid('energia_kcal')" class="invalid-feedback">{{ getFieldError('energia_kcal') }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MACRONUTRIENTES -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0 d-flex align-items-center">
+          <i class="fas fa-dna me-2"></i>
+          Macronutrientes
+        </h5>
+      </div>
+      <div class="card-body p-3 p-md-4">
+        <div class="row g-3">
+          <!-- Proteína -->
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">Proteína (g) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('proteina_g')"
+              formControlName="proteina_g"
+              placeholder="0.3"
+            />
+            <div *ngIf="isFieldInvalid('proteina_g')" class="invalid-feedback">{{ getFieldError('proteina_g') }}</div>
+          </div>
+
+          <!-- Lípidos -->
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">Lípidos (g) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('lipidos_g')"
+              formControlName="lipidos_g"
+              placeholder="0.2"
+            />
+            <div *ngIf="isFieldInvalid('lipidos_g')" class="invalid-feedback">{{ getFieldError('lipidos_g') }}</div>
+          </div>
+
+          <!-- Hidratos de Carbono -->
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">Hidratos de Carbono (g) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('hidratos_de_carbono_g')"
+              formControlName="hidratos_de_carbono_g"
+              placeholder="14"
+            />
+            <div *ngIf="isFieldInvalid('hidratos_de_carbono_g')" class="invalid-feedback">{{ getFieldError('hidratos_de_carbono_g') }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÁCIDOS GRASOS -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0 d-flex align-items-center">
+          <i class="fas fa-atom me-2"></i>
+          Ácidos Grasos
+        </h5>
+      </div>
+      <div class="card-body p-3 p-md-4">
+        <div class="row g-3">
+          <!-- AG Saturados -->
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">AG Saturados (g) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('ag_saturados_g')"
+              formControlName="ag_saturados_g"
+              placeholder="0.04"
+            />
+            <div *ngIf="isFieldInvalid('ag_saturados_g')" class="invalid-feedback">{{ getFieldError('ag_saturados_g') }}</div>
+          </div>
+
+          <!-- AG Monoinsaturados -->
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">AG Monoinsaturados (g) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('ag_monoinsaturados_g')"
+              formControlName="ag_monoinsaturados_g"
+              placeholder="0.01"
+            />
+            <div *ngIf="isFieldInvalid('ag_monoinsaturados_g')" class="invalid-feedback">{{ getFieldError('ag_monoinsaturados_g') }}</div>
+          </div>
+
+          <!-- AG Poliinsaturados -->
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">AG Poliinsaturados (g) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('ag_poli_insaturados_g')"
+              formControlName="ag_poli_insaturados_g"
+              placeholder="0.05"
+            />
+            <div *ngIf="isFieldInvalid('ag_poli_insaturados_g')" class="invalid-feedback">{{ getFieldError('ag_poli_insaturados_g') }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OTROS COMPONENTES -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-warning text-white">
+        <h5 class="mb-0 d-flex align-items-center">
+          <i class="fas fa-flask me-2"></i>
+          Otros Componentes
+        </h5>
+      </div>
+      <div class="card-body p-3 p-md-4">
+        <div class="row g-3">
+          <!-- Colesterol -->
+          <div class="col-6 col-md-3">
+            <label class="form-label fw-semibold">Colesterol (mg) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('colesterol_mg')"
+              formControlName="colesterol_mg"
+              placeholder="1"
+            />
+            <div *ngIf="isFieldInvalid('colesterol_mg')" class="invalid-feedback">{{ getFieldError('colesterol_mg') }}</div>
+          </div>
+
+          <!-- Azúcar -->
+          <div class="col-6 col-md-3">
+            <label class="form-label fw-semibold">Azúcar (g) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('azucar_g')"
+              formControlName="azucar_g"
+              placeholder="10.4"
+            />
+            <div *ngIf="isFieldInvalid('azucar_g')" class="invalid-feedback">{{ getFieldError('azucar_g') }}</div>
+          </div>
+
+          <!-- Fibra -->
+          <div class="col-6 col-md-3">
+            <label class="form-label fw-semibold">Fibra (g) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('fibra_g')"
+              formControlName="fibra_g"
+              placeholder="2.4"
+            />
+            <div *ngIf="isFieldInvalid('fibra_g')" class="invalid-feedback">{{ getFieldError('fibra_g') }}</div>
+          </div>
+
+          <!-- Etanol -->
+          <div class="col-6 col-md-3">
+            <label class="form-label fw-semibold">Etanol (g) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('etanol_g')"
+              formControlName="etanol_g"
+              placeholder="0"
+            />
+            <div *ngIf="isFieldInvalid('etanol_g')" class="invalid-feedback">{{ getFieldError('etanol_g') }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VITAMINAS -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0 d-flex align-items-center">
+          <i class="fas fa-pills me-2"></i>
+          Vitaminas
+        </h5>
+      </div>
+      <div class="card-body p-3 p-md-4">
+        <div class="row g-3">
+          <!-- Vitamina A -->
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">Vitamina A (mg RE) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('vitamina_a_mg_re')"
+              formControlName="vitamina_a_mg_re"
+              placeholder="0.05"
+            />
+            <div *ngIf="isFieldInvalid('vitamina_a_mg_re')" class="invalid-feedback">{{ getFieldError('vitamina_a_mg_re') }}</div>
+          </div>
+
+          <!-- Ácido Ascórbico -->
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">Ácido Ascórbico (mg) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('acido_ascorbico_mg')"
+              formControlName="acido_ascorbico_mg"
+              placeholder="4.6"
+            />
+            <div *ngIf="isFieldInvalid('acido_ascorbico_mg')" class="invalid-feedback">{{ getFieldError('acido_ascorbico_mg') }}</div>
+          </div>
+
+          <!-- Ácido Fólico -->
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">Ácido Fólico (mg) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('acido_folico_mg')"
+              formControlName="acido_folico_mg"
+              placeholder="3"
+            />
+            <div *ngIf="isFieldInvalid('acido_folico_mg')" class="invalid-feedback">{{ getFieldError('acido_folico_mg') }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MINERALES -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0 d-flex align-items-center">
+          <i class="fas fa-gem me-2"></i>
+          Minerales
+        </h5>
+      </div>
+      <div class="card-body p-3 p-md-4">
+        <div class="row g-3">
+          <!-- Calcio -->
+          <div class="col-6 col-md-2-4">
+            <label class="form-label fw-semibold">Calcio (mg) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('calcio_mg')"
+              formControlName="calcio_mg"
+              placeholder="6"
+            />
+            <div *ngIf="isFieldInvalid('calcio_mg')" class="invalid-feedback">{{ getFieldError('calcio_mg') }}</div>
+          </div>
+
+          <!-- Hierro -->
+          <div class="col-6 col-md-2-4">
+            <label class="form-label fw-semibold">Hierro (mg) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('hierro_mg')"
+              formControlName="hierro_mg"
+              placeholder="0.12"
+            />
+            <div *ngIf="isFieldInvalid('hierro_mg')" class="invalid-feedback">{{ getFieldError('hierro_mg') }}</div>
+          </div>
+
+          <!-- Potasio -->
+          <div class="col-6 col-md-2-4">
+            <label class="form-label fw-semibold">Potasio (mg) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('potasio_mg')"
+              formControlName="potasio_mg"
+              placeholder="150"
+            />
+            <div *ngIf="isFieldInvalid('potasio_mg')" class="invalid-feedback">{{ getFieldError('potasio_mg') }}</div>
+          </div>
+
+          <!-- Sodio -->
+          <div class="col-6 col-md-2-4">
+            <label class="form-label fw-semibold">Sodio (mg) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('sodio_mg')"
+              formControlName="sodio_mg"
+              placeholder="1"
+            />
+            <div *ngIf="isFieldInvalid('sodio_mg')" class="invalid-feedback">{{ getFieldError('sodio_mg') }}</div>
+          </div>
+
+          <!-- Fósforo -->
+          <div class="col-6 col-md-2-4">
+            <label class="form-label fw-semibold">Fósforo (mg) *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('fosforo_mg')"
+              formControlName="fosforo_mg"
+              placeholder="11"
+            />
+            <div *ngIf="isFieldInvalid('fosforo_mg')" class="invalid-feedback">{{ getFieldError('fosforo_mg') }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÍNDICE GLICÉMICO -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-dark text-white">
+        <h5 class="mb-0 d-flex align-items-center">
+          <i class="fas fa-chart-line me-2"></i>
+          Índice Glicémico
+        </h5>
+      </div>
+      <div class="card-body p-3 p-md-4">
+        <div class="row g-3">
+          <!-- IG -->
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold">IG *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('ig')"
+              formControlName="ig"
+              placeholder="40"
+            />
+            <div *ngIf="isFieldInvalid('ig')" class="invalid-feedback">{{ getFieldError('ig') }}</div>
+          </div>
+
+          <!-- Carga Glicémica -->
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold">Carga Glicémica *</label>
+            <input 
+              type="text" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('carga_glicemica')"
+              formControlName="carga_glicemica"
+              placeholder="6"
+            />
+            <div *ngIf="isFieldInvalid('carga_glicemica')" class="invalid-feedback">{{ getFieldError('carga_glicemica') }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<!-- Modal Footer -->
+<div class="modal-footer bg-light p-3">
+  <div class="d-flex flex-column flex-md-row gap-2 w-100 w-md-auto">
+    <button 
+      type="button" 
+      class="btn btn-secondary order-2 order-md-1"
+      (click)="onCancel()"
+      [disabled]="loading"
+    >
+      <i class="fas fa-times me-2"></i>
+      Cancelar
+    </button>
+    <button 
+      type="button"
+      class="btn btn-success order-1 order-md-2"
+      (click)="onSubmit()"
+      [disabled]="loading || alimentoForm.invalid"
+    >
+      <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+      <i *ngIf="!loading" class="fas fa-save me-2"></i>
+      {{ loading ? 'Guardando...' : 'Guardar Alimento' }}
+    </button>
+  </div>
+</div>
