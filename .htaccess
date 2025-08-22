@@ -1,0 +1,17 @@
+# No mostrar listado de carpetas
+Options -Indexes
+
+# Archivo principal
+DirectoryIndex index.html
+
+# Angular SPA: redirigir todo a index.html
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  # Si el archivo o carpeta existe, sírvelo
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+  # Si no existe, Angular se encarga
+  RewriteRule . /index.html [L]
+</IfModule>

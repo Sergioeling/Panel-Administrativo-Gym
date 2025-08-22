@@ -7,6 +7,7 @@ import { FormsModule } from "@angular/forms";
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule, NgIf, NgForOf } from '@angular/common';
 import { Navbar } from '../shared/components/navbar/navbar';
+import { title } from 'process';
 
 @Component({
   selector: 'app-panel-admin',
@@ -105,7 +106,8 @@ export class PanelAdmin implements OnInit {
       },
       {
         title: 'Gestión de Alimentos', icon: null, bi: 'bi-egg-fried', id: 'dietas', role: 'ADMIN,NUTRICIONISTA,USUARIO', options: [
-          { title: 'Alimentos', route: 'alimentos', role: 'ADMIN,NUTRICIONISTA,USUARIO', icon: null, bi: 'bi-egg-fried' },
+          { title: 'Alimentos', route: 'alimentos', role: 'ADMIN', icon: null, bi: 'bi-egg-fried' },
+          { title: 'Crear Alimento', route: 'crear-alimento', role: 'NUTRICIONISTA', icon: null, bi: 'bi-plus' }
         ]
       },
 

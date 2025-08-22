@@ -5,6 +5,25 @@ import { Inicio } from './inicio/inicio';
 import { Perfil } from './perfil/perfil';
 import { ListaUsers } from './lista-users/lista-users';
 import { alimentos } from './alimentos/alimentos';
+import { authGuard } from '../../core/guards/auth.guard';
+
+const userRoutes = {
+  ADMIN: [
+    { path: 'miembros', component: ListaUsers, data: { permission: null } },
+    { path: 'alimentos', component: alimentos, data: { permission: null } },
+  ],
+  NUTRICIONISTA: [
+    { path: 'inicio', component: Inicio, data: { permission: null } },
+
+  ],
+  USUARIO: [
+    { path: 'inicio', component: Inicio, data: { permission: null } },
+  ],
+  GENERAL: [
+    { path: 'inicio', component: Inicio, data: { permission: null } },
+    { path: 'perfil', component: Perfil, data: { permission: null } },
+  ]
+};
 
 const routes: Routes = [
   {
@@ -16,22 +35,11 @@ const routes: Routes = [
         redirectTo: 'inicio',
         pathMatch: 'full'
       },
-      {
-        path: 'inicio',
-        component: Inicio,
-      },
-      {
-        path: 'perfil',
-        component: Perfil,
-      },
-      {
-        path: 'miembros',
-        component: ListaUsers,
-      },
-      {
-        path: 'alimentos',
-        component: alimentos,
-      }
+
+      ...userRoutes.GENERAL.map(route => ({ ...route, canActivate: [authGuard], data: { userRole: 'GENERAL', permission: route.data.permission } })),
+      ...userRoutes.ADMIN.map(route => ({ ...route, canActivate: [authGuard], data: { userRole: 'ADMIN', permission: route.data.permission } })),
+      ...userRoutes.NUTRICIONISTA.map(route => ({ ...route, canActivate: [authGuard], data: { userRole: 'NUTRICIONISTA', permission: route.data.permission } })),
+      ...userRoutes.USUARIO.map(route => ({ ...route, canActivate: [authGuard], data: { userRole: 'USUARIO', permission: route.data.permission } })),
     ]
   }
 ];
