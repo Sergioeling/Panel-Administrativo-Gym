@@ -1,5 +1,5 @@
 <div class="w-full max-w-screen-2xl mx-auto p-4 sm:p-6 bg-[var(--background)] min-h-screen">
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
     <div class="flex items-center gap-3">
       <div class="p-2 rounded-xl bg-gradient-to-br from-[var(--primary-color)] to-[var(--primary-dark)] shadow-lg">
         <i class="bi bi-list-ul text-white text-xl"></i>
@@ -10,27 +10,33 @@
       </div>
     </div>
 
-    <button class="btn btn-success" (click)="openModalAlimentos()">Agregar Alimento</button>
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:ml-auto w-full sm:w-auto">
+      <button class="btn btn-success w-full sm:w-auto inline-flex items-center justify-center rounded-lg shadow"
+        (click)="openModalAlimentos()">
+        <i class="bi bi-plus-circle me-2"></i>
+        Agregar Alimento
+      </button>
 
-    <div class="relative">
-      <mat-form-field appearance="outline" class="custom-input w-full sm:w-80">
-        <mat-label>
-          <i class=" me-2"></i>Buscar dieta...
-        </mat-label>
-        <input matInput [value]="search" (keyup)="applyFilter($any($event.target).value)"
-          placeholder="Nombre, categoría o unidad" />
-        <button mat-icon-button matSuffix aria-label="Buscar" class="search-btn">
-          <i class="bi bi-search"></i>
-        </button>
-      </mat-form-field>
+      <!-- Buscador -->
+      <div class="relative w-full sm:w-auto">
+        <mat-form-field appearance="outline" class="custom-input w-full sm:w-80">
+          <mat-label><i class="bi bi-search me-2"></i>Buscar dieta...</mat-label>
+          <input matInput [value]="search" (keyup)="applyFilter($any($event.target).value)"
+            placeholder="Nombre, categoría o unidad" />
+          <button mat-icon-button matSuffix aria-label="Buscar" class="search-btn">
+            <i class="bi bi-search"></i>
+          </button>
+        </mat-form-field>
 
-      <div *ngIf="search && filteredData.length > 0"
-        class="absolute -bottom-6 left-0 text-xs text-[var(--text-secondary)] fade-in">
-        <i class="bi bi-check-circle me-1 text-green-500"></i>
-        {{ filteredData.length }} resultado(s) encontrado(s)
+        <div *ngIf="search && filteredData.length > 0"
+          class="absolute -bottom-6 left-0 text-xs text-[var(--text-secondary)] fade-in">
+          <i class="bi bi-check-circle me-1 text-green-500"></i>
+          {{ filteredData.length }} resultado(s) encontrado(s)
+        </div>
       </div>
     </div>
   </div>
+
 
   <div *ngIf="loading" class="loading-card">
     <div class="flex items-center justify-center gap-3">
@@ -161,7 +167,7 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
       </table>
 
-      <mat-paginator [pageSize]="10" [pageSizeOptions]="[5,10,25,50]" class="paginator-custom" showFirstLastButtons>
+      <mat-paginator [pageSize]="5" [pageSizeOptions]="[5,10,25,50]" class="paginator-custom" showFirstLastButtons>
       </mat-paginator>
     </div>
   </div>
@@ -220,7 +226,7 @@
       </button>
     </div>
   </div>
-  
+
   <div *ngIf="search && filteredData.length > 0" class="mobile-stats-float md:hidden">
     <div class="flex items-center justify-between">
       <span class="text-sm text-white">

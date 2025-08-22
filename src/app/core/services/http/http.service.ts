@@ -82,6 +82,10 @@ export class HttpServices {
     return this.get('alimentos');
   }
 
+  obtenerCategoria(): Observable<any> {
+    return this.get('categorias');
+  }
+
   crearAlimento(alimentoData: any): Observable<any> {
     return this.post('alimentos', alimentoData);
   }

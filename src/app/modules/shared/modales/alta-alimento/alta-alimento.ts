@@ -1,9 +1,15 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpServices } from '../../../../core/services/http/http.service';
 import { Subject, takeUntil } from 'rxjs';
+
+interface Categoria {
+  id: string;
+  nombre: string;
+  descripcion?: string;
+}
 
 @Component({
   selector: 'app-alta-alimento',
@@ -11,61 +17,51 @@ import { Subject, takeUntil } from 'rxjs';
   templateUrl: './alta-alimento.html',
   styleUrl: './alta-alimento.scss'
 })
-export class AltaAlimento implements OnDestroy {
+export class AltaAlimento implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private http = inject(HttpServices);
   private destroy$ = new Subject<void>();
-  
   public activeModal = inject(NgbActiveModal);
-  
   loading = false;
+  loadingCategorias = false;
   errorMsg: string | null = null;
-  
+  categorias: Categoria[] = [];
   alimentoForm: FormGroup;
 
   constructor() {
     this.alimentoForm = this.fb.group({
-      // CAMPOS BÁSICOS OBLIGATORIOS
       nombre: ['', [Validators.required, Validators.minLength(2)]],
-      categoria_id: ['', Validators.required],
+      categoria_id: [{ value: '', disabled: false }, Validators.required],
       cantidad_sugerida: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       unidad: ['g', Validators.required],
       peso_bruto_g: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       peso_neto_g: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       energia_kcal: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
-      
-      // MACRONUTRIENTES OBLIGATORIOS
       proteina_g: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       lipidos_g: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       hidratos_de_carbono_g: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
-      
-      // ÁCIDOS GRASOS OBLIGATORIOS
       ag_saturados_g: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       ag_monoinsaturados_g: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       ag_poli_insaturados_g: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
-      
-      // OTROS COMPONENTES OBLIGATORIOS
       colesterol_mg: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       azucar_g: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       fibra_g: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       etanol_g: ['0', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
-      
-      // VITAMINAS OBLIGATORIAS
       vitamina_a_mg_re: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       acido_ascorbico_mg: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       acido_folico_mg: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
-      
-      // MINERALES OBLIGATORIOS
       calcio_mg: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       hierro_mg: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       potasio_mg: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       sodio_mg: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       fosforo_mg: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
-      
-      // ÍNDICE GLICÉMICO OBLIGATORIO
       ig: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       carga_glicemica: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]]
     });
+  }
+
+  ngOnInit(): void {
+    this.obtenerCategorias();
   }
 
   ngOnDestroy(): void {
@@ -73,7 +69,48 @@ export class AltaAlimento implements OnDestroy {
     this.destroy$.complete();
   }
 
-  get categoriaOptions() {
+  obtenerCategorias(): void {
+    this.loadingCategorias = true;
+    this.alimentoForm.get('categoria_id')?.disable();
+
+    this.http.obtenerCategoria()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any) => {
+          this.loadingCategorias = false;
+
+          if (response?.status === 'success' && response?.data && Array.isArray(response.data)) {
+            this.categorias = response.data;
+          } else if (response?.data && Array.isArray(response.data)) {
+            this.categorias = response.data;
+          } else {
+            this.categorias = this.getCategoriasFallback();
+          }
+          this.alimentoForm.get('categoria_id')?.enable();
+        },
+        error: (error) => {
+          this.loadingCategorias = false;
+          this.errorMsg = error?.error?.message || 'Error al obtener las categorías. Intenta nuevamente.';
+
+          this.categorias = this.getCategoriasFallback();
+          this.alimentoForm.get('categoria_id')?.enable();
+        }
+      });
+  }
+
+  get categoriaOptions(): Categoria[] {
+    return this.categorias;
+  }
+
+  get isLoadingCategorias(): boolean {
+    return this.loadingCategorias;
+  }
+
+  get categoriasLoaded(): boolean {
+    return this.categorias.length > 0;
+  }
+
+  private getCategoriasFallback(): Categoria[] {
     return [
       { id: '1', nombre: 'Frutas' },
       { id: '2', nombre: 'Verduras' },
@@ -112,36 +149,25 @@ export class AltaAlimento implements OnDestroy {
   }
 
   onSubmit(): void {
-    console.log('🚀 Estado del formulario:', this.alimentoForm.valid);
-    console.log('🚀 Errores del formulario:', this.alimentoForm.errors);
-    
     if (this.alimentoForm.valid) {
       this.loading = true;
       this.errorMsg = null;
-      
-      // Procesar el form data
       const rawFormData = this.alimentoForm.value;
       const formData = this.cleanFormData(rawFormData);
-      
-      // Debug: mostrar qué se va a enviar
-      console.log('🚀 Datos que se enviarán al servidor:', formData);
-      
+
       this.http.crearAlimento(formData)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
             this.loading = false;
-            console.log('✅ Alimento creado exitosamente:', response);
             this.activeModal.close({ success: true, data: response });
           },
           error: (error) => {
             this.loading = false;
-            console.error('❌ Error al crear alimento:', error);
             this.errorMsg = error?.error?.message || 'Error al crear el alimento. Intenta nuevamente.';
           }
         });
     } else {
-      console.log('❌ Formulario inválido, marcando campos como touched');
       this.markFormGroupTouched();
       this.scrollToFirstError();
     }
@@ -149,16 +175,13 @@ export class AltaAlimento implements OnDestroy {
 
   private cleanFormData(rawData: any): any {
     const cleanData: any = {};
-    
-    // Convertir todos los campos a string y limpiar
     Object.keys(rawData).forEach(key => {
       const value = rawData[key];
       if (value !== null && value !== undefined && value !== '') {
-        // Convertir a string y limpiar espacios
         cleanData[key] = value.toString().trim();
       }
     });
-    
+
     return cleanData;
   }
 
@@ -171,13 +194,12 @@ export class AltaAlimento implements OnDestroy {
   }
 
   private scrollToFirstError(): void {
-    // Buscar el primer campo con error y hacer scroll hacia él
     setTimeout(() => {
       const firstErrorElement = document.querySelector('.is-invalid');
       if (firstErrorElement) {
-        firstErrorElement.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
+        firstErrorElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
         });
       }
     }, 100);
@@ -191,7 +213,6 @@ export class AltaAlimento implements OnDestroy {
     this.errorMsg = null;
   }
 
-  // Método para prellenar con valores por defecto (útil para testing)
   setDefaultValues(): void {
     this.alimentoForm.patchValue({
       nombre: 'Manzana roja',
@@ -224,7 +245,6 @@ export class AltaAlimento implements OnDestroy {
     });
   }
 
-  // Método para validar si todos los campos numéricos son válidos
   get hasValidNumericFields(): boolean {
     const numericFields = [
       'cantidad_sugerida', 'peso_bruto_g', 'peso_neto_g', 'energia_kcal',
@@ -242,7 +262,6 @@ export class AltaAlimento implements OnDestroy {
     });
   }
 
-  // Método para obtener el porcentaje de campos completados
   get completionPercentage(): number {
     const totalFields = Object.keys(this.alimentoForm.controls).length;
     const completedFields = Object.keys(this.alimentoForm.controls)
@@ -250,7 +269,11 @@ export class AltaAlimento implements OnDestroy {
         const control = this.alimentoForm.get(key);
         return control && control.value && control.valid;
       }).length;
-    
+
     return Math.round((completedFields / totalFields) * 100);
+  }
+
+  trackByCategoria(index: number, categoria: Categoria): string {
+    return categoria.id;
   }
 }
