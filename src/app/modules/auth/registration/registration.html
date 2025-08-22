@@ -1,13 +1,13 @@
 <div class="modern-login-modal">
 
-  <!-- Panel izquierdo con imagen --> 
+  <!-- Panel izquierdo con imagen -->
   <div class="modal-left">
   </div>
 
   <!-- Panel derecho con formulario -->
   <div class="modal-right">
 
-    <h2 class="form-title">Crear cuenta</h2>
+    <h2 class="form-title">Crear cuenta de Nutricionista</h2>
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
       <!-- Nombre -->
@@ -32,6 +32,15 @@
       <div *ngIf="registerForm.get('contrasena')?.touched && registerForm.get('contrasena')?.invalid"
         class="text-danger">
         La contraseña debe tener al menos 6 caracteres.
+      </div>
+
+      <!-- Confirmar contraseña -->
+      <label for="confirmarContrasena" class="form-label">Confirmar contraseña</label>
+      <input id="confirmarContrasena" type="password" class="form-control" formControlName="confirmarContrasena"
+        placeholder="********" />
+      <div *ngIf="registerForm.hasError('passwordMismatch') && registerForm.get('confirmarContrasena')?.touched"
+        class="text-danger">
+        Las contraseñas no coinciden.
       </div>
 
       <!-- Botones -->

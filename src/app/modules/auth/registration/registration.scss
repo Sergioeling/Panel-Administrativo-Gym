@@ -17,18 +17,16 @@
     justify-content: center;
     padding: 20px;
 
-    /* Imagen de fondo */
     background: url("/assets/logo-nutricion.jpg") no-repeat center center;
-    background-size: cover; // que se ajuste sin deformarse
-    background-position: center; // centrada
+    background-size: cover;
+    background-position: center;
   }
 
   .modal-right {
     background: linear-gradient(to right,
-    var(--text-primary),
-    var(--primary-color)
-     );
-     
+        var(--text-primary),
+        var(--primary-color));
+
     width: 50%;
     padding: 30px;
     position: relative;
@@ -53,12 +51,12 @@
 
     .form-label {
       color: #ffffff !important;
-      font-weight: 500; // opcional para que resalten más
+      font-weight: 500;
     }
 
     .text-danger {
       color: #000000 !important;
-      font-weight: 500; // opcional para que resalten más
+      font-weight: 500;
     }
 
     .form-title {
@@ -97,7 +95,7 @@
 
 /* ---------- Botón iniciar sesión anaranjado ---------- */
 .btn-primary {
-  background-color: var(--accent-color); // naranja principal
+  background-color: var(--accent-color);
   border-color: var(--accent-color);
   font-weight: 600;
   border-radius: 20px;
@@ -105,7 +103,7 @@
   transition: background-color 0.3s ease, border-color 0.3s ease;
 
   &:hover {
-    background-color: var(--primary-dark); // tono más oscuro al hover
+    background-color: var(--primary-dark);
     border-color: var(--primary-dark);
   }
 
@@ -117,7 +115,7 @@
 }
 
 .btn-secondary {
-  background-color: var(--text-secondary); // gris
+  background-color: var(--text-secondary);
   border-color: var(--text-secondary);
   font-weight: 600;
   border-radius: 20px;
@@ -125,7 +123,7 @@
   transition: background-color 0.3s ease, border-color 0.3s ease;
 
   &:hover {
-    background-color: var(--text-primary); // tono más oscuro al hover
+    background-color: var(--text-primary);
     border-color: var(--text-primary);
   }
 

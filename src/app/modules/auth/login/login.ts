@@ -119,12 +119,10 @@ export class Login {
     });
   }
 
-   // ✅ inyectar modalService con inject()
   modalService = inject(NgbModal);
 
-  // 👇 Abrir el modal de Registro
   openRegister() {
-    this.activeModal.close();//Cerramos el modal de login
+    this.activeModal.close();
 
     this.modalService.open(RegistrationComponent, { 
       backdrop: 'static',
