@@ -1,0 +1,137 @@
+.modern-login-modal {
+  display: flex;
+  max-width: 800px;
+  width: 100%;
+  height: 85vh;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+
+  .modal-left {
+    background: var(--sidebar-bg);
+    color: rgb(255, 255, 255);
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+
+    /* Imagen de fondo */
+    background: url("/assets/logo-nutricion.jpg") no-repeat center center;
+    background-size: cover; // que se ajuste sin deformarse
+    background-position: center; // centrada
+  }
+
+  .modal-right {
+    background: linear-gradient(to right,
+    var(--text-primary),
+    var(--primary-color)
+     );
+     
+    width: 50%;
+    padding: 30px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+
+    .close-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+
+      i {
+        font-size: 40px;
+        color: #000000;
+      }
+    }
+
+    .form-label {
+      color: #ffffff !important;
+      font-weight: 500; // opcional para que resalten más
+    }
+
+    .text-danger {
+      color: #000000 !important;
+      font-weight: 500; // opcional para que resalten más
+    }
+
+    .form-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      color: #ffffff;
+
+      .icon-title {
+        font-size: 40px;
+      }
+
+      h2 {
+        font-size: 1.6rem;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+/* ---------- Inputs estilo Bootstrap mejorado ---------- */
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  padding: 10px 12px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 5px rgba(13, 110, 253, 0.3);
+  }
+}
+
+/* ---------- Botón iniciar sesión anaranjado ---------- */
+.btn-primary {
+  background-color: var(--accent-color); // naranja principal
+  border-color: var(--accent-color);
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 10px 0;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+
+  &:hover {
+    background-color: var(--primary-dark); // tono más oscuro al hover
+    border-color: var(--primary-dark);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+  }
+}
+
+.btn-secondary {
+  background-color: var(--text-secondary); // gris
+  border-color: var(--text-secondary);
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 10px 0;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+
+  &:hover {
+    background-color: var(--text-primary); // tono más oscuro al hover
+    border-color: var(--text-primary);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    background-color: var(--text-secondary);
+    border-color: var(--text-secondary);
+  }
+}

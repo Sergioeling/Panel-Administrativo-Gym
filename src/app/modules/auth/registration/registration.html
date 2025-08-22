@@ -1,0 +1,44 @@
+<div class="modern-login-modal">
+
+  <!-- Panel izquierdo con imagen --> 
+  <div class="modal-left">
+  </div>
+
+  <!-- Panel derecho con formulario -->
+  <div class="modal-right">
+
+    <h2 class="form-title">Crear cuenta</h2>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <!-- Nombre -->
+      <label for="nombre" class="form-label">Nombre completo</label>
+      <input id="nombre" type="text" class="form-control" formControlName="nombre"
+        placeholder="Ingresa tu nombre completo" />
+      <div *ngIf="registerForm.get('nombre')?.touched && registerForm.get('nombre')?.invalid" class="text-danger">
+        El nombre es requerido.
+      </div>
+
+      <!-- Email -->
+      <label for="correo" class="form-label">Correo electrónico</label>
+      <input id="correo" type="email" class="form-control" formControlName="correo" placeholder="ejemplo@correo.com" />
+      <div *ngIf="registerForm.get('correo')?.touched && registerForm.get('correo')?.invalid" class="text-danger">
+        Ingresa un correo válido.
+      </div>
+
+      <!-- Contraseña -->
+      <label for="contrasena" class="form-label">Contraseña</label>
+      <input id="contrasena" type="password" class="form-control full-width" formControlName="contrasena"
+        placeholder="********" />
+      <div *ngIf="registerForm.get('contrasena')?.touched && registerForm.get('contrasena')?.invalid"
+        class="text-danger">
+        La contraseña debe tener al menos 6 caracteres.
+      </div>
+
+      <!-- Botones -->
+      <div class="d-flex gap-3 mt-3 px-3">
+        <button type="button" class="btn btn-secondary w-100 mb-3" (click)="close()">Cancelar</button>
+        <button type="submit" class="btn btn-primary w-100 mb-3" [disabled]="registerForm.invalid">Registrarse</button>
+      </div>
+    </form>
+  </div>
+</div>
