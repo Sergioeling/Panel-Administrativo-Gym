@@ -12,6 +12,9 @@ import Swal from 'sweetalert2';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgIf } from '@angular/common';
 
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { RegistrationComponent } from '../../auth/registration/registration'; // ajusta la ruta
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -114,5 +117,17 @@ export class Login {
       text: 'Contacta al administrador para crear una cuenta',
       icon: 'info'
     });
+  }
+
+   // ✅ inyectar modalService con inject()
+  modalService = inject(NgbModal);
+
+  // 👇 Abrir el modal de Registro
+  openRegister() {
+    this.activeModal.close();//Cerramos el modal de login
+
+    this.modalService.open(RegistrationComponent, { 
+      backdrop: 'static',
+      size: 'lg' });
   }
 }

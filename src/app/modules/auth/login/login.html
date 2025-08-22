@@ -1,52 +1,55 @@
 <div class="modern-login-modal">
   <!-- Panel izquierdo con imagen -->
   <div class="modal-left">
-    <img src="/assets/logo-nutricion.png" alt="Logo Nutrición" class="logo" />
   </div>
-
   <!-- Panel derecho con formulario -->
   <div class="modal-right">
     <!-- Botón cerrar -->
     <button type="button" class="close-btn" (click)="activeModal.dismiss('Cross click')" aria-label="Cerrar">
-       <i class="bi bi-x"></i>
+      <i class="bi bi-x"></i>
     </button>
-
+    
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
       <div class="form-title">
-        <mat-icon class="icon-title">account_circle</mat-icon>
+        <i class="bi bi-person-circle icon-title"></i>
         <h2>Iniciar sesión</h2>
       </div>
 
-      <!-- Usuario appearance="outline"-->
-      <mat-form-field class="custom-input full-width">
-        <mat-label>Usuario/Correo Electrónico</mat-label>
-        <input matInput type="email" formControlName="correo" placeholder="ejemplo@email.com">
-        <mat-icon matSuffix>email</mat-icon>
-        <mat-error *ngIf="loginForm.get('correo')?.invalid && loginForm.get('correo')?.touched">
+      <!-- Correo -->
+      <div class="mb-3">
+        <label for="correo" class="form-label">Usuario/Correo Electrónico</label>
+        <input type="email" class="form-control" id="correo" formControlName="correo" placeholder="ejemplo@email.com" />
+        <div class="text-danger mt-1" *ngIf="loginForm.get('correo')?.invalid && loginForm.get('correo')?.touched">
           {{ getErrorMessage('correo') }}
-        </mat-error>
-      </mat-form-field>
+        </div>
+      </div>
 
       <!-- Contraseña -->
-      <mat-form-field class="custom-input full-width">
-        <mat-label>Contraseña</mat-label>
-        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="contrasena" placeholder="••••••">
-        <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()">
-          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-        </button>
-        <mat-error *ngIf="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched">
+      <div class="mb-3">
+        <label for="contrasena" class="form-label">Contraseña</label>
+        <input [type]="hidePassword ? 'password' : 'text'" class="form-control" id="contrasena"
+          formControlName="contrasena" placeholder="••••••" />
+        <div class="text-danger mt-1"
+          *ngIf="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched">
           {{ getErrorMessage('contrasena') }}
-        </mat-error>
-      </mat-form-field>
+        </div>
+      </div>
 
-      <!-- Botón Iniciar sesion-->
-      <button mat-raised-button color="primary" type="submit" class="login-button" [disabled]="isLoading">
+      <!-- Botón Iniciar sesión -->
+      <button type="submit" class="btn btn-primary w-100 mb-3" [disabled]="isLoading">
         <span *ngIf="!isLoading">Iniciar sesión</span>
-        <span *ngIf="isLoading" class="loading-text">
-          <mat-icon class="spinning">refresh</mat-icon>
+        <span *ngIf="isLoading">
+          <i class="bi bi-arrow-repeat spinner-border-sm"></i>
           Iniciando sesión...
         </span>
       </button>
+
+      <!-- Registro -->
+      <div class="register-option">
+        <span>¿No tienes cuenta?</span>
+        <a (click)="openRegister()">Regístrate aquí</a>
+      </div>
+
     </form>
   </div>
 </div>
