@@ -2,36 +2,19 @@
   <!-- Panel izquierdo con imagen -->
   <div class="modal-left">
   </div>
-
   <!-- Panel derecho con formulario -->
   <div class="modal-right">
     <!-- Botón cerrar -->
     <button type="button" class="close-btn" (click)="activeModal.dismiss('Cross click')" aria-label="Cerrar">
       <i class="bi bi-x"></i>
     </button>
-    <!--
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-      <div class="form-title">
-        <mat-icon class="icon-title">account_circle</mat-icon>
-        <h2>Iniciar sesión</h2>
-      </div>
-    -->
+    
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
       <div class="form-title">
         <i class="bi bi-person-circle icon-title"></i>
         <h2>Iniciar sesión</h2>
       </div>
 
-      <!--
-      <mat-form-field class="custom-input full-width">
-        <mat-label>Usuario/Correo Electrónico</mat-label>
-        <input matInput type="email" formControlName="correo" placeholder="ejemplo@email.com">
-        <mat-icon matSuffix>email</mat-icon>
-        <mat-error *ngIf="loginForm.get('correo')?.invalid && loginForm.get('correo')?.touched">
-          {{ getErrorMessage('correo') }}
-        </mat-error>
-      </mat-form-field>
-      -->
       <!-- Correo -->
       <div class="mb-3">
         <label for="correo" class="form-label">Usuario/Correo Electrónico</label>
@@ -40,19 +23,6 @@
           {{ getErrorMessage('correo') }}
         </div>
       </div>
-
-      <!-- Contraseña 
-      <mat-form-field class="custom-input full-width">
-        <mat-label>Contraseña</mat-label>
-        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="contrasena" placeholder="••••••">
-        <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()">
-          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-        </button>
-        <mat-error *ngIf="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched">
-          {{ getErrorMessage('contrasena') }}
-        </mat-error>
-      </mat-form-field>
-      -->
 
       <!-- Contraseña -->
       <div class="mb-3">
@@ -64,16 +34,6 @@
           {{ getErrorMessage('contrasena') }}
         </div>
       </div>
-
-      <!-- Botón Iniciar sesion
-      <button mat-raised-button color="primary" type="submit" class="login-button" [disabled]="isLoading">
-        <span *ngIf="!isLoading">Iniciar sesión</span>
-        <span *ngIf="isLoading" class="loading-text">
-          <mat-icon class="spinning">refresh</mat-icon>
-          Iniciando sesión...
-        </span>
-      </button>
-      -->
 
       <!-- Botón Iniciar sesión -->
       <button type="submit" class="btn btn-primary w-100 mb-3" [disabled]="isLoading">
