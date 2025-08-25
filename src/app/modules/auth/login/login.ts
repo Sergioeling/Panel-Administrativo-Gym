@@ -13,7 +13,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgIf } from '@angular/common';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { RegistrationComponent } from '../../auth/registration/registration'; // ajusta la ruta
+import { RegistrationComponent } from '../../auth/registration/registration'; 
 
 @Component({
   selector: 'app-login',

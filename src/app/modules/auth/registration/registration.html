@@ -14,8 +14,19 @@
       <label for="nombre" class="form-label">Nombre completo</label>
       <input id="nombre" type="text" class="form-control" formControlName="nombre"
         placeholder="Ingresa tu nombre completo" />
-      <div *ngIf="registerForm.get('nombre')?.touched && registerForm.get('nombre')?.invalid" class="text-danger">
-        El nombre es requerido.
+      <div class="text-danger mt-1" *ngIf="registerForm.get('nombre')?.touched && registerForm.get('nombre')?.invalid">
+        <div *ngIf="registerForm.get('nombre')?.errors?.['required']">
+          El nombre es obligatorio
+        </div>
+        <div *ngIf="registerForm.get('nombre')?.errors?.['minlength']">
+          El nombre debe tener al menos 3 caracteres
+        </div>
+        <div *ngIf="registerForm.get('nombre')?.errors?.['maxlength']">
+          El nombre no puede superar 50 caracteres
+        </div>
+        <div *ngIf="registerForm.get('nombre')?.errors?.['pattern']">
+          El nombre solo puede contener letras y espacios
+        </div>
       </div>
 
       <!-- Email -->
