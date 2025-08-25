@@ -9,11 +9,6 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 
   .modal-left {
-    /*
-    background: url("/assets/logo-nutricion.jpg") no-repeat center center;
-    background-size: cover;
-    background-position: center;
-    */
     width: 50%;
     height: 100%;
     display: flex;
@@ -25,7 +20,7 @@
   .modal-left .logo-left {
     width: 100%;
     height: 100%;
-    object-fit: cover; // Esto asegura que la imagen se recorte y cubra todo
+    object-fit: cover;
   }
 
   .modal-right {
