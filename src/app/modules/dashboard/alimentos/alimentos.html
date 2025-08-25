@@ -1,47 +1,52 @@
-<div class="w-full max-w-screen-2xl mx-auto p-4 sm:p-6 bg-[var(--background)] min-h-screen">
+<div class="w-full max-w-screen-2xl mx-auto p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
   <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
     <div class="flex items-center gap-3">
-      <div class="p-2 rounded-xl bg-gradient-to-br from-[var(--primary-color)] to-[var(--primary-dark)] shadow-lg">
-        <i class="bi bi-list-ul text-white text-xl"></i>
+      <div class="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-red-500 to-red-600 shadow-lg">
+        <i class="bi bi-list-ul text-white text-lg sm:text-xl"></i>
       </div>
       <div>
-        <h1 class="text-2xl font-bold text-[var(--text-primary)] mb-1">Listado de alimentos</h1>
-        <p class="text-sm text-[var(--text-secondary)]">Gestiona y consulta la información nutricional</p>
+        <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-1">Listado de Alimentos</h1>
+        <p class="text-sm sm:text-base text-gray-600">Gestiona y consulta la información nutricional</p>
       </div>
     </div>
 
-    <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:ml-auto w-full sm:w-auto">
-      <button class="btn btn-success w-full sm:w-auto inline-flex items-center justify-center rounded-lg shadow"
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+      <button
+        class="btn btn-success w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
         (click)="openModalAlimentos()">
         <i class="bi bi-plus-circle me-2"></i>
-        Agregar Alimento
+        <span class="hidden sm:inline">Agregar</span> Alimento
       </button>
 
-      <!-- Buscador -->
       <div class="relative w-full sm:w-auto">
         <mat-form-field appearance="outline" class="custom-input w-full sm:w-80">
-          <mat-label><i class="bi bi-search me-2"></i>Buscar dieta...</mat-label>
+          <mat-label>
+            <i class="bi bi-search me-2"></i>
+            <span class="hidden sm:inline">Buscar alimento...</span>
+            <span class="sm:hidden">Buscar...</span>
+          </mat-label>
           <input matInput [value]="search" (keyup)="applyFilter($any($event.target).value)"
-            placeholder="Nombre, categoría o unidad" />
+            placeholder="Nombre, categoría..." />
           <button mat-icon-button matSuffix aria-label="Buscar" class="search-btn">
             <i class="bi bi-search"></i>
           </button>
         </mat-form-field>
 
-        <div *ngIf="search && filteredData.length > 0"
-          class="absolute -bottom-6 left-0 text-xs text-[var(--text-secondary)] fade-in">
+        <div *ngIf="search && filteredData.length > 0" class="absolute -bottom-6 left-0 text-xs text-gray-600 fade-in">
           <i class="bi bi-check-circle me-1 text-green-500"></i>
-          {{ filteredData.length }} resultado(s) encontrado(s)
+          {{ filteredData.length }} resultado(s)
         </div>
       </div>
     </div>
   </div>
 
-
   <div *ngIf="loading" class="loading-card">
     <div class="flex items-center justify-center gap-3">
       <div class="spinner"></div>
-      <span class="text-[var(--text-primary)]">Cargando dietas...</span>
+      <span class="text-gray-700">
+        <span class="hidden sm:inline">Cargando alimentos...</span>
+        <span class="sm:hidden">Cargando...</span>
+      </span>
     </div>
   </div>
 
@@ -52,17 +57,23 @@
         <p class="font-semibold text-red-700">Error al cargar</p>
         <p class="text-sm text-red-600">{{ errorMsg }}</p>
       </div>
+      <button (click)="retryLoad()" class="ml-auto btn btn-sm btn-outline-danger">
+        Reintentar
+      </button>
     </div>
   </div>
 
-  <div *ngIf="!loading && dataSource.data.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+  <div *ngIf="!loading && dataSource.data.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
+
     <div class="stat-card">
       <div class="stat-icon bg-blue-100">
         <i class="bi bi-collection text-blue-600"></i>
       </div>
       <div class="stat-content">
         <p class="stat-number">{{ dataSource.data.length }}</p>
-        <p class="stat-label">Total dietas</p>
+        <p class="stat-label">
+          <span class="hidden sm:inline">Total</span> Alimentos
+        </p>
       </div>
     </div>
 
@@ -72,7 +83,9 @@
       </div>
       <div class="stat-content">
         <p class="stat-number">{{ avgCalories }}</p>
-        <p class="stat-label">Promedio kcal</p>
+        <p class="stat-label">
+          <span class="hidden sm:inline">Promedio</span> Kcal
+        </p>
       </div>
     </div>
 
@@ -82,7 +95,9 @@
       </div>
       <div class="stat-content">
         <p class="stat-number">{{ avgProtein }}g</p>
-        <p class="stat-label">Prom. proteína</p>
+        <p class="stat-label">
+          <span class="hidden sm:inline">Prom.</span> Proteína
+        </p>
       </div>
     </div>
 
@@ -96,22 +111,28 @@
       </div>
     </div>
   </div>
+
+  <!-- Desktop/Tablet Table View -->
   <div class="hidden md:block">
     <div class="table-container">
-      <table mat-table [dataSource]="dataSource" matSort class="nutrition-table">
+      <table mat-table [dataSource]="dataSource" matSort class="nutrition-table w-full">
+
+        <!-- Nombre Column -->
         <ng-container matColumnDef="nombre">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="min-w-48">
             <i class="bi bi-card-text me-2"></i>Alimento
           </th>
-          <td mat-cell *matCellDef="let el" class="font-medium text-[var(--text-primary)]">
+          <td mat-cell *matCellDef="let el" class="font-medium text-gray-800">
             <div class="flex items-center gap-2">
               <div class="food-icon">
-                <i class="bi bi-circle-fill text-[var(--primary-color)] text-xs"></i>
+                <i class="bi bi-circle-fill text-red-500 text-xs"></i>
               </div>
-              {{ el.nombre }}
+              <span class="truncate">{{ el.nombre }}</span>
             </div>
           </td>
         </ng-container>
+
+        <!-- Categoría Column -->
         <ng-container matColumnDef="categoria_id">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             <i class="bi bi-tag me-2"></i>Categoría
@@ -120,22 +141,30 @@
             <span class="category-badge">{{ el.categoria_id }}</span>
           </td>
         </ng-container>
+
+        <!-- Porción Column - Solo Desktop -->
         <ng-container matColumnDef="cantidad_sugerida">
-          <th mat-header-cell *matHeaderCellDef>
+          <th mat-header-cell *matHeaderCellDef class="hidden lg:table-cell">
             <i class="bi bi-rulers me-2"></i>Porción
           </th>
-          <td mat-cell *matCellDef="let el">
+          <td mat-cell *matCellDef="let el" class="hidden lg:table-cell">
             <span class="portion-text">{{ el.cantidad_sugerida }} {{ el.unidad }}</span>
           </td>
         </ng-container>
+
+        <!-- Energía Column -->
         <ng-container matColumnDef="energia_kcal">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
-            <i class="bi bi-lightning-charge me-2"></i>Energía
+            <i class="bi bi-lightning-charge me-2"></i>
+            <span class="hidden lg:inline">Energía</span>
+            <span class="lg:hidden">Kcal</span>
           </th>
           <td mat-cell *matCellDef="let el">
             <span class="calorie-badge">{{ el.energia_kcal }} kcal</span>
           </td>
         </ng-container>
+
+        <!-- Proteína Column -->
         <ng-container matColumnDef="proteina_g">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             <i class="bi bi-egg me-2"></i>Proteína
@@ -145,96 +174,171 @@
           </td>
         </ng-container>
 
+        <!-- Carbohidratos Column - Solo Desktop -->
         <ng-container matColumnDef="hidratos_de_carbono_g">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="hidden xl:table-cell">
             <i class="bi bi-bread-slice me-2"></i>Carbohidratos
           </th>
-          <td mat-cell *matCellDef="let el">
+          <td mat-cell *matCellDef="let el" class="hidden xl:table-cell">
             <span class="macro-value carbs">{{ el.hidratos_de_carbono_g }}g</span>
           </td>
         </ng-container>
 
+        <!-- Grasas Column - Solo Desktop -->
         <ng-container matColumnDef="lipidos_g">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="hidden xl:table-cell">
             <i class="bi bi-droplet me-2"></i>Grasas
           </th>
-          <td mat-cell *matCellDef="let el">
+          <td mat-cell *matCellDef="let el" class="hidden xl:table-cell">
             <span class="macro-value fats">{{ el.lipidos_g }}g</span>
           </td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="table-header"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
+        <tr mat-header-row *matHeaderRowDef="currentDisplayedColumns" class="table-header"></tr>
+        <tr mat-row *matRowDef="let row; columns: currentDisplayedColumns;"
+          class="table-row cursor-pointer hover:bg-gray-50" (click)="openModalAlimentos(row, true)"></tr>
       </table>
 
-      <mat-paginator [pageSize]="5" [pageSizeOptions]="[5,10,25,50]" class="paginator-custom" showFirstLastButtons>
+      <!-- Desktop Paginator -->
+      <mat-paginator [pageSize]="10" [pageSizeOptions]="[5,10,25,50]" class="paginator-custom" showFirstLastButtons>
       </mat-paginator>
     </div>
   </div>
 
-  <div class="grid md:hidden gap-4">
-    <div *ngFor="let el of filteredData; trackBy: trackById; let i = index" class="nutrition-card">
-      <div class="flex items-start justify-between gap-3 mb-3">
-        <div class="flex items-start gap-3">
-          <div class="food-avatar">
-            <i class="bi bi-circle-fill text-[var(--primary-color)]"></i>
-          </div>
-          <div>
-            <h3 class="text-base font-bold text-[var(--text-primary)] leading-tight">{{ el.nombre }}</h3>
-            <div class="flex items-center gap-2 mt-1">
-              <span class="category-tag">
-                <i class="bi bi-tag me-1"></i>{{ el.categoria_id }}
-              </span>
-              <span class="portion-tag">
-                <i class="bi bi-rulers me-1"></i>{{ el.cantidad_sugerida }} {{ el.unidad }}
-              </span>
+  <!-- Mobile Card View -->
+  <div class="block md:hidden">
+    <div class="space-y-4">
+      <div *ngFor="let el of mobilePagedData; trackBy: trackById; let i = index" class="nutrition-card"
+        (click)="openModalAlimentos(el, true)">
+
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex items-start gap-3 flex-1 min-w-0">
+            <div class="food-avatar flex-shrink-0">
+              <i class="bi bi-circle-fill text-red-500"></i>
             </div>
+            <div class="min-w-0 flex-1">
+              <h3 class="text-base font-bold text-gray-800 leading-tight mb-1 truncate">
+                {{ el.nombre }}
+              </h3>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="category-tag">
+                  <i class="bi bi-tag me-1"></i>{{ el.categoria_id }}
+                </span>
+                <span class="portion-tag">
+                  <i class="bi bi-rulers me-1"></i>{{ el.cantidad_sugerida }} {{ el.unidad }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="calorie-highlight flex-shrink-0">
+            <span class="calorie-number">{{ el.energia_kcal }}</span>
+            <span class="calorie-unit">kcal</span>
           </div>
         </div>
 
-        <div class="calorie-highlight">
-          <span class="calorie-number">{{ el.energia_kcal }}</span>
-          <span class="calorie-unit">kcal</span>
-        </div>
-      </div>
-      <div class="macro-grid-simple">
-        <div class="macro-simple">
-          <i class="bi bi-egg text-green-600"></i>
-          <span>{{ el.proteina_g }}g</span>
-        </div>
-        <div class="macro-simple">
-          <i class="bi bi-bread-slice text-orange-600"></i>
-          <span>{{ el.hidratos_de_carbono_g }}g</span>
-        </div>
-        <div class="macro-simple">
-          <i class="bi bi-droplet text-blue-600"></i>
-          <span>{{ el.lipidos_g }}g</span>
+        <!-- Macros Row -->
+        <div class="macro-grid-simple">
+          <div class="macro-simple">
+            <i class="bi bi-egg text-green-600"></i>
+            <span>{{ el.proteina_g }}g</span>
+            <small class="text-xs text-gray-500 hidden sm:inline">Proteína</small>
+          </div>
+          <div class="macro-simple">
+            <i class="bi bi-bread-slice text-orange-600"></i>
+            <span>{{ el.hidratos_de_carbono_g }}g</span>
+            <small class="text-xs text-gray-500 hidden sm:inline">Carbos</small>
+          </div>
+          <div class="macro-simple">
+            <i class="bi bi-droplet text-blue-600"></i>
+            <span>{{ el.lipidos_g }}g</span>
+            <small class="text-xs text-gray-500 hidden sm:inline">Grasas</small>
+          </div>
         </div>
       </div>
     </div>
-    <div *ngIf="!loading && filteredData.length === 0" class="empty-state">
-      <div class="empty-icon">
-        <i class="bi bi-search text-4xl text-[var(--text-secondary)]"></i>
+
+    <!-- Mobile Pagination -->
+    <div *ngIf="mobileTotalPages > 1" class="mobile-pagination mt-6">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-sm text-gray-600">
+          Página {{ mobileCurrentPage + 1 }} de {{ mobileTotalPages }}
+        </span>
+        <span class="text-xs text-gray-500">
+          {{ mobilePagedData.length }} de {{ filteredData.length }} elementos
+        </span>
       </div>
-      <h3 class="text-lg font-semibold text-[var(--text-primary)] mb-2">No se encontraron resultados</h3>
-      <p class="text-[var(--text-secondary)] mb-4">
-        No hay dietas que coincidan con <strong>"{{ search }}"</strong>
+
+      <div class="flex items-center justify-center gap-2">
+        <!-- Previous Button -->
+        <button (click)="previousMobilePage()" [disabled]="mobileCurrentPage === 0" class="pagination-btn"
+          [class.disabled]="mobileCurrentPage === 0">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <!-- Page Numbers -->
+        <div class="flex items-center gap-1">
+          <button *ngFor="let page of getMobilePageNumbers()" (click)="onMobilePageChange(page)"
+            class="pagination-number" [class.active]="page === mobileCurrentPage">
+            {{ page + 1 }}
+          </button>
+        </div>
+
+        <!-- Next Button -->
+        <button (click)="nextMobilePage()" [disabled]="mobileCurrentPage >= mobileTotalPages - 1" class="pagination-btn"
+          [class.disabled]="mobileCurrentPage >= mobileTotalPages - 1">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+
+      <!-- Quick Jump (for many pages) -->
+      <div *ngIf="mobileTotalPages > 7" class="flex items-center justify-center gap-2 mt-3">
+        <button (click)="onMobilePageChange(0)" [disabled]="mobileCurrentPage === 0" class="pagination-quick">
+          Primera
+        </button>
+        <button (click)="onMobilePageChange(mobileTotalPages - 1)"
+          [disabled]="mobileCurrentPage === mobileTotalPages - 1" class="pagination-quick">
+          Última
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State for Mobile -->
+    <div *ngIf="!loading && mobilePagedData.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-search text-4xl text-gray-400"></i>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-800 mb-2">No se encontraron resultados</h3>
+      <p class="text-gray-600 mb-4 text-center">
+        <span *ngIf="search; else noSearchTemplate">
+          No hay alimentos que coincidan con <strong>"{{ search }}"</strong>
+        </span>
+        <ng-template #noSearchTemplate>
+          No hay alimentos disponibles en este momento
+        </ng-template>
       </p>
-      <button (click)="clearSearch()" class="clear-search-btn">
+      <button *ngIf="search" (click)="clearSearch()" class="clear-search-btn">
         <i class="bi bi-arrow-counterclockwise me-2"></i>
         Limpiar búsqueda
       </button>
     </div>
   </div>
 
-  <div *ngIf="search && filteredData.length > 0" class="mobile-stats-float md:hidden">
+  <!-- Floating Search Results for Mobile -->
+  <div *ngIf="search && filteredData.length > 0 && isMobile" class="mobile-stats-float">
     <div class="flex items-center justify-between">
-      <span class="text-sm text-white">
-        <i class="bi bi-funnel me-1"></i>{{ filteredData.length }} resultados
+      <span class="text-sm text-white font-medium">
+        <i class="bi bi-funnel me-1"></i>{{ filteredData.length }} resultado(s)
       </span>
-      <button (click)="clearSearch()" class="text-white/80 hover:text-white">
+      <button (click)="clearSearch()" class="text-white/80 hover:text-white p-1 rounded transition-colors">
         <i class="bi bi-x-lg"></i>
       </button>
     </div>
   </div>
+
+  <!-- Floating Action Button for Mobile -->
+  <button *ngIf="isMobile" (click)="openModalAlimentos()" class="fab">
+    <i class="bi bi-plus text-xl"></i>
+  </button>
+
 </div>

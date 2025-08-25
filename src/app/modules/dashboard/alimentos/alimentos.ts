@@ -1,8 +1,8 @@
-import { AfterViewInit, Component, ViewChild, inject, OnInit, OnDestroy, ChangeDetectionStrategy, TrackByFunction } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, inject, OnInit, OnDestroy, ChangeDetectionStrategy, TrackByFunction, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -11,7 +11,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { HttpServices } from '../../../core/services/http/http.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AltaAlimento } from '../../shared/modales/alta-alimento/alta-alimento';
-
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-alimentos',
@@ -33,7 +33,11 @@ import { AltaAlimento } from '../../shared/modales/alta-alimento/alta-alimento';
 })
 export class alimentos implements OnInit, AfterViewInit, OnDestroy {
 
-  constructor(private modalService: NgbModal) { }
+  constructor(
+    private modalService: NgbModal,
+    private breakpointObserver: BreakpointObserver,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   private http = inject(HttpServices);
   private destroy$ = new Subject<void>();
@@ -41,6 +45,13 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
   loading = false;
   errorMsg: string | null = null;
   search = '';
+  isMobile = false;
+  isTablet = false;
+  mobilePageSize = 6;
+  mobileCurrentPage = 0;
+  mobileTotalPages = 0;
+  mobilePagedData: any[] = [];
+
   private _stats = {
     avgCalories: 0,
     avgProtein: '0',
@@ -58,14 +69,43 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
     'lipidos_g'
   ];
 
+  displayedColumnsTablet: string[] = [
+    'nombre',
+    'categoria_id',
+    'energia_kcal',
+    'proteina_g'
+  ];
+
   dataSource = new MatTableDataSource<any>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
+    this.setupResponsive();
     this.obtenerDietas();
+    this.setupDataSourceConfig();
+  }
 
+  setupResponsive(): void {
+    this.breakpointObserver.observe([
+      Breakpoints.XSmall,
+      Breakpoints.Small,
+      Breakpoints.Medium
+    ]).pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        this.isMobile = this.breakpointObserver.isMatched(['(max-width: 767px)']);
+        this.isTablet = this.breakpointObserver.isMatched(['(min-width: 768px) and (max-width: 1023px)']);
+
+        if (this.isMobile) {
+          this.updateMobilePagination();
+        }
+
+        this.cdr.markForCheck();
+      });
+  }
+
+  setupDataSourceConfig(): void {
     this.dataSource.filterPredicate = (data: any, filter: string) => {
       const f = (filter ?? '').trim().toLowerCase();
       return (
@@ -92,8 +132,10 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    if (!this.isMobile) {
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    }
   }
 
   ngOnDestroy(): void {
@@ -104,6 +146,7 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
   obtenerDietas(): void {
     this.loading = true;
     this.errorMsg = null;
+    this.cdr.markForCheck();
 
     this.http.obtenerAlimentos()
       .pipe(takeUntil(this.destroy$))
@@ -112,15 +155,24 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
           const payload = resp?.data ?? resp;
           const data: any[] = Array.isArray(payload) ? payload : (payload ? [payload] : []);
           this.dataSource.data = data;
-          if (this.paginator) this.dataSource.paginator = this.paginator;
-          if (this.sort) this.dataSource.sort = this.sort;
+
+          if (!this.isMobile && this.paginator) {
+            this.dataSource.paginator = this.paginator;
+          }
+          if (!this.isMobile && this.sort) {
+            this.dataSource.sort = this.sort;
+          }
+
           this._statsDirty = true;
+          this.updateMobilePagination();
           this.loading = false;
+          this.cdr.markForCheck();
         },
         error: (err) => {
-          console.error('Error al obtener dietas:', err);
-          this.errorMsg = 'No se pudieron cargar las dietas. Intenta nuevamente.';
+          console.error('Error al obtener alimentos:', err);
+          this.errorMsg = 'No se pudieron cargar los alimentos. Intenta nuevamente.';
           this.loading = false;
+          this.cdr.markForCheck();
         }
       });
   }
@@ -128,13 +180,88 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
   applyFilter(value: string): void {
     this.search = value ?? '';
     this.dataSource.filter = this.search.trim().toLowerCase();
-    this.dataSource.paginator?.firstPage();
+
+    if (!this.isMobile && this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    } else if (this.isMobile) {
+      this.mobileCurrentPage = 0;
+      this.updateMobilePagination();
+    }
+    this.cdr.markForCheck();
   }
 
   clearSearch(): void {
     this.search = '';
     this.dataSource.filter = '';
-    this.dataSource.paginator?.firstPage();
+
+    if (!this.isMobile && this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    } else if (this.isMobile) {
+      this.mobileCurrentPage = 0;
+      this.updateMobilePagination();
+    }
+    this.cdr.markForCheck();
+  }
+
+  // Paginación móvil
+  updateMobilePagination(): void {
+    if (!this.isMobile) return;
+
+    const filteredData = this.dataSource.filteredData.length
+      ? this.dataSource.filteredData
+      : this.dataSource.data;
+
+    this.mobileTotalPages = Math.ceil(filteredData.length / this.mobilePageSize);
+
+    const startIndex = this.mobileCurrentPage * this.mobilePageSize;
+    const endIndex = startIndex + this.mobilePageSize;
+
+    this.mobilePagedData = filteredData.slice(startIndex, endIndex);
+    this.cdr.markForCheck();
+  }
+
+  onMobilePageChange(page: number): void {
+    this.mobileCurrentPage = page;
+    this.updateMobilePagination();
+  }
+
+  previousMobilePage(): void {
+    if (this.mobileCurrentPage > 0) {
+      this.mobileCurrentPage--;
+      this.updateMobilePagination();
+    }
+  }
+
+  nextMobilePage(): void {
+    if (this.mobileCurrentPage < this.mobileTotalPages - 1) {
+      this.mobileCurrentPage++;
+      this.updateMobilePagination();
+    }
+  }
+
+  getMobilePageNumbers(): number[] {
+    const pages: number[] = [];
+    const totalPages = this.mobileTotalPages;
+    const current = this.mobileCurrentPage;
+
+    // Mostrar máximo 5 páginas
+    let start = Math.max(0, current - 2);
+    let end = Math.min(totalPages - 1, current + 2);
+
+    // Ajustar si estamos cerca del inicio o final
+    if (end - start < 4) {
+      if (start === 0) {
+        end = Math.min(totalPages - 1, start + 4);
+      } else if (end === totalPages - 1) {
+        start = Math.max(0, end - 4);
+      }
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
   }
 
   // Datos para móvil
@@ -225,7 +352,7 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
   openModalAlimentos(item?: any, edit?: boolean): void {
     const modalRef = this.modalService.open(AltaAlimento, {
       backdrop: 'static',
-      size: 'lg', 
+      size: 'lg',
       scrollable: true
     });
 
@@ -239,9 +366,6 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
         if (result && result.success) {
           console.log('Alimento creado exitosamente:', result.data);
           this.obtenerDietas();
-
-          // Opcional: Mostrar mensaje de éxito
-          // this.showSuccessMessage('Alimento agregado correctamente');
         }
       },
       (dismissed) => {
@@ -250,5 +374,11 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-
+  // Getters para las columnas responsive
+  get currentDisplayedColumns(): string[] {
+    if (this.isTablet) {
+      return this.displayedColumnsTablet;
+    }
+    return this.displayedColumns;
+  }
 }

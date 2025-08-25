@@ -51,30 +51,30 @@ export class AuthServices {
 
   private encrypt(text: string): string {
     if (!text) return '';
-    
+
     let encrypted = '';
     for (let i = 0; i < text.length; i++) {
       const textChar = text.charCodeAt(i);
       const keyChar = this.secretKey.charCodeAt(i % this.secretKey.length);
       encrypted += String.fromCharCode(textChar ^ keyChar);
     }
-    
+
     return this.btoa64(encrypted);
   }
 
   private decrypt(encryptedText: string): string {
     if (!encryptedText) return '';
-    
+
     try {
       const encrypted = this.atob64(encryptedText);
       let decrypted = '';
-      
+
       for (let i = 0; i < encrypted.length; i++) {
         const encryptedChar = encrypted.charCodeAt(i);
         const keyChar = this.secretKey.charCodeAt(i % this.secretKey.length);
         decrypted += String.fromCharCode(encryptedChar ^ keyChar);
       }
-      
+
       return decrypted;
     } catch (error) {
       console.error('Error decrypting:', error);
@@ -91,18 +91,18 @@ export class AuthServices {
 
   private getSecureItem(key: string): string {
     if (!this.isBrowser()) return '';
-    
+
     const encryptedValue = localStorage.getItem(key);
     if (!encryptedValue) return '';
-    
+
     return this.decrypt(encryptedValue);
   }
 
   private cleanOldStorage(): void {
     if (!this.isBrowser()) return;
-    
+
     const keysToCheck = ['token', 'Role', 'id_Usuario', 'user_id', 'nombre', 'correo', 'token_checksum', 'data_checksum'];
-    
+
     keysToCheck.forEach(key => {
       const value = localStorage.getItem(key);
       if (value) {
@@ -117,10 +117,10 @@ export class AuthServices {
 
   private migrateOldData(): void {
     if (!this.isBrowser()) return;
-    
+
     const keysToMigrate = ['token', 'Role', 'id_Usuario', 'user_id', 'nombre', 'correo', 'token_checksum', 'data_checksum'];
     const oldData: { [key: string]: string } = {};
-    
+
     keysToMigrate.forEach(key => {
       const value = localStorage.getItem(key);
       if (value) {
@@ -132,7 +132,7 @@ export class AuthServices {
         }
       }
     });
-    
+
     Object.entries(oldData).forEach(([key, value]) => {
       this.setSecureItem(key, value);
     });
@@ -330,7 +330,7 @@ export class AuthServices {
         next: (response: LoginResponse) => {
           if (response.status === 'success' && response.data?.token) {
             localStorage.clear();
-            
+
             const token = response.data.token;
             const userData = {
               Role: response.data.usuario.rol.toUpperCase(),
@@ -388,7 +388,7 @@ export class AuthServices {
       Swal.fire({
         title: 'Tu sesión ha expirado',
         text: 'Ingrese sus credenciales nuevamente',
-        icon: 'info',
+        icon: 'warning',
         timer: 1500,
         showConfirmButton: false
       });

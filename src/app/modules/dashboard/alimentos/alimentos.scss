@@ -9,13 +9,8 @@
   }
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
 @keyframes slideInLeft {
-  from {
+  from { 
     opacity: 0;
     transform: translateX(-20px);
   }
@@ -25,26 +20,9 @@
   }
 }
 
-.fade-in {
-  animation: slideInUp 0.3s ease-out;
-}
-
-.loading-card {
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  background-color: white;
-  border: 1px solid #f3f4f6;
-  animation: slideInUp 0.4s ease-out;
-}
-
-.spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid var(--primary-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 @keyframes spin {
@@ -52,69 +30,85 @@
   100% { transform: rotate(360deg); }
 }
 
-.error-card {
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Clases de utilidad
+.fade-in {
+  animation: slideInUp 0.3s ease-out;
+}
+
+// Estados de carga y error
+.loading-card {
+  @apply bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-200;
   animation: slideInUp 0.4s ease-out;
 }
 
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  
+  @screen sm {
+    width: 24px;
+    height: 24px;
+    border-width: 3px;
+  }
+}
+
+.error-card {
+  @apply bg-red-50 rounded-xl p-4 sm:p-6 shadow-lg border border-red-200;
+  animation: slideInUp 0.4s ease-out;
+}
+
+// Cards de estadísticas
 .stat-card {
-  background-color: white;
-  border-radius: 0.75rem;
-  padding: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #f3f4f6;
-  transition: var(--transition);
+  @apply bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-md border border-gray-200 transition-all duration-300;
   animation: slideInUp 0.5s ease-out;
   
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
+    @apply -translate-y-1 shadow-lg;
   }
 }
 
 .stat-icon {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0.75rem;
+  @apply w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mb-2 sm:mb-3;
   
   i {
-    font-size: 1.25rem;
+    @apply text-lg sm:text-xl;
   }
 }
 
 .stat-content {
   .stat-number {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1;
+    @apply text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 leading-none;
   }
   
   .stat-label {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin-top: 0.25rem;
+    @apply text-xs sm:text-sm text-gray-600 mt-1;
   }
 }
 
+// Campo de búsqueda personalizado
 .custom-input {
   .mat-mdc-text-field-wrapper {
-    border-radius: 12px !important;
-    overflow: hidden;
-    background: linear-gradient(135deg, var(--accent-color), #F1C40F) !important;
-    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.2);
+    @apply rounded-lg sm:rounded-xl overflow-hidden shadow-md;
+    background: linear-gradient(135deg, var(--accent-color), #f59e0b) !important;
     transition: var(--transition);
     
     &:hover {
-      box-shadow: 0 6px 16px rgba(243, 156, 18, 0.3);
+      @apply shadow-lg;
     }
   }
   
@@ -137,6 +131,10 @@
   .mdc-floating-label {
     color: #fff !important;
     font-weight: 600;
+    
+    @screen sm {
+      font-size: 14px;
+    }
   }
   
   .search-btn {
@@ -148,28 +146,32 @@
   }
 }
 
+// Contenedor de tabla
 .table-container {
-  border-radius: 1rem;
-  background-color: white;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f3f4f6;
-  overflow: hidden;
+  @apply bg-white rounded-lg sm:rounded-xl shadow-lg border border-gray-200 overflow-hidden;
   animation: slideInUp 0.6s ease-out;
 }
 
 .nutrition-table {
-  min-width: 100%;
+  @apply min-w-full;
 }
 
+// Estilos de tabla responsive
 :host ::ng-deep .table-header th.mat-mdc-header-cell {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
   color: #fff !important;
   font-weight: 700 !important;
-  font-size: 14px;
+  font-size: 12px !important;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border-bottom: none !important;
   position: relative;
+  padding: 12px 16px !important;
+  
+  @screen sm {
+    font-size: 14px !important;
+    padding: 16px 20px !important;
+  }
   
   &::after {
     content: '';
@@ -195,137 +197,111 @@
   }
   
   td.mat-mdc-cell {
-    padding: 16px !important;
-    border-bottom: 1px solid #e2e8f0;
+    padding: 12px 16px !important;
+    border-bottom: 1px solid #e5e7eb;
     vertical-align: middle;
+    
+    @screen sm {
+      padding: 16px 20px !important;
+    }
   }
 }
 
+// Elementos de tabla
 .food-icon {
-  width: 0.5rem;
-  height: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @apply w-2 h-2 flex items-center justify-center;
 }
 
 .category-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  background: linear-gradient(135deg, var(--accent-color), #F1C40F);
-  color: white;
-  box-shadow: 0 2px 4px rgba(243, 156, 18, 0.3);
+  @apply inline-flex items-center px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium text-white shadow-sm;
+  background: linear-gradient(135deg, var(--accent-color), #f59e0b);
 }
 
 .portion-text {
-  font-weight: 600;
-  color: var(--text-primary);
-  font-size: 13px;
+  @apply font-semibold text-gray-800 text-xs sm:text-sm;
 }
 
 .calorie-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-weight: 700;
-  font-size: 0.875rem;
+  @apply inline-flex items-center px-2 py-1 sm:px-3 sm:py-1 rounded-full font-bold text-xs sm:text-sm text-white shadow-sm;
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: white;
-  box-shadow: 0 2px 6px rgba(231, 76, 60, 0.4);
 }
 
 .macro-value {
-  font-weight: 600;
-  font-size: 0.875rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
+  @apply font-semibold text-xs sm:text-sm px-2 py-1 rounded;
   
   &.protein {
-    background: #dcfce7;
-    color: #15803d;
+    @apply bg-green-100 text-green-700;
   }
   
   &.carbs {
-    background: #fef3c7;
-    color: #d97706;
+    @apply bg-yellow-100 text-yellow-700;
   }
   
   &.fats {
-    background: #e0e7ff;
-    color: #3730a3;
+    @apply bg-blue-100 text-blue-700;
   }
 }
 
+// Paginador personalizado
 :host ::ng-deep .paginator-custom {
   background: white !important;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #e5e7eb;
   
   .mat-mdc-paginator-range-label {
     color: var(--text-primary) !important;
     font-weight: 500;
+    font-size: 14px;
+    
+    @screen sm {
+      font-size: 16px;
+    }
   }
   
   .mat-mdc-icon-button {
     color: var(--primary-color) !important;
     
     &:hover {
-      background: rgba(231, 76, 60, 0.1) !important;
+      background: rgba(239, 68, 68, 0.1) !important;
     }
   }
 }
 
+// Cards móviles
 .nutrition-card {
-  background-color: white;
-  border-radius: 1rem;
-  padding: 1.25rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #f3f4f6;
-  transition: var(--transition);
+  @apply bg-white rounded-lg sm:rounded-xl p-4 shadow-md border border-gray-200 transition-all duration-300 cursor-pointer;
   animation: slideInUp 0.4s ease-out both;
   
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    @apply -translate-y-1 shadow-lg;
+  }
+  
+  &:active {
+    @apply scale-95;
   }
 }
 
 .food-avatar {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.1));
+  @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
   
   i {
-    font-size: 20px;
+    @apply text-base sm:text-lg;
   }
 }
 
 .category-tag, .portion-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  background: #f1f5f9;
-  color: var(--text-secondary);
+  @apply inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-600;
+  
+  @screen sm {
+    @apply text-xs;
+  }
 }
 
 .calorie-highlight {
-  text-align: right;
+  @apply text-right;
   
   .calorie-number {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 700;
+    @apply block text-lg sm:text-xl font-bold;
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     -webkit-background-clip: text;
     background-clip: text;
@@ -333,191 +309,184 @@
   }
   
   .calorie-unit {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    font-weight: 500;
+    @apply text-xs font-medium text-gray-500;
   }
-}
-
-.macro-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
 }
 
 .macro-grid-simple {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #f1f5f9;
+  @apply flex items-center justify-between pt-3 border-t border-gray-100;
 }
 
 .macro-simple {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
+  @apply flex flex-col items-center gap-1 text-sm;
+  
+  @screen sm {
+    @apply flex-row gap-2;
+  }
   
   i {
-    font-size: 1rem;
+    @apply text-sm sm:text-base;
   }
   
   span {
-    font-weight: 600;
-    color: var(--text-primary);
+    @apply font-semibold text-gray-800 text-xs sm:text-sm;
+  }
+  
+  small {
+    @apply text-gray-500;
   }
 }
 
-.macro-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  border-radius: 0.75rem;
-  background: #fafbfc;
-  transition: var(--transition);
-  
-  &:hover {
-    background: #f1f5f9;
-  }
-}
-
-.macro-icon {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  .protein-item & {
-    background: #dcfce7;
-    color: #15803d;
-  }
-  
-  .carbs-item & {
-    background: #fef3c7;
-    color: #d97706;
-  }
-  
-  .fats-item & {
-    background: #e0e7ff;
-    color: #3730a3;
-  }
-}
-
-.macro-info {
-  flex: 1;
-  
-  .macro-label {
-    display: block;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-  }
-  
-  .macro-amount {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-}
-
-.macro-bar {
-  width: 3rem;
-  height: 0.5rem;
-  background-color: #e5e7eb;
-  border-radius: 9999px;
-  overflow: hidden;
-  
-  .macro-fill {
-    height: 100%;
-    border-radius: 9999px;
-    transition: all 0.7s ease-out;
-    
-    &.protein-fill {
-      background: linear-gradient(90deg, #22c55e, #15803d);
-    }
-    
-    &.carbs-fill {
-      background: linear-gradient(90deg, #f59e0b, #d97706);
-    }
-    
-    &.fats-fill {
-      background: linear-gradient(90deg, #6366f1, #3730a3);
-    }
-  }
-}
-
-.empty-state {
-  text-align: center;
-  padding: 3rem 1rem;
-  animation: slideInUp 0.5s ease-out;
-  
-  .empty-icon {
-    margin-bottom: 1rem;
-  }
-  
-  .clear-search-btn {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    font-size: 0.875rem;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    color: white;
-    transition: var(--transition);
-    border: none;
-    cursor: pointer;
-    
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
-    }
-  }
-}
-
-/* ===== FLOTANTE MÓVIL ===== */
-.mobile-stats-float {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  right: 20px;
-  z-index: 1000;
-  background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
-  border-radius: 0.75rem;
-  padding: 0.75rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+// Paginación móvil
+.mobile-pagination {
+  @apply bg-white rounded-xl p-4 shadow-md border border-gray-200;
   animation: slideInUp 0.4s ease-out;
 }
 
-/* ===== RESPONSIVE IMPROVEMENTS ===== */
+.pagination-btn {
+  @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white border-2 border-gray-200 flex items-center justify-center text-gray-600 font-medium transition-all duration-200;
+  
+  &:hover:not(.disabled) {
+    @apply border-red-300 text-red-600 bg-red-50;
+  }
+  
+  &.disabled {
+    @apply opacity-40 cursor-not-allowed;
+  }
+}
+
+.pagination-number {
+  @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 transition-all duration-200;
+  
+  &:hover {
+    @apply border-red-300 text-red-600 bg-red-50;
+  }
+  
+  &.active {
+    @apply bg-red-500 border-red-500 text-white shadow-md;
+  }
+}
+
+.pagination-quick {
+  @apply px-3 py-1 rounded-md bg-gray-100 border border-gray-200 text-xs font-medium text-gray-600 transition-all duration-200;
+  
+  &:hover:not(:disabled) {
+    @apply bg-red-100 border-red-200 text-red-700;
+  }
+  
+  &:disabled {
+    @apply opacity-40 cursor-not-allowed;
+  }
+}
+
+// Estado vacío
+.empty-state {
+  @apply text-center py-12 px-4;
+  animation: slideInUp 0.5s ease-out;
+  
+  .empty-icon {
+    @apply mb-4;
+  }
+  
+  .clear-search-btn {
+    @apply inline-flex items-center px-4 py-2 rounded-lg font-medium text-sm text-white transition-all duration-200 border-none cursor-pointer;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    
+    &:hover {
+      @apply -translate-y-1 shadow-md;
+    }
+  }
+}
+
+// Flotante móvil para resultados de búsqueda
+.mobile-stats-float {
+  @apply fixed bottom-20 left-4 right-4 z-50 rounded-xl p-3 shadow-lg;
+  background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+  animation: slideInUp 0.4s ease-out;
+  
+  @screen sm {
+    @apply bottom-6 left-6 right-6;
+  }
+}
+
+// Floating Action Button
+.fab {
+  @apply fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white transition-all duration-300 z-50;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  
+  &:hover {
+    @apply -translate-y-1 shadow-xl scale-110;
+  }
+  
+  &:active {
+    @apply scale-95;
+  }
+}
+
+// Mejoras responsive específicas
+@media (max-width: 640px) {
+  .nutrition-card {
+    @apply p-3 rounded-lg;
+  }
+  
+  .stat-card {
+    @apply p-3 rounded-lg;
+  }
+  
+  .macro-simple {
+    @apply text-xs;
+    
+    span {
+      @apply text-xs;
+    }
+  }
+  
+  .category-tag, .portion-tag {
+    @apply px-1.5 py-0.5 text-xs;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .nutrition-card {
+    @apply p-4 rounded-xl;
+  }
+}
+
+// Animaciones específicas por breakpoint
 @media (max-width: 768px) {
   .nutrition-card {
-    margin-bottom: 1rem;
+    animation-delay: calc(var(--index, 0) * 0.1s);
+  }
+}
+
+// Mejoras de accesibilidad
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// Modo oscuro (opcional)
+@media (prefers-color-scheme: dark) {
+  :host {
+    --background: #111827;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+  }
+}
+
+// Estilos para impresión
+@media print {
+  .fab,
+  .mobile-stats-float,
+  .mobile-pagination {
+    display: none !important;
   }
   
-  .macro-grid {
-    gap: 0.75rem;
+  .nutrition-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
-  
-  .macro-item {
-    padding: 0.75rem;
-  }
-}
-
-.search-btn:hover {
-  transform: scale(1.1);
-}
-
-.category-badge:hover {
-  transform: scale(1.05);
-}
-
-.calorie-badge:hover {
-  transform: scale(1.05);
 }
