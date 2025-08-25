@@ -1,24 +1,24 @@
 <header class="sticky top-0 z-[1000] text-white shadow-md"
     style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark))">
-    <div class="mx-auto flex min-h-16 items-center justify-between gap-4 px-4 md:px-6">
-        <!-- Lado izquierdo -->
-        <div class="flex items-center gap-4">
-            <button mat-icon-button (click)="onToggleDrawer()" [ngClass]="{ 'bg-white/10 scale-105': isDrawerOpen }"
-                class="rounded-full p-2 transition-all duration-300 hover:bg-white/10 active:scale-95">
-                <i class="bi bi-list text-xl leading-none"></i>
+    <div class="mx-auto flex min-h-12 sm:min-h-14 md:min-h-16 items-center justify-between gap-2 px-2 sm:px-4 md:px-6">
+        
+        <!-- Lado izquierdo - Menú y Logo -->
+        <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <button mat-icon-button (click)="onToggleDrawer()" 
+                [ngClass]="{ 'bg-white/10 scale-105': isDrawerOpen }"
+                class="rounded-full p-1.5 sm:p-2 transition-all duration-300 hover:bg-white/10 active:scale-95">
+                <i class="bi bi-list text-lg sm:text-xl leading-none"></i>
             </button>
 
-            <div class="flex items-center gap-3">
-                <i class="bi bi-lightning-charge text-2xl"
+            <div class="flex items-center gap-2 sm:gap-3">
+                <i class="bi bi-lightning-charge text-xl sm:text-2xl"
                     style="color: var(--accent-color); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));"></i>
-                <div class="flex flex-col">
-                    <h1 class="text-lg font-bold tracking-tight md:text-xl">PowerGym</h1>
-                </div>
+                <h1 class="text-sm sm:text-lg md:text-xl font-bold tracking-tight">PowerGym</h1>
             </div>
         </div>
 
-        <!-- Centro (search) -->
-        <div class="hidden w-full max-w-md md:block">
+        <!-- Centro (search) - Solo en desktop -->
+        <div class="hidden lg:block w-full max-w-md mx-4">
             <div class="relative rounded-full px-4 py-2 backdrop-blur"
                 style="background-color: rgba(255, 255, 255, 0.15);">
                 <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 opacity-70"></i>
@@ -28,41 +28,45 @@
         </div>
 
         <!-- Lado derecho -->
-        <div class="flex items-center gap-2 md:gap-4">
-            <!-- Usuario (oculto en móvil) -->
-            <div class="hidden flex-col items-end md:flex">
-                <span class="text-[0.75rem] opacity-80">Bienvenido</span>
-                <span class="truncate text-sm font-semibold max-w-[160px]">{{ user }}</span>
+        <div class="flex items-center gap-1 sm:gap-2">
+            
+            <!-- Info usuario - Solo visible en tablet+ -->
+            <div class="hidden md:flex flex-col items-end mr-2">
+                <span class="text-[0.75rem] opacity-80 whitespace-nowrap">Bienvenido</span>
+                <span class="text-sm font-semibold max-w-[100px] lg:max-w-[160px] truncate">{{ user }}</span>
             </div>
 
-            <!-- Botones -->
-            <div class="flex items-center gap-1 md:gap-2">
+            <!-- Botones de acción -->
+            <div class="flex items-center gap-1">
+                <!-- Notificaciones -->
                 <button mat-icon-button
-                    class="relative rounded-full p-2 transition-all duration-300 hover:bg-white/10 active:scale-95"
+                    class="relative rounded-full p-1.5 sm:p-2 transition-all duration-300 hover:bg-white/10 active:scale-95"
                     title="Notificaciones">
-                    <i class="bi bi-bell text-lg"></i>
-                    <span
-                        class="absolute -top-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-[var(--accent-color)] text-black text-[10px] font-semibold">
+                    <i class="bi bi-bell text-sm sm:text-lg"></i>
+                    <span class="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 grid h-3 w-3 sm:h-4 sm:w-4 place-items-center rounded-full bg-[var(--accent-color)] text-black text-[8px] sm:text-[10px] font-semibold">
                         3
                     </span>
                 </button>
 
+                <!-- Inicio -->
                 <button mat-icon-button (click)="onRedirectTo('dashboard')"
-                    class="rounded-full p-2 transition-all duration-300 hover:bg-white/10 active:scale-95"
+                    class="rounded-full p-1.5 sm:p-2 transition-all duration-300 hover:bg-white/10 active:scale-95"
                     title="Inicio">
-                    <i class="bi bi-house text-lg"></i>
+                    <i class="bi bi-house text-sm sm:text-lg"></i>
                 </button>
 
+                <!-- Perfil -->
                 <button mat-icon-button (click)="onRedirectTo('dashboard/perfil')"
-                    class="rounded-full p-2 transition-all duration-300 hover:bg-white/10 active:scale-95"
+                    class="rounded-full p-1.5 sm:p-2 transition-all duration-300 hover:bg-white/10 active:scale-95"
                     title="Perfil">
-                    <i class="bi bi-person-circle text-lg"></i>
+                    <i class="bi bi-person-circle text-sm sm:text-lg"></i>
                 </button>
 
+                <!-- Salir -->
                 <button mat-icon-button (click)="onRedirectTo('web')"
-                    class="rounded-full p-2 transition-all duration-300 hover:bg-red-500/30 active:scale-95"
+                    class="rounded-full p-1.5 sm:p-2 transition-all duration-300 hover:bg-red-500/30 active:scale-95"
                     title="Salir">
-                    <i class="bi bi-box-arrow-right text-lg"></i>
+                    <i class="bi bi-box-arrow-right text-sm sm:text-lg"></i>
                 </button>
             </div>
         </div>

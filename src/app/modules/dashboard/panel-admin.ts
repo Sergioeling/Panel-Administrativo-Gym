@@ -7,7 +7,6 @@ import { FormsModule } from "@angular/forms";
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule, NgIf, NgForOf } from '@angular/common';
 import { Navbar } from '../shared/components/navbar/navbar';
-import { title } from 'process';
 
 @Component({
   selector: 'app-panel-admin',
@@ -23,8 +22,8 @@ import { title } from 'process';
     NgIf,
     FormsModule,
     CommonModule,
-    Navbar
-  ],
+    Navbar,
+],
   templateUrl: './panel-admin.html',
   styleUrl: './panel-admin.scss'
 })
