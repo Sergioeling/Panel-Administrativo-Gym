@@ -11,9 +11,10 @@
   --text-secondary: #7F8C8D;
   --background: #F8F9FA;
   --sidebar-bg: #FFFFFF;
-  --shadow: 0 2px 12px rgba(0,0,0,0.1);
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 * {
   margin: 0;
   padding: 0;
@@ -33,12 +34,16 @@ body {
   border-bottom: 5px solid #3a6c85;
   border-radius: 12px;
 }
+
 /*----------*/
 /* Contenedor del input */
 .custom-input .mat-mdc-text-field-wrapper {
-  border-radius: 12px !important;  /* Borde redondeado */
-  overflow: hidden;                /* Quita cortes del notch */
-  background-color: var(--accent-color)!important; /* Fondo del input*/
+  border-radius: 12px !important;
+  /* Borde redondeado */
+  overflow: hidden;
+  /* Quita cortes del notch */
+  background-color: var(--accent-color) !important;
+  /* Fondo del input*/
 }
 
 /* Bordes */
@@ -48,7 +53,8 @@ body {
   border-color: var(--accent-color) !important;
   border-width: 2px !important;
   border-radius: 0 !important;
-  background-color: transparent !important; /* Que no pinten raro */
+  background-color: transparent !important;
+  /* Que no pinten raro */
 }
 
 /* Texto */
@@ -61,12 +67,6 @@ body {
   color: #ffffff !important;
 }
 
-/* Placeholder 
-.custom-input .mat-mdc-input-element::placeholder {
-  color: #fff !important;
-  opacity: 0.8 !important;
-}
-*/
 /* Icono */
 .custom-input mat-icon {
   color: #fff !important;
