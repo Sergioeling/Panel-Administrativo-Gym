@@ -349,6 +349,7 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
     return colors[index];
   }
 
+
   openModalAlimentos(item?: any, edit?: boolean): void {
     const modalRef = this.modalService.open(AltaAlimento, {
       backdrop: 'static',
@@ -357,14 +358,17 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
     });
 
     if (item && edit) {
-      // modalRef.componentInstance.alimentoData = item;
-      // modalRef.componentInstance.isEdit = true;
+      modalRef.componentInstance.alimentoData = item;
+      modalRef.componentInstance.isEdit = true;
+    } else {
+      modalRef.componentInstance.alimentoData = null;
+      modalRef.componentInstance.isEdit = false;
     }
 
     modalRef.result.then(
       (result) => {
         if (result && result.success) {
-          console.log('Alimento creado exitosamente:', result.data);
+          const action = result.isEdit ? 'actualizado' : 'creado';
           this.obtenerDietas();
         }
       },
@@ -374,7 +378,6 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  // Getters para las columnas responsive
   get currentDisplayedColumns(): string[] {
     if (this.isTablet) {
       return this.displayedColumnsTablet;

@@ -1,14 +1,47 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpServices } from '../../../../core/services/http/http.service';
 import { Subject, takeUntil } from 'rxjs';
+import Swal from 'sweetalert2';
+
 
 interface Categoria {
-  id: string;
+  id: any;
   nombre: string;
   descripcion?: string;
+}
+
+interface AlimentoData {
+  id?: string;
+  nombre: string;
+  categoria_id: any;
+  cantidad_sugerida: string;
+  unidad: string;
+  peso_bruto_g: string;
+  peso_neto_g: string;
+  energia_kcal: string;
+  proteina_g: string;
+  lipidos_g: string;
+  hidratos_de_carbono_g: string;
+  ag_saturados_g: string;
+  ag_monoinsaturados_g: string;
+  ag_poli_insaturados_g: string;
+  colesterol_mg: string;
+  azucar_g: string;
+  fibra_g: string;
+  etanol_g: string;
+  vitamina_a_mg_re: string;
+  acido_ascorbico_mg: string;
+  acido_folico_mg: string;
+  calcio_mg: string;
+  hierro_mg: string;
+  potasio_mg: string;
+  sodio_mg: string;
+  fosforo_mg: string;
+  ig: string;
+  carga_glicemica: string;
 }
 
 @Component({
@@ -22,6 +55,11 @@ export class AltaAlimento implements OnInit, OnDestroy {
   private http = inject(HttpServices);
   private destroy$ = new Subject<void>();
   public activeModal = inject(NgbActiveModal);
+
+  // Props de entrada
+  @Input() alimentoData: AlimentoData | null = null;
+  @Input() isEdit: boolean = false;
+
   loading = false;
   loadingCategorias = false;
   errorMsg: string | null = null;
@@ -62,6 +100,9 @@ export class AltaAlimento implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.obtenerCategorias();
+    if (this.isEdit && this.alimentoData) {
+      this.cargarDatosAlimento();
+    }
   }
 
   ngOnDestroy(): void {
@@ -69,9 +110,20 @@ export class AltaAlimento implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  private cargarDatosAlimento(): void {
+    if (!this.alimentoData) return;
+    const alimentoFormData: any = {};
+    Object.keys(this.alimentoForm.controls).forEach(key => {
+      const value = (this.alimentoData as any)?.[key];
+      alimentoFormData[key] = value !== null && value !== undefined ? value.toString() : '';
+    });
+    this.alimentoForm.patchValue(alimentoFormData);
+    this.alimentoForm.markAsTouched();
+  }
+
   obtenerCategorias(): void {
     this.loadingCategorias = true;
-    this.alimentoForm.get('categoria_id')?.disable();
+
 
     this.http.obtenerCategoria()
       .pipe(takeUntil(this.destroy$))
@@ -149,29 +201,73 @@ export class AltaAlimento implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.alimentoForm.valid) {
-      this.loading = true;
-      this.errorMsg = null;
-      const rawFormData = this.alimentoForm.value;
-      const formData = this.cleanFormData(rawFormData);
-
-      this.http.crearAlimento(formData)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response) => {
-            this.loading = false;
-            this.activeModal.close({ success: true, data: response });
-          },
-          error: (error) => {
-            this.loading = false;
-            this.errorMsg = error?.error?.message || 'Error al crear el alimento. Intenta nuevamente.';
-          }
-        });
-    } else {
+    if (this.alimentoForm.invalid) {
       this.markFormGroupTouched();
       this.scrollToFirstError();
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formulario incompleto',
+        text: 'Revisa los campos marcados en rojo.'
+      });
+      return;
     }
+
+    this.loading = true;
+    this.errorMsg = null;
+
+    const rawFormData = this.alimentoForm.value;
+    const formData = this.cleanFormData(rawFormData);
+
+    if (this.isEdit && this.alimentoData?.id) {
+      formData.id = this.alimentoData.id;
+    }
+
+    const action = this.isEdit ? 'actualizar' : 'crear';
+
+    // Loading
+    Swal.fire({
+      title: this.isEdit ? 'Actualizando alimento...' : 'Creando alimento...',
+      text: 'Por favor espera',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    const serviceCall = this.isEdit
+      ? this.http.actualizarAlimento(formData)
+      : this.http.crearAlimento(formData);
+
+    serviceCall
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.loading = false;
+          Swal.fire({
+            icon: 'success',
+            title: this.isEdit ? 'Alimento actualizado' : 'Alimento creado',
+            text: 'Se guardó correctamente.',
+            confirmButtonText: 'Aceptar'
+          }).then(() => {
+            this.activeModal.close({
+              success: true,
+              data: response,
+              isEdit: this.isEdit
+            });
+          });
+        },
+        error: (error) => {
+          this.loading = false;
+          const msg = error?.error?.message || `Error al ${action} el alimento. Intenta nuevamente.`;
+          this.errorMsg = msg;
+          Swal.fire({
+            icon: 'error',
+            title: `Error al ${action}`,
+            text: msg
+          });
+        }
+      });
   }
+
 
   private cleanFormData(rawData: any): any {
     const cleanData: any = {};
@@ -271,6 +367,17 @@ export class AltaAlimento implements OnInit, OnDestroy {
       }).length;
 
     return Math.round((completedFields / totalFields) * 100);
+  }
+
+  get modalTitle(): string {
+    return this.isEdit ? 'Editar Alimento' : 'Agregar Nuevo Alimento';
+  }
+
+  get submitButtonText(): string {
+    if (this.loading) {
+      return this.isEdit ? 'Actualizando...' : 'Guardando...';
+    }
+    return this.isEdit ? 'Actualizar Alimento' : 'Guardar Alimento';
   }
 
   trackByCategoria(index: number, categoria: Categoria): string {

@@ -90,6 +90,10 @@ export class HttpServices {
     return this.post('alimentos', alimentoData);
   }
 
+  actualizarAlimento(AlimentoData: any): Observable<any> {
+    return this.put('alimentos', AlimentoData);
+  }
+
   login(credenciales: any): Observable<any> {
     return this.post('login', credenciales);
   }
