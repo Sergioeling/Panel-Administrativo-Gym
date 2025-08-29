@@ -10,40 +10,92 @@
       <div class="avatar">
         <i class="bi bi-person-circle"></i>
       </div>
-      <h3>Usuario PowerGym</h3>
+      <h3>{{ perfilForm.value.nombre }}</h3>
       <p class="role-badge">ADMIN</p>
     </div>
 
     <!-- Lado Derecho -->
     <div class="perfil-right">
-      <div class="info-section">
-        <div class="info-row">
-          <i class="bi bi-person"></i>
-          <label>Nombre completo:</label>
-          <span>Admin PowerGym</span>
-        </div>
+      <form [formGroup]="perfilForm">
+        <div class="info-section">
+          <div class="info-row">
+            <i class="bi bi-person"></i>
+            <label>Nombre completo:</label>
 
-        <div class="info-row">
-          <i class="bi bi-envelope"></i>
-          <label>Email:</label>
-          <span>admin@powergym.com</span>
-        </div>
+            <ng-container *ngIf="!editMode; else editNombre">
+              <span>{{ perfilForm.value.nombre }}</span>
+            </ng-container>
+            <ng-template #editNombre>
+              <input type="text" formControlName="nombre" />
+            </ng-template>
+          </div>
 
-        <div class="info-row">
-          <i class="bi bi-clock-history"></i>
-          <label>Último acceso:</label>
-          <span>Hoy - 14:30</span>
+          <div class="info-row">
+            <i class="bi bi-envelope"></i>
+            <label>Email:</label>
+
+            <ng-container *ngIf="!editMode; else editEmail">
+              <span>{{ perfilForm.value.email }}</span>
+            </ng-container>
+            <ng-template #editEmail>
+              <input type="email" formControlName="email" />
+            </ng-template>
+          </div>
+
+          <div class="info-row">
+            <i class="bi bi-clock-history"></i>
+            <label>Último acceso:</label>
+            <span>{{ perfilForm.value.ultimoAcceso }}</span>
+          </div>
         </div>
-      </div>
+      </form>
+
 
       <div class="actions-section">
-        <button class="btn-primary">
+        <button *ngIf="!editMode" class="btn-primary" (click)="toggleEdit()">
           <i class="bi bi-pencil-square"></i> Editar Perfil
         </button>
-        <button class="btn-secondary">
+
+        <div *ngIf="editMode" class="actions-section">
+          <button class="btn-primary" (click)="guardarCambios()">
+            <i class="bi bi-check-lg"></i> Guardar
+          </button>
+          <button class="btn-secondary" (click)="toggleEdit()">
+            <i class="bi bi-x-lg"></i> Cancelar
+          </button>
+        </div>
+
+        <button *ngIf="!cambiarPassMode" class="btn-secondary" (click)="toggleCambiarPass()">
           <i class="bi bi-shield-lock"></i> Cambiar Contraseña
         </button>
+
+        <div *ngIf="cambiarPassMode" class="password-section">
+          <form [formGroup]="passwordForm">
+            <div class="info-row">
+              <label>Contraseña actual:</label>
+              <input type="password" formControlName="actual" />
+            </div>
+            <div class="info-row">
+              <label>Nueva contraseña:</label>
+              <input type="password" formControlName="nueva" />
+            </div>
+            <div class="info-row">
+              <label>Confirmar contraseña:</label>
+              <input type="password" formControlName="confirmar" />
+            </div>
+
+            <div class="actions-section">
+              <button class="btn-primary" (click)="guardarPassword()" type="button">
+                <i class="bi bi-check-lg"></i> Guardar
+              </button>
+              <button class="btn-secondary" (click)="toggleCambiarPass()" type="button">
+                <i class="bi bi-x-lg"></i> Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
+
     </div>
   </div>
 </div>

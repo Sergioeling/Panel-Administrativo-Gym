@@ -1,36 +1,69 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-
-//import { PerfilEditModal } from './perfil-edit.modal'; // 👉 lo vamos a crear
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuthServices } from '../../../core/services/auth/auth.service';//---1
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './perfil.html',
-  styleUrls: ['./perfil.scss']
+  styleUrls: ['./perfil.scss']  
 })
 export class Perfil {
-  private modalService = inject(NgbModal);
+  editMode = false; 
+  cambiarPassMode = false; 
+  perfilForm: FormGroup;
+  passwordForm: FormGroup;
+  private originalData: any; 
 
-  user = {
-    nombre: 'Admin PowerGym',
-    email: 'admin@powergym.com',
-    rol: 'ADMIN',
-    ultimoAcceso: 'Hoy - 14:30'
-  };
-/*
-  editarPerfil() {
-    const modalRef = this.modalService.open(PerfilEditModal, { centered: true });
-    modalRef.componentInstance.userData = { ...this.user };
+  private authService = inject(AuthServices)//---------2
 
-    modalRef.result.then((result) => {
-      if (result) {
-        this.user = result; // Actualizar datos en el perfil
-      }
-    }).catch(() => { });
+  constructor(private fb: FormBuilder) {
+    this.perfilForm = this.fb.group({
+      nombre: ['Admin PowerGym', Validators.required],
+      email: ['admin@powergym.com', [Validators.required, Validators.email]],
+      ultimoAcceso: ['Hoy - 14:30']
+    });
+
+    this.passwordForm = this.fb.group({
+      actual: ['', Validators.required],
+      nueva: ['', [Validators.required, Validators.minLength(6)]],
+      confirmar: ['', Validators.required]
+    });
+
   }
-    */
+
+  toggleEdit() {
+    if (!this.editMode) {
+      this.originalData = { ...this.perfilForm.value };
+    } else {
+      this.perfilForm.patchValue(this.originalData);
+    }
+    this.editMode = !this.editMode;
+  }
+
+  guardarCambios() {
+    if (this.perfilForm.valid) {
+      console.log('Datos guardados:', this.perfilForm.value);
+      this.editMode = false;
+    }
+  }
+
+  toggleCambiarPass() {
+    this.cambiarPassMode = !this.cambiarPassMode;
+  }
+
+  guardarPassword() {
+    if (this.passwordForm.valid) {
+      const { nueva, confirmar } = this.passwordForm.value;
+      if (nueva !== confirmar) {
+        alert('Las contraseñas no coinciden');
+        return;
+      }
+      console.log('Contraseña cambiada a:', nueva);
+      this.cambiarPassMode = false;
+      this.passwordForm.reset();
+    }
+  }
 }

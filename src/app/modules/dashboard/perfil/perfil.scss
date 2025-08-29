@@ -137,4 +137,31 @@
       }
     }
   }
+
+  input {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    width: 100%;
+    max-width: 250px;
+
+    &:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .actions-section {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap; 
+
+    .btn-primary,
+    .btn-secondary {
+      flex: 0 0 auto; 
+    }
+  }
 }
