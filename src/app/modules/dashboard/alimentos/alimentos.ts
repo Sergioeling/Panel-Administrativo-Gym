@@ -12,6 +12,7 @@ import { HttpServices } from '../../../core/services/http/http.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AltaAlimento } from '../../shared/modales/alta-alimento/alta-alimento';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-alimentos',
@@ -33,6 +34,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 })
 export class alimentos implements OnInit, AfterViewInit, OnDestroy {
 
+
   constructor(
     private modalService: NgbModal,
     private breakpointObserver: BreakpointObserver,
@@ -51,6 +53,8 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
   mobileCurrentPage = 0;
   mobileTotalPages = 0;
   mobilePagedData: any[] = [];
+  categorias: any[] = [];
+  categoryMap = new Map<string, string>();
 
   private _stats = {
     avgCalories: 0,
@@ -84,6 +88,7 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.setupResponsive();
     this.obtenerDietas();
+    this.obtenerCategorias();
     this.setupDataSourceConfig();
   }
 
@@ -105,31 +110,36 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  setupDataSourceConfig(): void {
-    this.dataSource.filterPredicate = (data: any, filter: string) => {
-      const f = (filter ?? '').trim().toLowerCase();
-      return (
-        (data?.nombre ?? '').toString().toLowerCase().includes(f) ||
-        (data?.unidad ?? '').toString().toLowerCase().includes(f) ||
-        (data?.categoria_id ?? '').toString().toLowerCase().includes(f)
-      );
-    };
+setupDataSourceConfig(): void {
+  this.dataSource.filterPredicate = (data: any, filter: string) => {
+    const f = (filter ?? '').trim().toLowerCase();
+    const catName = this.categoryNameById(data?.categoria_id).toLowerCase();
+    return (
+      (data?.nombre ?? '').toString().toLowerCase().includes(f) ||
+      (data?.unidad ?? '').toString().toLowerCase().includes(f) ||
+      catName.includes(f) 
+    );
+  };
 
-    this.dataSource.sortingDataAccessor = (item: any, prop: string) => {
-      const numeric = [
-        'energia_kcal', 'proteina_g', 'lipidos_g', 'hidratos_de_carbono_g',
-        'peso_bruto_g', 'peso_neto_g', 'fibra_g', 'calcio_mg', 'hierro_mg',
-        'potasio_mg', 'sodio_mg', 'fosforo_mg', 'vitamina_a_mg_re'
-      ];
+  this.dataSource.sortingDataAccessor = (item: any, prop: string) => {
+    const numeric = [
+      'energia_kcal', 'proteina_g', 'lipidos_g', 'hidratos_de_carbono_g',
+      'peso_bruto_g', 'peso_neto_g', 'fibra_g', 'calcio_mg', 'hierro_mg',
+      'potasio_mg', 'sodio_mg', 'fosforo_mg', 'vitamina_a_mg_re'
+    ];
 
-      if (numeric.includes(prop)) {
-        const value = item?.[prop];
-        const v = parseFloat((value ?? '').toString().replace(',', '.')) || 0;
-        return isNaN(v) ? 0 : v;
-      }
-      return item?.[prop];
-    };
-  }
+    if (prop === 'categoria_id') {
+      return this.categoryNameById(item?.categoria_id).toLowerCase();
+    }
+    if (numeric.includes(prop)) {
+      const value = item?.[prop];
+      const v = parseFloat((value ?? '').toString().replace(',', '.')) || 0;
+      return isNaN(v) ? 0 : v;
+    }
+    return (item?.[prop] ?? '').toString().toLowerCase();
+  };
+}
+
 
   ngAfterViewInit(): void {
     if (!this.isMobile) {
@@ -142,6 +152,26 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+ obtenerCategorias() {
+  this.http.obtenerCategoria()
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (resp: any) => {
+        const payload = resp?.data ?? resp;
+        const data: any[] = Array.isArray(payload) ? payload : (payload ? [payload] : []);
+        this.categorias = data;
+        this.categoryMap = new Map(this.categorias.map((c: any) => [String(c.id), c.nombre]));
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error al obtener categorías:', err);
+        this.errorMsg = 'No se pudieron cargar las categorías. Intenta nuevamente.';
+        this.cdr.markForCheck();
+      }
+    });
+}
+
 
   obtenerDietas(): void {
     this.loading = true;
@@ -367,16 +397,27 @@ export class alimentos implements OnInit, AfterViewInit, OnDestroy {
 
     modalRef.result.then(
       (result) => {
-        if (result && result.success) {
+        if (result?.success) {
           const action = result.isEdit ? 'actualizado' : 'creado';
-          this.obtenerDietas();
+          Swal.fire({
+            icon: 'success',
+            title: `Alimento ${action}`,
+            text: 'Se guardó correctamente.',
+            confirmButtonText: 'Aceptar'
+          }).then(() => {
+            this.obtenerDietas();
+          });
         }
       },
-      (dismissed) => {
-        console.log('Modal cerrado sin guardar');
-      }
+      () => { }
     );
   }
+
+  categoryNameById(id: any): string {
+    const key = id !== null && id !== undefined ? String(id) : '';
+    return this.categoryMap.get(key) ?? (key || '—');
+  }
+
 
   get currentDisplayedColumns(): string[] {
     if (this.isTablet) {

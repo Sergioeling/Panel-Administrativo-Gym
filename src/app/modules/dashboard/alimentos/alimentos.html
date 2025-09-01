@@ -10,9 +10,8 @@
       </div>
     </div>
 
-    <div  class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
-      <button
-        *ngIf="!isMobile"
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+      <button *ngIf="!isMobile"
         class="btn btn-success w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
         (click)="openModalAlimentos()">
         <i class="bi bi-plus-circle me-2"></i>
@@ -139,7 +138,7 @@
             <i class="bi bi-tag me-2"></i>Categoría
           </th>
           <td mat-cell *matCellDef="let el">
-            <span class="category-badge">{{ el.categoria_id }}</span>
+            <span class="category-badge">{{ categoryNameById(el.categoria_id) }}</span>
           </td>
         </ng-container>
 
@@ -223,7 +222,7 @@
               </h3>
               <div class="flex flex-wrap items-center gap-2">
                 <span class="category-tag">
-                  <i class="bi bi-tag me-1"></i>{{ el.categoria_id }}
+                  <i class="bi bi-tag me-1"></i>{{ categoryNameById(el.categoria_id) }}
                 </span>
                 <span class="portion-tag">
                   <i class="bi bi-rulers me-1"></i>{{ el.cantidad_sugerida }} {{ el.unidad }}

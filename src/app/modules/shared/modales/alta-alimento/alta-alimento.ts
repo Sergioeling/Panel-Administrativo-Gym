@@ -1,11 +1,10 @@
-import { Component, inject, OnDestroy, OnInit, Input } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, Input, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpServices } from '../../../../core/services/http/http.service';
 import { Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
-
 
 interface Categoria {
   id: any;
@@ -54,9 +53,9 @@ export class AltaAlimento implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private http = inject(HttpServices);
   private destroy$ = new Subject<void>();
+  private cdr = inject(ChangeDetectorRef);
   public activeModal = inject(NgbActiveModal);
 
-  // Props de entrada
   @Input() alimentoData: AlimentoData | null = null;
   @Input() isEdit: boolean = false;
 
@@ -69,7 +68,8 @@ export class AltaAlimento implements OnInit, OnDestroy {
   constructor() {
     this.alimentoForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],
-      categoria_id: [{ value: '', disabled: false }, Validators.required],
+      // ⬇⬇⬇ arranca deshabilitado
+      categoria_id: [{ value: '', disabled: true }, Validators.required],
       cantidad_sugerida: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
       unidad: ['g', Validators.required],
       peso_bruto_g: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
@@ -118,12 +118,10 @@ export class AltaAlimento implements OnInit, OnDestroy {
       alimentoFormData[key] = value !== null && value !== undefined ? value.toString() : '';
     });
     this.alimentoForm.patchValue(alimentoFormData);
-    this.alimentoForm.markAsTouched();
   }
 
   obtenerCategorias(): void {
     this.loadingCategorias = true;
-
 
     this.http.obtenerCategoria()
       .pipe(takeUntil(this.destroy$))
@@ -138,14 +136,14 @@ export class AltaAlimento implements OnInit, OnDestroy {
           } else {
             this.categorias = this.getCategoriasFallback();
           }
-          this.alimentoForm.get('categoria_id')?.enable();
+          this.alimentoForm.get('categoria_id')?.enable({ emitEvent: false });
         },
         error: (error) => {
           this.loadingCategorias = false;
           this.errorMsg = error?.error?.message || 'Error al obtener las categorías. Intenta nuevamente.';
 
           this.categorias = this.getCategoriasFallback();
-          this.alimentoForm.get('categoria_id')?.enable();
+          this.alimentoForm.get('categoria_id')?.enable({ emitEvent: false });
         }
       });
   }
@@ -217,14 +215,10 @@ export class AltaAlimento implements OnInit, OnDestroy {
 
     const rawFormData = this.alimentoForm.value;
     const formData = this.cleanFormData(rawFormData);
-
-    if (this.isEdit && this.alimentoData?.id) {
-      formData.id = this.alimentoData.id;
-    }
+    if (this.isEdit && this.alimentoData?.id) formData.id = this.alimentoData.id;
 
     const action = this.isEdit ? 'actualizar' : 'crear';
 
-    // Loading
     Swal.fire({
       title: this.isEdit ? 'Actualizando alimento...' : 'Creando alimento...',
       text: 'Por favor espera',
@@ -241,33 +235,30 @@ export class AltaAlimento implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          this.loading = false;
-          Swal.fire({
-            icon: 'success',
-            title: this.isEdit ? 'Alimento actualizado' : 'Alimento creado',
-            text: 'Se guardó correctamente.',
-            confirmButtonText: 'Aceptar'
-          }).then(() => {
+          // No cambies flags aún
+          Swal.close();
+
+          // ← Detach: evita la segunda pasada que dispara NG0100
+          this.cdr.detach();
+
+          // Cambios y cierre en el próximo macrotick
+          setTimeout(() => {
+            this.loading = false;
             this.activeModal.close({
               success: true,
               data: response,
               isEdit: this.isEdit
             });
-          });
+          }, 0);
         },
         error: (error) => {
           this.loading = false;
           const msg = error?.error?.message || `Error al ${action} el alimento. Intenta nuevamente.`;
           this.errorMsg = msg;
-          Swal.fire({
-            icon: 'error',
-            title: `Error al ${action}`,
-            text: msg
-          });
+          Swal.fire({ icon: 'error', title: `Error al ${action}`, text: msg });
         }
       });
   }
-
 
   private cleanFormData(rawData: any): any {
     const cleanData: any = {};
@@ -277,7 +268,6 @@ export class AltaAlimento implements OnInit, OnDestroy {
         cleanData[key] = value.toString().trim();
       }
     });
-
     return cleanData;
   }
 
@@ -293,10 +283,7 @@ export class AltaAlimento implements OnInit, OnDestroy {
     setTimeout(() => {
       const firstErrorElement = document.querySelector('.is-invalid');
       if (firstErrorElement) {
-        firstErrorElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center'
-        });
+        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }, 100);
   }
@@ -381,6 +368,6 @@ export class AltaAlimento implements OnInit, OnDestroy {
   }
 
   trackByCategoria(index: number, categoria: Categoria): string {
-    return categoria.id;
+    return String(categoria.id);
   }
 }

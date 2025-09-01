@@ -20,7 +20,7 @@ export class AppSettingsService {
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
-    }
+    } 
     return headers;
   }
   constructor() { }
