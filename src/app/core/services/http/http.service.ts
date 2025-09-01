@@ -110,5 +110,17 @@ export class HttpServices {
     return this.delete(`usuarios?id=${userId}`);
   }
 
+  getUsuarios(): Observable<any> {
+    return this.get('perfil');
+  }
+
+  updateUser(usuarioData: any): Observable<any> {
+    return this.put('perfil', usuarioData);
+  }
+
+  updatePassword(passwords: any): Observable<any> {
+    return this.put('cambiar-contrasena', passwords);
+  }
+
 
 }

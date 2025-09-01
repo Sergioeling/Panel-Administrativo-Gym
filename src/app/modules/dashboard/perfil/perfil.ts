@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthServices } from '../../../core/services/auth/auth.service';//---1
+import { HttpServices } from '../../../core/services/http/http.service';
 
 @Component({
   selector: 'app-perfil',
@@ -18,6 +19,7 @@ export class Perfil {
   private originalData: any; 
 
   private authService = inject(AuthServices)//---------2
+  protected httpService = inject(HttpServices);
 
   constructor(private fb: FormBuilder) {
     this.perfilForm = this.fb.group({
@@ -32,6 +34,23 @@ export class Perfil {
       confirmar: ['', Validators.required]
     });
 
+  }
+
+   ngOnInit(): void {
+    this.obtenerusuario();
+  }
+
+  obtenerusuario(){
+    this.httpService.getUsuarios().subscribe({
+      next: (data: any) => {
+        console.log('Datos del usuario:', data);
+
+        this.perfilForm.patchValue(data);
+      },
+      error: (error) => {
+        console.error('Error al obtener usuario:', error);
+      }
+    });
   }
 
   toggleEdit() {
