@@ -122,5 +122,9 @@ export class HttpServices {
     return this.put('cambiar-contrasena', passwords);
   }
 
+  enviarEmail(to: string, subject: string, message: string): Observable<any> {
+    const emailData = { to, subject, message };
+    return this.post('enviar-correo', emailData);
+  }
 
 }
