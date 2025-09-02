@@ -74,20 +74,42 @@
             <div class="info-row">
               <label>Contraseña actual:</label>
               <input type="password" formControlName="actual" />
+              <div *ngIf="passwordForm.get('actual')?.hasError('required') && passwordForm.get('actual')?.touched"
+                class="text-danger">
+                La contraseña actual es obligatoria
+              </div>
             </div>
             <div class="info-row">
               <label>Nueva contraseña:</label>
               <input type="password" formControlName="nueva" />
             </div>
+            <div *ngIf="passwordForm.get('nueva')?.hasError('required') && passwordForm.get('nueva')?.touched"
+              class="text-danger">
+              La nueva contraseña es obligatoria
+            </div>
+            <div *ngIf="passwordForm.get('nueva')?.hasError('minlength') && passwordForm.get('nueva')?.touched"
+              class="text-danger">
+              La contraseña debe tener al menos 6 caracteres
+            </div>
+            <div *ngIf="passwordForm.hasError('mismaContraseña') && passwordForm.get('nueva')?.touched"
+              class="text-danger">
+              La nueva contraseña no puede ser igual a la actual
+            </div>
+
             <div class="info-row">
               <label>Confirmar contraseña:</label>
               <input type="password" formControlName="confirmar" />
+              <div *ngIf="passwordForm.get('confirmar')?.touched 
+                  && passwordForm.get('nueva')?.value !== passwordForm.get('confirmar')?.value" class="text-danger">
+                Las contraseñas no coinciden
+              </div>
             </div>
 
             <div class="actions-section">
-              <button class="btn-primary" (click)="guardarPassword()" type="button">
+              <button class="btn-primary" type="submit" (click)="guardarPassword()" [disabled]="passwordForm.invalid || passwordForm.pristine">
                 <i class="bi bi-check-lg"></i> Guardar
               </button>
+
               <button class="btn-secondary" (click)="toggleCambiarPass()" type="button">
                 <i class="bi bi-x-lg"></i> Cancelar
               </button>

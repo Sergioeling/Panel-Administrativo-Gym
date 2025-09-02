@@ -71,6 +71,7 @@
 
         .info-row {
           display: flex;
+          flex-wrap: wrap;   
           align-items: center;
           gap: 0.8rem;
           padding: 0.9rem 0;
@@ -204,4 +205,9 @@
       }
     }
   }
+}
+
+button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
