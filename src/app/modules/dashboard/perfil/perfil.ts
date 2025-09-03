@@ -3,6 +3,30 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpServices } from '../../../core/services/http/http.service';
 import Swal from 'sweetalert2';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+
+// Validador personalizado
+export function nuevaDistintaDeActualValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const actual = control.get('actual')?.value;
+    const nueva = control.get('nueva')?.value;
+
+    if (actual && nueva && actual === nueva) {
+      return { mismaContraseña: true };
+    }
+    return null;
+  };
+}
+
+export function passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
+  const nueva = control.get('nueva')?.value;
+  const confirmar = control.get('confirmar')?.value;
+
+  if (nueva && confirmar && nueva !== confirmar) {
+    return { noCoinciden: true };
+  }
+  return null;
+}
 
 @Component({
   selector: 'app-perfil',
@@ -31,7 +55,7 @@ export class Perfil {
       actual: ['', Validators.required],
       nueva: ['', [Validators.required, Validators.minLength(6)]],
       confirmar: ['', Validators.required]
-    });
+    }, { validators: [nuevaDistintaDeActualValidator(), passwordsMatchValidator] });
 
   }
 
@@ -43,8 +67,8 @@ export class Perfil {
     this.httpService.getUsuarios().subscribe({
       next: (response: any) => {
         //console.log('Datos del usuario:', response);
-        const user = response.data; 
-        this.originalData = user; 
+        const user = response.data;
+        this.originalData = user;
 
         this.perfilForm.patchValue({
           nombre: user.nombre,
@@ -74,7 +98,7 @@ export class Perfil {
       const datos = this.perfilForm.value;
 
       this.httpService.updateUser({
-        id: this.originalData.id,   
+        id: this.originalData.id,
         nombre: datos.nombre,
         correo: datos.email
       }).subscribe({
@@ -91,7 +115,7 @@ export class Perfil {
         },
         error: (err) => {
           //console.error('Error al actualizar usuario:', err);
-           Swal.fire({
+          Swal.fire({
             title: 'Error',
             text: err?.error?.message || 'Error al actualizar usuario:',
             icon: 'error',
@@ -108,54 +132,59 @@ export class Perfil {
   toggleCambiarPass() {
     this.cambiarPassMode = !this.cambiarPassMode;
   }
-
   guardarPassword() {
-    if (this.passwordForm.valid) {
-      const { actual, nueva, confirmar } = this.passwordForm.value;
-
-      if (nueva !== confirmar) {
+    if (this.passwordForm.invalid) {
+      if (this.passwordForm.errors?.['mismaContraseña']) {
         Swal.fire({
           title: 'Error',
-          text: 'Las contraseñas no coinciden',
+          text: 'La nueva contraseña no puede ser igual a la actual',
           icon: 'error',
           timer: 3000,
           showConfirmButton: false,
           timerProgressBar: true
         });
-        return;
       }
-
-      this.httpService.updatePassword({
-        actual: actual,
-        nueva: nueva
-      }).subscribe({
-        next: (res: any) => {
-          //console.log('Contraseña actualizada correctamente:', res);
-          Swal.fire({
-            title: 'Contraseña Actualizada',
-            text: 'Tu contraseña se cambió exitosamente',
-            icon: 'success',
-            timer: 3000,
-            showConfirmButton: false,
-            timerProgressBar: true
-          });
-
-          this.cambiarPassMode = false;
-          this.passwordForm.reset();
-        },
-        error: (err) => {
-          //console.error('Error al cambiar contraseña:', err);
-          Swal.fire({
-            title: 'Error',
-            text: err?.error?.message || 'No se pudo cambiar la contraseña',
-            icon: 'error',
-            timer: 3000,
-            showConfirmButton: false,
-            timerProgressBar: true
-          });
-        }
-      });
+      return;
     }
-  }
 
+    const { actual, nueva, confirmar } = this.passwordForm.value;
+
+    if (nueva !== confirmar) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Las contraseñas no coinciden',
+        icon: 'error',
+        timer: 3000,
+        showConfirmButton: false,
+        timerProgressBar: true
+      });
+      return;
+    }
+
+    this.httpService.updatePassword({ actual, nueva }).subscribe({
+      next: () => {
+        Swal.fire({
+          title: 'Contraseña Actualizada',
+          text: 'Tu contraseña se cambió exitosamente',
+          icon: 'success',
+          timer: 3000,
+          showConfirmButton: false,
+          timerProgressBar: true
+        });
+
+        this.cambiarPassMode = false;
+        this.passwordForm.reset();
+      },
+      error: (err) => {
+        Swal.fire({
+          title: 'Error',
+          text: err?.error?.message || 'No se pudo cambiar la contraseña',
+          icon: 'error',
+          timer: 3000,
+          showConfirmButton: false,
+          timerProgressBar: true
+        });
+      }
+    });
+  }
 }
