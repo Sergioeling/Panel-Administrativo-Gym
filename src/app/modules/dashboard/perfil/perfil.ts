@@ -5,7 +5,6 @@ import { HttpServices } from '../../../core/services/http/http.service';
 import Swal from 'sweetalert2';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
-// Validador personalizado
 export function nuevaDistintaDeActualValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const actual = control.get('actual')?.value;
@@ -56,25 +55,46 @@ export class Perfil {
       nueva: ['', [Validators.required, Validators.minLength(6)]],
       confirmar: ['', Validators.required]
     }, { validators: [nuevaDistintaDeActualValidator(), passwordsMatchValidator] });
-
   }
 
   ngOnInit(): void {
     this.obtenerusuario();
   }
 
+  normalizeString(value: string): string {
+    return value
+      ? value.trim().replace(/\s+/g, ' ')
+      : '';
+  }
+
+  formHasChanges(): boolean {
+    if (!this.originalData) return false; 
+    const current = this.perfilForm.value;
+    return (
+      this.normalizeString(current.nombre) !== this.normalizeString(this.originalData.nombre) ||
+      this.normalizeString(current.email) !== this.normalizeString(this.originalData.email)
+    );
+  }
+
   obtenerusuario() {
     this.httpService.getUsuarios().subscribe({
       next: (response: any) => {
-        //console.log('Datos del usuario:', response);
         const user = response.data;
-        this.originalData = user;
+
+        this.originalData = {
+          id: user.id,
+          nombre: user.nombre,
+          email: user.correo, 
+          fecha_de_registro: user.fecha_registro
+        };
 
         this.perfilForm.patchValue({
           nombre: user.nombre,
           email: user.correo,
           fecha_de_registro: user.fecha_registro
         });
+
+        this.perfilForm.markAsPristine();
       },
       error: (error) => {
         console.error('Error al obtener usuario:', error);
@@ -88,22 +108,27 @@ export class Perfil {
       this.originalData = { ...this.perfilForm.value };
     } else {
       this.perfilForm.patchValue(this.originalData);
+      this.perfilForm.markAsPristine(); 
+      this.perfilForm.markAsUntouched(); 
     }
     this.editMode = !this.editMode;
   }
 
   guardarCambios() {
-    if (this.perfilForm.valid) {
+    if (this.perfilForm.valid && this.formHasChanges()) {
       this.editMode = false;
-      const datos = this.perfilForm.value;
+
+      const datos = {
+        nombre: this.normalizeString(this.perfilForm.value.nombre),
+        correo: this.normalizeString(this.perfilForm.value.email)
+      };
 
       this.httpService.updateUser({
         id: this.originalData.id,
         nombre: datos.nombre,
-        correo: datos.email
+        correo: datos.correo
       }).subscribe({
         next: (res: any) => {
-          //console.log('Usuario actualizado correctamente:', res);
           Swal.fire({
             title: 'Usuario Actualizado',
             text: 'Usuario actualizado correctamente',
@@ -112,9 +137,13 @@ export class Perfil {
             showConfirmButton: false,
             timerProgressBar: true
           });
+
+          this.originalData = { ...datos };
+          this.perfilForm.patchValue(datos);
+          this.perfilForm.markAsPristine();
+          this.perfilForm.markAsUntouched();
         },
         error: (err) => {
-          //console.error('Error al actualizar usuario:', err);
           Swal.fire({
             title: 'Error',
             text: err?.error?.message || 'Error al actualizar usuario:',
@@ -128,10 +157,13 @@ export class Perfil {
     }
   }
 
-
   toggleCambiarPass() {
     this.cambiarPassMode = !this.cambiarPassMode;
+    if (!this.cambiarPassMode) {
+      this.passwordForm.reset();
+    }
   }
+
   guardarPassword() {
     if (this.passwordForm.invalid) {
       if (this.passwordForm.errors?.['mismaContraseña']) {
