@@ -11,9 +11,10 @@ import { MatIconModule } from '@angular/material/icon';
 import Swal from 'sweetalert2';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgIf } from '@angular/common';
-
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { RegistrationComponent } from '../../auth/registration/registration'; 
+import { RegistrationComponent } from '../../auth/registration/registration';
+import { finalize } from 'rxjs/operators';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-login',
@@ -37,7 +38,8 @@ export class Login {
   private fb = inject(FormBuilder);
   private authService = inject(AuthServices);
   private router = inject(Router);
-
+  private cdr = inject(ChangeDetectorRef);
+  modalService = inject(NgbModal);
   loginForm: FormGroup;
   isLoading = false;
   hidePassword = true;
@@ -59,29 +61,41 @@ export class Login {
 
       const credenciales = this.loginForm.value;
 
-      this.authService.login(credenciales).subscribe({
-        next: (response) => {
-          this.activeModal.close('success');
-          setTimeout(() => {
-            const userRole = this.authService.getUserRole();
-            if (userRole) {
-              this.router.navigate(['/dashboard']);
-              window.location.reload();
-            }
-          }, 100);
+      this.authService.login(credenciales)
+        .pipe(
+          finalize(() => this.isLoading = false) 
+        )
+        .subscribe({
+          next: (response) => {
+            this.activeModal.close('success');
+            setTimeout(() => {
+              const userRole = this.authService.getUserRole();
+              if (userRole) {
+                this.router.navigate(['/dashboard']);
+                window.location.reload();
+              }
+            }, 100);
+          },
+          error: (error) => {
+            console.error('Error en login:', error);
 
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error en login:', error);
-          this.isLoading = false;
-        }
-      });
+            Swal.fire({
+              icon: 'error',
+              title: 'Error de autenticación',
+              text: 'Usuario o contraseña incorrectos',
+              confirmButtonText: 'Intentar de nuevo'
+            }).then(() => {
+              this.isLoading = false;       
+              this.cdr.detectChanges();    
+            });
+
+          }
+        });
     } else {
       this.markFormGroupTouched();
     }
   }
-
+  
   private markFormGroupTouched() {
     Object.keys(this.loginForm.controls).forEach(key => {
       const control = this.loginForm.get(key);
@@ -119,13 +133,11 @@ export class Login {
     });
   }
 
-  modalService = inject(NgbModal);
-
   openRegister() {
     this.activeModal.close();
-
-    this.modalService.open(RegistrationComponent, { 
+    this.modalService.open(RegistrationComponent, {
       backdrop: 'static',
-      size: 'lg' });
+      size: 'lg'
+    });
   }
 }
