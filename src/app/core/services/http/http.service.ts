@@ -110,6 +110,10 @@ export class HttpServices {
     return this.delete(`usuarios?id=${userId}`);
   }
 
+  actualizarStatusUsuario(userId: number, statusData: any): Observable<any> {
+    return this.put(`usuarios&id=${userId}`, statusData);
+  }
+
   getUsuarios(): Observable<any> {
     return this.get('perfil');
   }

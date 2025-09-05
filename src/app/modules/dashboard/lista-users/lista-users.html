@@ -1,53 +1,297 @@
-<div class="lista-users-container">
-  <div class="header-section">
-    <h1>Lista de Usuarios</h1>
-    <p>Gestiona todos los usuarios del sistema</p>
-    <button class="btn-add-user">
-      <i class="bi bi-plus-circle"></i>
-      Agregar Usuario
-    </button>
-  </div>
-  
-  <div class="users-table">
-    <div class="table-header">
-      <div class="header-cell">Nombre</div>
-      <div class="header-cell">Email</div>
-      <div class="header-cell">Rol</div>
-      <div class="header-cell">Estado</div>
-      <div class="header-cell">Acciones</div>
-    </div>
-    
-    <div class="table-row">
-      <div class="cell">Juan Pérez</div>
-      <div class="cell">juan@powergym.com</div>
-      <div class="cell"><span class="role-badge admin">ADMIN</span></div>
-      <div class="cell"><span class="status-badge active">Activo</span></div>
-      <div class="cell">
-        <button class="btn-action edit"><i class="bi bi-pencil"></i></button>
-        <button class="btn-action delete"><i class="bi bi-trash"></i></button>
+<div class="w-full max-w-screen-2xl mx-auto p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+  <!-- Header Section -->
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <div class="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-red-500 to-red-600 shadow-lg">
+        <i class="bi bi-people text-white text-lg sm:text-xl"></i>
+      </div>
+      <div>
+        <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-1">Lista de Usuarios</h1>
+        <p class="text-sm sm:text-base text-gray-600">Gestiona todos los usuarios del sistema</p>
       </div>
     </div>
-    
-    <div class="table-row">
-      <div class="cell">María García</div>
-      <div class="cell">maria@powergym.com</div>
-      <div class="cell"><span class="role-badge nutricionista">NUTRICIONISTA</span></div>
-      <div class="cell"><span class="status-badge active">Activo</span></div>
-      <div class="cell">
-        <button class="btn-action edit"><i class="bi bi-pencil"></i></button>
-        <button class="btn-action delete"><i class="bi bi-trash"></i></button>
-      </div>
-    </div>
-    
-    <div class="table-row">
-      <div class="cell">Carlos López</div>
-      <div class="cell">carlos@powergym.com</div>
-      <div class="cell"><span class="role-badge recepcionista">USUARIO</span></div>
-      <div class="cell"><span class="status-badge inactive">Inactivo</span></div>
-      <div class="cell">
-        <button class="btn-action edit"><i class="bi bi-pencil"></i></button>
-        <button class="btn-action delete"><i class="bi bi-trash"></i></button>
+
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+      <button *ngIf="!isMobile"
+        class="btn btn-success w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+        <i class="bi bi-plus-circle me-2"></i>
+        <span class="hidden sm:inline">Agregar</span> Usuario
+      </button>
+
+      <div class="relative w-full sm:w-auto">
+        <mat-form-field appearance="outline" class="custom-input w-full sm:w-80">
+          <mat-label>Buscar usuarios...</mat-label>
+          <input matInput [value]="search" (keyup)="applyFilter($any($event.target).value)"
+            placeholder="Nombre, email, rol..." />
+          <mat-icon matSuffix class="search-btn">search</mat-icon>
+        </mat-form-field>
       </div>
     </div>
   </div>
+
+
+  <!-- Statistics Cards -->
+  <div *ngIf="!loading && dataSource.data.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
+    <div class="stat-card">
+      <div class="stat-icon bg-blue-100">
+        <i class="bi bi-people text-blue-600"></i>
+      </div>
+      <div class="stat-content">
+        <p class="stat-number">{{ totalUsuarios }}</p>
+        <p class="stat-label">Total Usuarios</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon bg-green-100">
+        <i class="bi bi-person-check text-green-600"></i>
+      </div>
+      <div class="stat-content">
+        <p class="stat-number">{{ usuariosActivos }}</p>
+        <p class="stat-label">Nutricionistas Activos</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon bg-orange-100">
+        <i class="bi bi-shield-check text-orange-600"></i>
+      </div>
+      <div class="stat-content">
+        <p class="stat-number">{{ usuariosPorRol['admin'] || 0 }}</p>
+        <p class="stat-label">Administradores</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon bg-purple-100">
+        <i class="bi bi-heart-pulse text-purple-600"></i>
+      </div>
+      <div class="stat-content">
+        <p class="stat-number">{{ usuariosPorRol['nutricionista'] || 0 }}</p>
+        <p class="stat-label">Nutricionistas</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Desktop/Tablet Table View -->
+  <div class="hidden md:block" *ngIf="!loading">
+    <div class="table-container">
+      <table mat-table [dataSource]="dataSource" matSort class="users-table w-full">
+
+        <!-- Nombre Column - ARREGLADA -->
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            <i class="bi bi-person me-2"></i>NOMBRE
+          </th>
+          <td mat-cell *matCellDef="let usuario">
+            <div class="flex items-center gap-3">
+              <div class="user-avatar" [class.user-avatar-inactive]="!isUsuarioActivo(usuario)">
+                <i [class]="getRolIcon(usuario.rol)" class="text-lg"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="font-semibold text-gray-800 text-sm lg:text-base truncate"
+                  [class.text-gray-500]="!isUsuarioActivo(usuario)">{{ usuario.nombre }}</p>
+                <p class="text-xs text-gray-500 truncate">ID: {{ usuario.user_id }}</p>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Email Column - ARREGLADA -->
+        <ng-container matColumnDef="correo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            <i class="bi bi-envelope me-2"></i>EMAIL
+          </th>
+          <td mat-cell *matCellDef="let usuario">
+            <div class="flex items-center gap-2 min-w-0">
+              <i class="bi bi-envelope text-gray-400 flex-shrink-0"></i>
+              <span class="text-sm text-gray-700 truncate" [class.text-gray-500]="!isUsuarioActivo(usuario)">{{
+                usuario.correo }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Rol Column - ARREGLADA -->
+        <ng-container matColumnDef="rol">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            <i class="bi bi-shield me-2"></i>ROL
+          </th>
+          <td mat-cell *matCellDef="let usuario">
+            <span [class]="getRolBadgeClass(usuario.rol)">
+              <i [class]="getRolIcon(usuario.rol)" class="me-1"></i>
+              {{ usuario.rol | titlecase }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Fecha Registro Column -->
+        <ng-container matColumnDef="fecha_registro">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            <i class="bi bi-calendar me-2"></i>REGISTRO
+          </th>
+          <td mat-cell *matCellDef="let usuario">
+            <div class="flex items-center gap-2">
+              <i class="bi bi-calendar3 text-gray-400 flex-shrink-0"></i>
+              <span class="text-sm text-gray-700">{{ formatearFecha(usuario.fecha_registro) }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Acciones Column - ARREGLADA -->
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef>
+            <i class="bi bi-gear me-2"></i>ACCIONES
+          </th>
+          <td mat-cell *matCellDef="let usuario">
+            <div class="flex items-center justify-center gap-3">
+              <div class="flex items-center gap-2">
+                <!-- Toggle personalizado -->
+                <div class="custom-toggle" [class.active]="isUsuarioActivo(usuario)"
+                  (click)="toggleUsuarioActivo(usuario, !isUsuarioActivo(usuario))">
+                  <div class="toggle-thumb"></div>
+                </div>
+                <span class="text-xs hidden lg:inline"
+                  [class]="isUsuarioActivo(usuario) ? 'text-green-600 font-medium' : 'text-red-500 font-medium'">
+                  {{ isUsuarioActivo(usuario) ? 'Activo' : 'Inactivo' }}
+                </span>
+              </div>
+
+              <button (click)="editarUsuario(usuario)" class="btn-action edit" title="Editar usuario">
+                <i class="bi bi-pencil"></i>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- HEADERS Y ROWS ARREGLADOS -->
+        <tr mat-header-row *matHeaderRowDef="currentDisplayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: currentDisplayedColumns;" class="table-row-hover"
+          [class.usuario-inactivo]="!isUsuarioActivo(row)"></tr>
+      </table>
+
+      <!-- Paginator -->
+      <mat-paginator [pageSize]="10" [pageSizeOptions]="[5,10,25,50]" class="paginator-custom" showFirstLastButtons>
+      </mat-paginator>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-card">
+    <div class="flex items-center justify-center gap-3">
+      <div class="spinner"></div>
+      <span class="text-gray-700">Cargando usuarios...</span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!loading && errorMsg" class="error-card">
+    <div class="flex items-center gap-3">
+      <i class="bi bi-exclamation-triangle text-red-500 text-xl"></i>
+      <div>
+        <p class="font-semibold text-red-700">Error al cargar</p>
+        <p class="text-sm text-red-600">{{ errorMsg }}</p>
+      </div>
+      <button (click)="retryLoad()" class="ml-auto btn btn-sm btn-outline-danger">
+        Reintentar
+      </button>
+    </div>
+  </div>
+
+
+  <!-- Mobile Card View - Mantengo igual -->
+  <div class="block md:hidden" *ngIf="!loading">
+    <div class="space-y-3">
+      <div *ngFor="let usuario of mobilePagedData; trackBy: trackById; let i = index" class="user-card"
+        [class.usuario-inactivo]="!isUsuarioActivo(usuario)">
+
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex items-center gap-3 min-w-0 flex-1">
+            <div class="user-avatar-mobile flex-shrink-0" [class.user-avatar-inactive]="!isUsuarioActivo(usuario)">
+              <i [class]="getRolIcon(usuario.rol)" class="text-lg"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <h3 class="font-semibold text-gray-800 text-base truncate"
+                [class.text-gray-500]="!isUsuarioActivo(usuario)">{{ usuario.nombre }}</h3>
+              <p class="text-sm text-gray-600 truncate" [class.text-gray-500]="!isUsuarioActivo(usuario)">{{
+                usuario.correo }}</p>
+              <p class="text-xs text-gray-500 mt-1">ID: {{ usuario.user_id }}</p>
+            </div>
+          </div>
+
+          <div class="flex flex-col items-end gap-2 flex-shrink-0">
+            <span [class]="getRolBadgeClass(usuario.rol)" class="text-xs">
+              {{ usuario.rol | titlecase }}
+            </span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+          <div class="flex items-center gap-2">
+            <i class="bi bi-calendar3 text-gray-400 text-sm"></i>
+            <span class="text-sm text-gray-600">{{ formatearFecha(usuario.fecha_registro) }}</span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <!-- Solo mostrar toggle para usuarios que NO sean admin -->
+            <div *ngIf="usuario.rol?.toLowerCase() !== 'admin'" class="flex items-center gap-2">
+              <!-- Toggle personalizado móvil -->
+              <div class="custom-toggle-mobile" [class.active]="isUsuarioActivo(usuario)"
+                (click)="toggleUsuarioActivo(usuario, !isUsuarioActivo(usuario))">
+                <div class="toggle-thumb-mobile"></div>
+              </div>
+              <span class="text-xs font-medium" [class]="isUsuarioActivo(usuario) ? 'text-green-600' : 'text-red-500'">
+                {{ isUsuarioActivo(usuario) ? 'Activo' : 'Inactivo' }}
+              </span>
+            </div>
+
+            <!-- Para usuarios admin, mostrar solo el estado sin toggle -->
+            <div *ngIf="usuario.rol?.toLowerCase() === 'admin'" class="flex items-center gap-2">
+              <i class="bi bi-shield-check text-orange-600"></i>
+              <span class="text-xs text-orange-600 font-medium">
+                Administrador
+              </span>
+            </div>
+
+            <button (click)="editarUsuario(usuario)" class="btn-action-mobile edit" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Pagination -->
+    <div *ngIf="mobileTotalPages > 1" class="mobile-pagination mt-6">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-sm text-gray-600">
+          Página {{ mobileCurrentPage + 1 }} de {{ mobileTotalPages }}
+        </span>
+      </div>
+
+      <div class="flex items-center justify-center gap-2">
+        <button (click)="previousMobilePage()" [disabled]="mobileCurrentPage === 0" class="pagination-btn"
+          [class.disabled]="mobileCurrentPage === 0">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <div class="flex items-center gap-1">
+          <button *ngFor="let page of getMobilePageNumbers()" (click)="onMobilePageChange(page)"
+            class="pagination-number" [class.active]="page === mobileCurrentPage">
+            {{ page + 1 }}
+          </button>
+        </div>
+
+        <button (click)="nextMobilePage()" [disabled]="mobileCurrentPage >= mobileTotalPages - 1" class="pagination-btn"
+          [class.disabled]="mobileCurrentPage >= mobileTotalPages - 1">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <button *ngIf="isMobile" class="fab">
+    <i class="bi bi-plus text-xl"></i>
+  </button>
 </div>

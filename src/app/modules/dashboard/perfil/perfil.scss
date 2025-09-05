@@ -71,7 +71,7 @@
 
         .info-row {
           display: flex;
-          flex-wrap: wrap;   
+          flex-wrap: wrap;
           align-items: center;
           gap: 0.8rem;
           padding: 0.9rem 0;
@@ -84,6 +84,41 @@
           i {
             color: var(--primary-color);
             font-size: 1.2rem;
+            margin-right: 0.5rem;
+          }
+
+          label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 130px;
+          }
+
+          span {
+            color: var(--text-primary);
+            font-weight: 500;
+          }
+        }
+      }
+
+      .password-section {
+        margin-bottom: 1.5rem;
+
+        .info-row {
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 0.8rem;
+          padding: 0.2rem 0;
+          margin-bottom: 0.3rem;
+          border-bottom: 1px solid #f0f0f0;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
           }
 
           label {

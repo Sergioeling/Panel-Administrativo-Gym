@@ -1,189 +1,740 @@
-.lista-users-container {
-  padding: 2rem;
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from { 
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Clases de utilidad
+.fade-in {
+  animation: slideInUp 0.3s ease-out;
+}
+
+// Toggle personalizado - Desktop
+.custom-toggle {
+  width: 48px;
+  height: 24px;
+  background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border: 1px solid #d1d5db;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
   
-  .header-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-    
-    div:first-child {
-      h1 {
-        color: var(--powergym-primary);
-        font-size: 2.5rem;
-        margin: 0;
-      }
-      
-      p {
-        color: #666;
-        margin: 0.5rem 0 0;
-        font-size: 1.1rem;
-      }
-    }
-    
-    .btn-add-user {
-      background: var(--powergym-primary);
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: all 0.3s ease;
-      
-      &:hover {
-        background: var(--powergym-secondary);
-      }
-      
-      i {
-        font-size: 1.2rem;
-      }
-    }
+  &:hover {
+    filter: brightness(1.05);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(239, 68, 68, 0.1);
   }
   
-  .users-table {
+  .toggle-thumb {
+    width: 20px;
+    height: 20px;
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    border: 1px solid #e5e7eb;
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-color: var(--primary-color);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(239, 68, 68, 0.3);
     
-    .table-header {
-      display: grid;
-      grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
-      background: var(--powergym-primary);
-      color: white;
-      padding: 1rem;
-      font-weight: 600;
-      
-      .header-cell {
-        padding: 0.5rem;
-      }
+    .toggle-thumb {
+      transform: translateX(24px);
+      border-color: var(--primary-color);
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
     }
     
-    .table-row {
-      display: grid;
-      grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
-      padding: 1rem;
-      border-bottom: 1px solid #eee;
-      align-items: center;
-      
-      &:hover {
-        background: #f8f9fa;
-      }
-      
-      &:last-child {
-        border-bottom: none;
-      }
-      
-      .cell {
-        padding: 0.5rem;
-        
-        .role-badge {
-          padding: 0.25rem 0.75rem;
-          border-radius: 20px;
-          font-size: 0.8rem;
-          font-weight: 600;
-          text-transform: uppercase;
-          
-          &.admin {
-            background: #dc3545;
-            color: white;
-          }
-          
-          &.nutricionista {
-            background: #28a745;
-            color: white;
-          }
-          
-          &.recepcionista {
-            background: #17a2b8;
-            color: white;
-          }
-        }
-        
-        .status-badge {
-          padding: 0.25rem 0.75rem;
-          border-radius: 20px;
-          font-size: 0.8rem;
-          font-weight: 600;
-          
-          &.active {
-            background: #d4edda;
-            color: #155724;
-          }
-          
-          &.inactive {
-            background: #f8d7da;
-            color: #721c24;
-          }
-        }
-        
-        .btn-action {
-          background: none;
-          border: none;
-          padding: 0.5rem;
-          margin: 0 0.25rem;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          
-          &.edit {
-            color: #007bff;
-            
-            &:hover {
-              background: #e3f2fd;
-            }
-          }
-          
-          &.delete {
-            color: #dc3545;
-            
-            &:hover {
-              background: #ffebee;
-            }
-          }
-          
-          i {
-            font-size: 1.1rem;
-          }
-        }
-      }
+    &:hover {
+      background: linear-gradient(135deg, var(--primary-dark), #b91c1c);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15), 0 0 12px rgba(239, 68, 68, 0.4);
     }
   }
 }
 
-@media (max-width: 768px) {
-  .lista-users-container {
-    .header-section {
-      flex-direction: column;
-      align-items: stretch;
-      
-      .btn-add-user {
-        justify-content: center;
-      }
+// Toggle personalizado - Mobile
+.custom-toggle-mobile {
+  width: 42px;
+  height: 22px;
+  background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+  border-radius: 11px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border: 1px solid #d1d5db;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  
+  &:hover {
+    filter: brightness(1.05);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(239, 68, 68, 0.1);
+  }
+  
+  .toggle-thumb-mobile {
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border: 1px solid #e5e7eb;
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-color: var(--primary-color);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 6px rgba(239, 68, 68, 0.3);
+    
+    .toggle-thumb-mobile {
+      transform: translateX(20px);
+      border-color: var(--primary-color);
+      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
     }
     
-    .users-table {
-      .table-header,
-      .table-row {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
-        
-        .cell,
-        .header-cell {
-          border-bottom: 1px solid #eee;
-          padding: 0.75rem 0.5rem;
-          
-          &:last-child {
-            border-bottom: none;
-          }
-        }
-      }
+    &:hover {
+      background: linear-gradient(135deg, var(--primary-dark), #b91c1c);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 0 8px rgba(239, 68, 68, 0.4);
     }
+  }
+}
+
+// Animaciones adicionales para el toggle personalizado
+.custom-toggle, .custom-toggle-mobile {
+  &:active {
+    transform: scale(0.98);
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+  }
+}
+
+// Estados de usuarios activos/inactivos
+.usuario-activo {
+  // Mantiene el estilo normal de la tabla/card
+  transition: all 0.3s ease;
+}
+
+.usuario-inactivo {
+  background-color: rgba(239, 68, 68, 0.08) !important;
+  border-left: 4px solid rgba(239, 68, 68, 0.6);
+  transition: all 0.3s ease;
+  
+  .font-semibold, h3 {
+    color: rgba(75, 85, 99, 0.7) !important;
+  }
+  
+  .text-gray-600, .text-gray-700 {
+    color: rgba(107, 114, 128, 0.6) !important;
+  }
+  
+  .text-gray-500 {
+    color: rgba(156, 163, 175, 0.7) !important;
+  }
+  
+  .user-avatar, .user-avatar-mobile {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    
+    i {
+      color: rgba(239, 68, 68, 0.8) !important;
+    }
+  }
+  
+  &.user-card {
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+    
+    &:hover {
+      background-color: rgba(239, 68, 68, 0.12) !important;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+    }
+  }
+  
+  // Solo las filas inactivas de la tabla
+  &:hover {
+    background-color: rgba(239, 68, 68, 0.12) !important;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+  }
+}
+
+// Estados de carga y error
+.loading-card {
+  @apply bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-200;
+  animation: slideInUp 0.4s ease-out;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  
+  @screen sm {
+    width: 24px;
+    height: 24px;
+    border-width: 3px;
+  }
+}
+
+.error-card {
+  @apply bg-red-50 rounded-xl p-4 sm:p-6 shadow-lg border border-red-200;
+  animation: slideInUp 0.4s ease-out;
+}
+
+// Cards de estadísticas
+.stat-card {
+  @apply bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-md border border-gray-200 transition-all duration-300;
+  animation: slideInUp 0.5s ease-out;
+  
+  &:hover {
+    @apply -translate-y-1 shadow-lg;
+  }
+}
+
+.stat-icon {
+  @apply w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mb-2 sm:mb-3;
+  
+  i {
+    @apply text-lg sm:text-xl;
+  }
+}
+
+.stat-content {
+  .stat-number {
+    @apply text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 leading-none;
+  }
+  
+  .stat-label {
+    @apply text-xs sm:text-sm text-gray-600 mt-1;
+  }
+}
+
+// Campo de búsqueda personalizado
+.custom-input {
+  .mat-mdc-text-field-wrapper {
+    @apply rounded-lg sm:rounded-xl overflow-hidden shadow-md;
+    background: linear-gradient(135deg, var(--accent-color), #f59e0b) !important;
+    transition: var(--transition);
+    
+    &:hover {
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.15) !important;
+    }
+  }
+  
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__trailing,
+  .mdc-notched-outline__notch {
+    border-color: transparent !important;
+    border-width: 0 !important;
+  }
+  
+  .mat-mdc-input-element {
+    color: #000 !important;
+    font-weight: 500;
+    
+    &::placeholder {
+      color: rgba(0, 0, 0, 0.6) !important;
+    }
+  }
+  
+  .mdc-floating-label {
+    color: #fff !important;
+    font-weight: 600;
+    
+    @screen sm {
+      font-size: 16px !important;
+    }
+  }
+  
+  .search-btn {
+    color: #fff !important;
+    
+    &:hover {
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
+  }
+}
+
+// Contenedor de tabla
+.table-container {
+  @apply bg-white rounded-lg sm:rounded-xl shadow-lg border border-gray-200 overflow-hidden;
+  animation: slideInUp 0.6s ease-out;
+}
+
+.users-table {
+  @apply min-w-full;
+}
+
+// Estilos de tabla responsive
+:host ::ng-deep .table-header th.mat-mdc-header-cell {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border-bottom: none !important;
+  position: relative;
+  height: 56px !important;
+  
+  @screen lg {
+    font-size: 12px !important;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  }
+  
+  i {
+    opacity: 0.9;
+  }
+}
+
+:host ::ng-deep .table-row-hover {
+  transition: var(--transition);
+  height: 72px !important;
+  
+  &:hover {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.02), rgba(231, 76, 60, 0.05)) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.08);
+  }
+  
+  td.mat-mdc-cell {
+    border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+    vertical-align: middle;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: middle;
+    
+    @screen sm {
+      padding: 16px 20px !important;
+    }
+  }
+}
+
+// Elementos específicos de usuarios
+.user-avatar {
+  @apply w-10 h-10 rounded-lg flex items-center justify-center;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+  transition: all 0.3s ease;
+  
+  i {
+    @apply text-red-600;
+  }
+  
+  &.user-avatar-inactive {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    
+    i {
+      color: rgba(239, 68, 68, 0.8) !important;
+    }
+  }
+}
+
+.user-avatar-mobile {
+  @apply w-12 h-12 rounded-lg flex items-center justify-center;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+  transition: all 0.3s ease;
+  
+  i {
+    @apply text-red-600;
+  }
+  
+  &.user-avatar-inactive {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    
+    i {
+      color: rgba(239, 68, 68, 0.8) !important;
+    }
+  }
+}
+
+// Badges de roles
+.role-badge {
+  @apply inline-flex items-center px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium text-white shadow-sm;
+  
+  &.admin {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+  }
+  
+  &.nutricionista {
+    background: linear-gradient(135deg, #28a745, #20c997);
+  }
+  
+  &.recepcionista {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+  }
+  
+  &.usuario {
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+  }
+  
+  &.default {
+    background: linear-gradient(135deg, #6f42c1, #5a32a3);
+  }
+}
+
+// Botones de acción
+.btn-action {
+  @apply bg-transparent border-none p-2 rounded-lg cursor-pointer transition-all duration-300;
+  
+  &.edit {
+    @apply text-blue-600 hover:bg-blue-50;
+    
+    &:hover {
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+    }
+  }
+  
+  i {
+    @apply text-base;
+  }
+}
+
+.btn-action-mobile {
+  @apply bg-transparent border-none p-2 rounded-lg cursor-pointer transition-all duration-300;
+  
+  &.edit {
+    @apply text-blue-600 hover:bg-blue-50;
+  }
+  
+  i {
+    @apply text-sm;
+  }
+}
+
+// Paginador personalizado
+:host ::ng-deep .paginator-custom {
+  background: white !important;
+  border-top: 1px solid #e5e7eb;
+  
+  .mat-mdc-paginator-range-label {
+    color: var(--text-primary) !important;
+  }
+  
+  .mat-mdc-icon-button {
+    color: var(--primary-color) !important;
+    
+    &:hover {
+      background-color: rgba(239, 68, 68, 0.1) !important;
+    }
+  }
+}
+
+// Cards móviles de usuarios
+.user-card {
+  @apply bg-white rounded-lg sm:rounded-xl p-4 shadow-md border border-gray-200 transition-all duration-300;
+  animation: slideInUp 0.4s ease-out both;
+  
+  &:hover {
+    @apply -translate-y-1 shadow-lg;
+    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.12);
+  }
+  
+  &:active {
+    @apply translate-y-0;
+  }
+}
+
+// Paginación móvil
+.mobile-pagination {
+  @apply bg-white rounded-xl p-4 shadow-md border border-gray-200;
+  animation: slideInUp 0.4s ease-out;
+}
+
+.pagination-btn {
+  @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white border-2 border-gray-200 flex items-center justify-center text-gray-600 font-medium transition-all duration-200;
+  
+  &:hover:not(.disabled) {
+    @apply border-red-300 text-red-600 bg-red-50;
+  }
+  
+  &.disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+}
+
+.pagination-number {
+  @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 transition-all duration-200;
+  
+  &:hover {
+    @apply border-red-300 text-red-600 bg-red-50;
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+    @apply text-white border-red-500;
+  }
+}
+
+// Estado vacío
+.empty-state {
+  @apply text-center py-12 px-4;
+  animation: slideInUp 0.5s ease-out;
+  
+  .empty-icon {
+    @apply mb-4;
+  }
+  
+  .clear-search-btn {
+    @apply inline-flex items-center px-4 py-2 rounded-lg font-medium text-white transition-all duration-200;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    
+    &:hover {
+      @apply -translate-y-1 shadow-lg;
+    }
+  }
+}
+
+// Flotante móvil para resultados de búsqueda
+.mobile-stats-float {
+  @apply fixed bottom-20 left-4 right-4 z-50 rounded-xl p-3 shadow-lg;
+  background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+  animation: slideInUp 0.4s ease-out;
+  
+  @screen sm {
+    @apply left-6 right-6;
+  }
+}
+
+// Floating Action Button
+.fab {
+  @apply fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white transition-all duration-300 z-50;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  
+  &:hover {
+    @apply -translate-y-2 shadow-xl;
+  }
+  
+  &:active {
+    @apply scale-95;
+  }
+}
+
+// Mejoras responsive específicas
+@media (max-width: 640px) {
+  .user-card {
+    @apply p-3;
+  }
+  
+  .stat-card {
+    @apply p-2;
+  }
+  
+  .role-badge {
+    @apply text-xs px-2 py-1;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .user-card {
+    @apply p-4;
+  }
+}
+
+// Animaciones específicas por breakpoint
+@media (max-width: 768px) {
+  .user-card {
+    animation-delay: calc(var(--index, 0) * 0.1s);
+  }
+}
+
+// Mejoras de accesibilidad
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// Estilos para SweetAlert2 Toast Notifications
+:host ::ng-deep {
+  .swal-toast-success {
+    border-left: 4px solid #10b981 !important;
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.2) !important;
+    
+    .swal2-title {
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      color: #065f46 !important;
+    }
+    
+    .swal2-html-container {
+      font-size: 14px !important;
+      color: #374151 !important;
+    }
+  }
+  
+  .swal-toast-error {
+    border-left: 4px solid #ef4444 !important;
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.2) !important;
+    
+    .swal2-title {
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      color: #991b1b !important;
+    }
+    
+    .swal2-html-container {
+      font-size: 14px !important;
+      color: #374151 !important;
+    }
+  }
+  
+  .swal-toast-warning {
+    border-left: 4px solid #f59e0b !important;
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.2) !important;
+    
+    .swal2-title {
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      color: #92400e !important;
+    }
+    
+    .swal2-html-container {
+      font-size: 14px !important;
+      color: #374151 !important;
+    }
+  }
+  
+  // Animación mejorada para los toasts
+  .swal2-toast.swal2-show {
+    animation: slideInRight 0.3s ease-out !important;
+  }
+  
+  .swal2-toast.swal2-hide {
+    animation: slideOutRight 0.2s ease-in !important;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+// Estilos para impresión
+@media print {
+  .fab,
+  .mobile-stats-float,
+  .mobile-pagination {
+    display: none !important;
+  }
+  
+  .user-card {
+    @apply shadow-none border;
+    break-inside: avoid;
+  }
+}
+
+// Mejoras adicionales para responsive
+@media (max-width: 640px) {
+  .stat-card {
+    .stat-number {
+      @apply text-lg font-bold;
+    }
+    
+    .stat-label {
+      @apply text-xs;
+    }
+  }
+  
+  .user-card {
+    h3 {
+      @apply text-sm font-semibold;
+    }
+    
+    p {
+      @apply text-xs;
+    }
+  }
+}
+
+// Estilos específicos para la tabla en tablet
+@media (min-width: 768px) and (max-width: 1024px) {
+  :host ::ng-deep .table-header th.mat-mdc-header-cell {
+    font-size: 10px !important;
+    padding: 12px 8px !important;
+  }
+  
+  :host ::ng-deep .table-row-hover td.mat-mdc-cell {
+    padding: 12px 8px !important;
+  }
+  
+  .user-avatar {
+    @apply w-8 h-8;
   }
 }

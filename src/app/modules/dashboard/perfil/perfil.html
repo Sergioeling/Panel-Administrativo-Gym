@@ -57,7 +57,8 @@
         </button>
 
         <div *ngIf="editMode" class="actions-section">
-          <button class="btn-primary" (click)="guardarCambios()">
+          <button class="btn-primary" (click)="guardarCambios()"
+            [disabled]="perfilForm.invalid || !formHasChanges()">
             <i class="bi bi-check-lg"></i> Guardar
           </button>
           <button class="btn-secondary" (click)="toggleEdit()">
@@ -72,6 +73,7 @@
         <div *ngIf="cambiarPassMode" class="password-section">
           <form [formGroup]="passwordForm">
             <div class="info-row">
+              <i class="bi bi-lock"></i>
               <label>Contraseña actual:</label>
               <input type="password" formControlName="actual" />
               <div *ngIf="passwordForm.get('actual')?.hasError('required') && passwordForm.get('actual')?.touched"
@@ -80,6 +82,7 @@
               </div>
             </div>
             <div class="info-row">
+              <i class="bi bi-key"></i>
               <label>Nueva contraseña:</label>
               <input type="password" formControlName="nueva" />
             </div>
@@ -97,6 +100,7 @@
             </div>
 
             <div class="info-row">
+              <i class="bi bi-shield-lock"></i>
               <label>Confirmar contraseña:</label>
               <input type="password" formControlName="confirmar" />
               <div *ngIf="passwordForm.get('confirmar')?.touched 
@@ -106,7 +110,8 @@
             </div>
 
             <div class="actions-section">
-              <button class="btn-primary" type="submit" (click)="guardarPassword()" [disabled]="passwordForm.invalid || passwordForm.pristine">
+              <button class="btn-primary" type="submit" (click)="guardarPassword()"
+                [disabled]="passwordForm.invalid || passwordForm.pristine">
                 <i class="bi bi-check-lg"></i> Guardar
               </button>
 
