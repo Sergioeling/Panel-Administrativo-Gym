@@ -11,9 +11,10 @@ import { MatIconModule } from '@angular/material/icon';
 import Swal from 'sweetalert2';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgIf } from '@angular/common';
-
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { RegistrationComponent } from '../../auth/registration/registration'; 
+import { RegistrationComponent } from '../../auth/registration/registration';
+import { finalize } from 'rxjs/operators';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-login',
@@ -37,7 +38,8 @@ export class Login {
   private fb = inject(FormBuilder);
   private authService = inject(AuthServices);
   private router = inject(Router);
-
+  private cdr = inject(ChangeDetectorRef);
+  modalService = inject(NgbModal);
   loginForm: FormGroup;
   isLoading = false;
   hidePassword = true;
@@ -66,7 +68,7 @@ export class Login {
             const userRole = this.authService.getUserRole();
             if (userRole) {
               this.router.navigate(['/dashboard']);
-              //window.location.reload();
+              window.location.reload();
             }
           }, 100);
 
@@ -81,7 +83,7 @@ export class Login {
       this.markFormGroupTouched();
     }
   }
-
+  
   private markFormGroupTouched() {
     Object.keys(this.loginForm.controls).forEach(key => {
       const control = this.loginForm.get(key);
@@ -119,13 +121,11 @@ export class Login {
     });
   }
 
-  modalService = inject(NgbModal);
-
   openRegister() {
     this.activeModal.close();
-
-    this.modalService.open(RegistrationComponent, { 
+    this.modalService.open(RegistrationComponent, {
       backdrop: 'static',
-      size: 'lg' });
+      size: 'lg'
+    });
   }
 }

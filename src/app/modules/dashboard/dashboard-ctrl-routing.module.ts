@@ -6,6 +6,7 @@ import { Perfil } from './perfil/perfil';
 import { ListaUsers } from './lista-users/lista-users';
 import { alimentos } from './alimentos/alimentos';
 import { authGuard } from '../../core/guards/auth.guard';
+import path from 'path';
 
 const userRoutes = {
   ADMIN: [
@@ -14,6 +15,7 @@ const userRoutes = {
   ],
   NUTRICIONISTA: [
     { path: 'inicio', component: Inicio, data: { permission: null } },
+    {path: 'alimento-nuticionista', component: alimentos, data: { permission: null }},
 
   ],
   USUARIO: [
