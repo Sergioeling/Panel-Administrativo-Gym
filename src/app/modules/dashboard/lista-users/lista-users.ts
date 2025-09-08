@@ -11,7 +11,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Subject, takeUntil } from 'rxjs';
+import { AltaUsuarios } from '../../shared/modales/alta-usuarios/alta-usuarios';
 import Swal from 'sweetalert2';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 interface Usuario {
   id: string;
@@ -78,6 +80,8 @@ export class ListaUsers implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  constructor(private modalService: NgbModal) { }
 
   ngOnInit(): void {
     this.setupResponsive();
@@ -164,7 +168,7 @@ export class ListaUsers implements OnInit, AfterViewInit, OnDestroy {
             this.errorMsg = 'Error procesando los datos de usuarios';
           } finally {
             this.loading = false;
-            this.cdr.markForCheck(); 
+            this.cdr.markForCheck();
           }
         },
         error: (err) => {
@@ -301,7 +305,7 @@ export class ListaUsers implements OnInit, AfterViewInit, OnDestroy {
 
     const nuevoStatus = activo ? '1' : '0';
     const statusData = {
-      status: parseInt(nuevoStatus) 
+      status: parseInt(nuevoStatus)
     };
 
     this.http.actualizarStatusUsuario(parseInt(usuario.id), statusData)
@@ -409,7 +413,7 @@ export class ListaUsers implements OnInit, AfterViewInit, OnDestroy {
   }
 
   get usuariosActivos(): number {
-    return this.dataSource.data.filter(u => 
+    return this.dataSource.data.filter(u =>
       u.status === '1' && u.rol?.toLowerCase() !== 'admin'
     ).length;
   }
@@ -429,4 +433,39 @@ export class ListaUsers implements OnInit, AfterViewInit, OnDestroy {
   isUsuarioActivo(usuario: Usuario): boolean {
     return usuario.status === '1';
   }
+
+  openModalAltaUsuarios(item?: any, edit?: boolean): void {
+    const modalRef = this.modalService.open(AltaUsuarios, {
+      backdrop: 'static',
+      size: 'lg',
+      scrollable: true
+    });
+
+    if (item && edit) {
+      modalRef.componentInstance.alimentoData = item;
+      modalRef.componentInstance.isEdit = true;
+    } else {
+      modalRef.componentInstance.alimentoData = null;
+      modalRef.componentInstance.isEdit = false;
+    }
+
+    modalRef.result.then(
+      (result: any) => {
+        if (result?.success) {
+          const action = result.isEdit ? 'actualizado' : 'creado';
+          Swal.fire({
+            icon: 'success',
+            title: `Alimento ${action}`,
+            text: 'Se guardó correctamente.',
+            confirmButtonText: 'Aceptar'
+          }).then(() => {
+            this.obtenerUsuarios();
+          });
+        }
+      },
+      () => { }
+    );
+  }
+
+  
 }

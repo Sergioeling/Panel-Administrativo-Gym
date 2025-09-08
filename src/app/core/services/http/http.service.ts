@@ -78,6 +78,10 @@ export class HttpServices {
 
 
   //services
+  verificarConexion(): Observable<any> {
+    return this.get('test');
+  }
+
   obtenerAlimentos(): Observable<any> {
     return this.get('alimentos');
   }

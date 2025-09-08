@@ -3,15 +3,15 @@
 @tailwind utilities;
 
 :root {
-  --primary-color: #E74C3C;
-  --primary-dark: #C0392B;
-  --primary-light: #EC7063;
+  --primary-color: #2C3E50;
+  --primary-dark: #1A252F;
+  --primary-light: #34495E;
   --accent-color: #F39C12;
   --text-primary: #2C3E50;
   --text-secondary: #7F8C8D;
-  --background: #F8F9FA;
+  --background: #ECF0F1;
   --sidebar-bg: #FFFFFF;
-  --shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  --shadow: 0 2px 12px rgba(44, 62, 80, 0.15);
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -33,41 +33,4 @@ body {
   border-top: 5px solid #f2d25f;
   border-bottom: 5px solid #3a6c85;
   border-radius: 12px;
-}
-
-/*----------*/
-/* Contenedor del input */
-.custom-input .mat-mdc-text-field-wrapper {
-  border-radius: 12px !important;
-  /* Borde redondeado */
-  overflow: hidden;
-  /* Quita cortes del notch */
-  background-color: var(--accent-color) !important;
-  /* Fondo del input*/
-}
-
-/* Bordes */
-.custom-input .mdc-notched-outline__leading,
-.custom-input .mdc-notched-outline__trailing,
-.custom-input .mdc-notched-outline__notch {
-  border-color: var(--accent-color) !important;
-  border-width: 2px !important;
-  border-radius: 0 !important;
-  background-color: transparent !important;
-  /* Que no pinten raro */
-}
-
-/* Texto */
-.custom-input .mat-mdc-input-element {
-  color: #000000 !important;
-}
-
-/* Label */
-.custom-input .mdc-floating-label {
-  color: #ffffff !important;
-}
-
-/* Icono */
-.custom-input mat-icon {
-  color: #fff !important;
 }
