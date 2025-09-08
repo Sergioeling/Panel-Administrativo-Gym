@@ -1,6 +1,29 @@
-import { Component,inject } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { AuthServices } from '../../../core/services/auth/auth.service';
 import { HttpServices } from '../../../core/services/http/http.service';
+import { Subject, takeUntil } from 'rxjs';
+
+interface DashboardStats {
+  totalUsuarios: number;
+  usuariosActivos: number;
+  nutricionistas: number;
+  administradores: number;
+  alimentosRegistrados: number;
+  sesionesHoy: number;
+  nuevosUsuarios: number;
+  actividad: number;
+}
+
+interface QuickAction {
+  title: string;
+  description: string;
+  icon: string;
+  route: string;
+  color: string;
+  permission: string[];
+}
 
 @Component({
   selector: 'app-inicio',
@@ -9,25 +32,232 @@ import { HttpServices } from '../../../core/services/http/http.service';
   templateUrl: './inicio.html',
   styleUrl: './inicio.scss'
 })
-export class Inicio {
+export class Inicio implements OnInit, OnDestroy {
+  private auth = inject(AuthServices);
+  private router = inject(Router);
+  private http = inject(HttpServices);
+  private cdr = inject(ChangeDetectorRef);
+  private destroy$ = new Subject<void>();
 
-  protected http = inject(HttpServices);
+  protected userName: string = '';
+  protected userRole: string = '';
+  protected loading = true;
+  protected currentTime = new Date();
+  protected timeInterval: any;
+
+  protected stats: DashboardStats = {
+    totalUsuarios: 0,
+    usuariosActivos: 0,
+    nutricionistas: 0,
+    administradores: 0,
+    alimentosRegistrados: 0,
+    sesionesHoy: 0,
+    nuevosUsuarios: 0,
+    actividad: 0
+  };
+
+  protected quickActions: QuickAction[] = [];
 
   constructor() { }
 
-  ngOnInit(){
-    this.verificarConexion();
+  ngOnInit() {
+    this.loadUserData();
+    this.initializeQuickActions();
+    this.loadDashboardStats();
+    this.startTimeUpdate();
+    
+    setTimeout(() => {
+      if (this.loading) {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    }, 5000);
   }
 
-  verificarConexion(): void {
-    this.http.verificarConexion().subscribe({
-      next: (response) => {
-        console.log('Conexión exitosa:', response);
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+    
+    if (this.timeInterval) {
+      clearInterval(this.timeInterval);
+    }
+  }
+
+  private loadUserData() {
+    try {
+      this.userName = this.auth.getUserName() || 'Usuario';
+      this.userRole = this.auth.getUserRole() || 'USUARIO';
+    } catch (error) {
+      this.userName = 'Usuario';
+      this.userRole = 'USUARIO';
+    }
+  }
+
+  private initializeQuickActions() {
+    const allActions: QuickAction[] = [
+      {
+        title: 'Gestionar Usuarios',
+        description: 'Ver y administrar todos los usuarios del sistema',
+        icon: 'bi-people',
+        route: 'miembros',
+        color: 'from-blue-500 to-blue-600',
+        permission: ['ADMIN']
       },
-      error: (error) => {
-        console.error('Error en la conexión:', error);
-      }
+      {
+        title: 'Lista de Alimentos',
+        description: 'Administrar base de datos nutricional completa',
+        icon: 'bi-egg-fried',
+        route: 'alimentos',
+        color: 'from-green-500 to-green-600',
+        permission: ['ADMIN']
+      },
+      
+      {
+        title: 'Mis Alimentos',
+        description: 'Ver alimentos que he creado como nutricionista',
+        icon: 'bi-egg-fried',
+        route: 'alimento-nuticionista',
+        color: 'from-green-500 to-green-600',
+        permission: ['NUTRICIONISTA']
+      },
+      {
+        title: 'Mi Perfil',
+        description: 'Actualizar información personal y configuración',
+        icon: 'bi-person-gear',
+        route: 'perfil',
+        color: 'from-purple-500 to-purple-600',
+        permission: ['ADMIN', 'NUTRICIONISTA', 'USUARIO']
+      },
+      {
+        title: 'Gestión de Dietas',
+        description: 'Crear y gestionar planes de alimentación',
+        icon: 'bi-journal-medical',
+        route: 'dietas-nutricionista',
+        color: 'from-teal-500 to-teal-600',
+        permission: ['NUTRICIONISTA']
+      },
+      {
+        title: 'Mi Plan Nutricional',
+        description: 'Ver mi plan de alimentación personalizado',
+        icon: 'bi-heart',
+        route: 'mi-plan',
+        color: 'from-pink-500 to-pink-600',
+        permission: ['USUARIO']
+      },
+      /*{
+        title: 'Configuración',
+        description: 'Configuración del sistema y preferencias',
+        icon: 'bi-gear',
+        route: 'configuracion',
+        color: 'from-gray-500 to-gray-600',
+        permission: ['ADMIN']
+      }*/
+    ];
+
+    this.quickActions = allActions.filter(action => 
+      this.hasPermission(action.permission)
+    );
+  }
+
+  loadDashboardStats() {
+    this.loading = true;
+    this.cdr.detectChanges();
+    
+    if (this.userRole !== 'ADMIN') {
+      this.loading = false;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.http.obtenerUsuarios()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (resp: any) => {
+          if (resp?.status === 'success' && resp?.data && Array.isArray(resp.data)) {
+            const usuarios = resp.data;
+            
+            this.stats.totalUsuarios = usuarios.length;
+            this.stats.usuariosActivos = usuarios.filter((u: any) => u.status === '1').length;
+            this.stats.nutricionistas = usuarios.filter((u: any) => u.rol?.toLowerCase() === 'nutricionista').length;
+            this.stats.administradores = usuarios.filter((u: any) => u.rol?.toLowerCase() === 'admin').length;
+            
+            this.stats.alimentosRegistrados = 150;
+            this.stats.sesionesHoy = 24;
+            this.stats.nuevosUsuarios = 8;
+            this.stats.actividad = 85;
+          } else {
+            this.setDefaultStats();
+          }
+          
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          this.setDefaultStats();
+          this.loading = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  private setDefaultStats() {
+    this.stats = {
+      totalUsuarios: 248,
+      usuariosActivos: 185,
+      nutricionistas: 12,
+      administradores: 3,
+      alimentosRegistrados: 150,
+      sesionesHoy: 24,
+      nuevosUsuarios: 8,
+      actividad: 85
+    };
+  }
+
+  private startTimeUpdate() {
+    this.currentTime = new Date();
+    this.timeInterval = setInterval(() => {
+      this.currentTime = new Date();
+      this.cdr.detectChanges();
+    }, 1000);
+  }
+
+  protected getGreeting(): string {
+    const hour = this.currentTime.getHours();
+    if (hour < 12) return 'Buenos días';
+    if (hour < 18) return 'Buenas tardes';
+    return 'Buenas noches';
+  }
+
+  protected getFormattedTime(): string {
+    return this.currentTime.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
     });
   }
 
+  protected getFormattedDate(): string {
+    return this.currentTime.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+
+  protected navigateTo(route: string) {
+    this.router.navigate([`/dashboard/${route}`]);
+  }
+
+  protected hasPermission(permissions: string[]): boolean {
+    return permissions.includes(this.userRole);
+  }
+
+  protected getActivityPercentage(): number {
+    return Math.min(100, this.stats.actividad);
+  }
+
+  protected trackByRoute(index: number, action: QuickAction): string {
+    return action.route;
+  }
 }

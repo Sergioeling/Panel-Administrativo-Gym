@@ -100,51 +100,7 @@
   }
 }
 
-// Campo de búsqueda personalizado
-.custom-input {
-  .mat-mdc-text-field-wrapper {
-    @apply rounded-lg sm:rounded-xl overflow-hidden shadow-md;
-    background: linear-gradient(135deg, var(--accent-color), #f59e0b) !important;
-    transition: var(--transition);
-    
-    &:hover {
-      @apply shadow-lg;
-    }
-  }
-  
-  .mdc-notched-outline__leading,
-  .mdc-notched-outline__trailing,
-  .mdc-notched-outline__notch {
-    border-color: transparent !important;
-    border-width: 0 !important;
-  }
-  
-  .mat-mdc-input-element {
-    color: #000 !important;
-    font-weight: 500;
-    
-    &::placeholder {
-      color: rgba(0, 0, 0, 0.6) !important;
-    }
-  }
-  
-  .mdc-floating-label {
-    color: #fff !important;
-    font-weight: 600;
-    
-    @screen sm {
-      font-size: 14px;
-    }
-  }
-  
-  .search-btn {
-    color: #fff !important;
-    
-    &:hover {
-      background: rgba(255, 255, 255, 0.1) !important;
-    }
-  }
-}
+
 
 // Contenedor de tabla
 .table-container {

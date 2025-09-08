@@ -13,18 +13,40 @@
 
     <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
       <button *ngIf="!isMobile" (click)="openModalAltaUsuarios(undefined, false)"
-        class="btn btn-success w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-        <i class="bi bi-plus-circle me-2"></i>
+        class="btn-add-user w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">
+        <i class="bi bi-plus-circle me-2 text-base"></i>
         <span class="hidden sm:inline">Agregar</span> Usuario
       </button>
 
       <div class="relative w-full sm:w-auto">
-        <mat-form-field appearance="outline" class="custom-input w-full sm:w-80">
-          <mat-label>Buscar usuarios...</mat-label>
-          <input matInput [value]="search" (keyup)="applyFilter($any($event.target).value)"
-            placeholder="Nombre, email, rol..." />
-          <mat-icon matSuffix class="search-btn">search</mat-icon>
-        </mat-form-field>
+        <!-- Buscador HTML puro mejorado -->
+        <div class="search-container">
+          <div class="search-input-wrapper">
+            <i class="bi bi-search search-icon"></i>
+            <input 
+              type="text" 
+              [value]="search" 
+              (input)="applyFilter($any($event.target).value)"
+              placeholder="Buscar usuarios, email, rol..."
+              class="search-input"
+              autocomplete="off">
+            <button 
+              *ngIf="search" 
+              (click)="clearSearch()" 
+              class="clear-btn"
+              title="Limpiar búsqueda">
+              <i class="bi bi-x-circle"></i>
+            </button>
+          </div>
+          
+          <!-- Indicador de resultados -->
+          <div *ngIf="search" class="search-results-indicator">
+            <span class="results-count">
+              <i class="bi bi-people me-1"></i>
+              {{ filteredData.length }} usuario{{ filteredData.length !== 1 ? 's' : '' }}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -1,22 +1,177 @@
-<div class="inicio-container">
-  <div class="welcome-section">
-    <h1>¡Bienvenido a PowerGym!</h1>
-    <p>Gestiona tu gimnasio de manera eficiente</p>
+<div class="w-full max-w-screen-2xl mx-auto p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+
+  <!-- Header de Bienvenida -->
+  <div class="welcome-section mb-6 sm:mb-8">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-red-500 to-red-600 shadow-lg">
+          <i class="bi bi-house-door text-white text-2xl sm:text-3xl"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-1">
+            {{ getGreeting() }}, {{ userName }}
+          </h1>
+          <p class="text-sm sm:text-base text-gray-600">
+            Bienvenido al Panel Administrativo PowerGym
+          </p>
+        </div>
+      </div>
+
+      <!-- Reloj y Fecha en tiempo real -->
+      <div class="time-widget">
+        <div class="flex flex-col items-center lg:items-end gap-1">
+          <div class="text-2xl sm:text-3xl font-bold text-primary-dark">
+            {{ getFormattedTime() }}
+          </div>
+          <div class="text-sm text-gray-600 text-center lg:text-right">
+            {{ getFormattedDate() }}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  
-  <div class="stats-cards">
-    <div class="stat-card">
-      <i class="bi bi-people-fill"></i>
-      <h3>Miembros Activos</h3>
-      <p class="stat-number">248</p>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-section">
+    <div class="flex items-center justify-center gap-3 py-12">
+      <div class="spinner"></div>
+      <span class="text-gray-700 text-lg">Cargando dashboard...</span>
     </div>
-    
-    <div class="stat-card">
-      <i class="bi bi-calendar-check"></i>
-      <h3>Sesiones Hoy</h3>
-      <p class="stat-number">32</p>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!loading" class="dashboard-content">
+
+    <!-- Estadísticas Principales - Solo para ADMIN -->
+    <div *ngIf="userRole === 'ADMIN'" class="stats-grid mb-6 sm:mb-8">
+      <div class="stat-card primary">
+        <div class="stat-icon bg-blue-100">
+          <i class="bi bi-people text-blue-600"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-number">{{ stats.totalUsuarios }}</p>
+          <p class="stat-label">Total Usuarios</p>
+          <div class="stat-trend positive">
+            <i class="bi bi-arrow-up"></i>
+            <span>+{{ stats.nuevosUsuarios }} esta semana</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card success">
+        <div class="stat-icon bg-green-100">
+          <i class="bi bi-person-check text-green-600"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-number">{{ stats.usuariosActivos }}</p>
+          <p class="stat-label">Usuarios Activos</p>
+          <div class="stat-trend positive">
+            <i class="bi bi-arrow-up"></i>
+            <span>{{ ((stats.usuariosActivos / stats.totalUsuarios) * 100).toFixed(1) }}% del total</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card info">
+        <div class="stat-icon bg-purple-100">
+          <i class="bi bi-heart-pulse text-purple-600"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-number">{{ stats.nutricionistas }}</p>
+          <p class="stat-label">Nutricionistas</p>
+          <div class="stat-badge">
+            <span>Especialistas</span>
+          </div>
+        </div>
+      </div>
+
+
+
+
+      <!-- Card de Rol de Usuario -->
+      <div class="stat-card user-role">
+        <div class="stat-icon bg-red-100">
+          <i class="bi bi-shield-check text-red-600"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-number">{{ userRole }}</p>
+          <p class="stat-label">Tu Rol</p>
+          <div class="role-badge admin">
+            <span>Acceso Total</span>
+          </div>
+        </div>
+      </div>
     </div>
-    
-   
+
+    <!-- Card de Rol para No-Admins -->
+    <div *ngIf="userRole !== 'ADMIN'" class="role-welcome-section mb-6 sm:mb-8">
+      <div class="role-welcome-card">
+        <div class="role-welcome-content">
+          <div class="role-icon" [ngClass]="{
+            'bg-green-100': userRole === 'NUTRICIONISTA', 
+            'bg-blue-100': userRole === 'USUARIO'
+          }">
+            <i class="bi" [ngClass]="{
+              'bi-heart-pulse text-green-600': userRole === 'NUTRICIONISTA',
+              'bi-person text-blue-600': userRole === 'USUARIO'
+            }"></i>
+          </div>
+          <div class="role-text">
+            <h2 class="role-title">Panel {{ userRole === 'NUTRICIONISTA' ? 'Nutricionista' : 'Usuario' }}</h2>
+            <p class="role-description">
+              {{ userRole === 'NUTRICIONISTA'
+              ? 'Gestiona alimentos y planes nutricionales para tus pacientes'
+              : 'Accede a tu perfil y plan nutricional personalizado' }}
+            </p>
+            <div class="role-badge" [ngClass]="{
+              'nutricionista': userRole === 'NUTRICIONISTA',
+              'usuario': userRole === 'USUARIO'
+            }">
+              <span>{{ userRole === 'NUTRICIONISTA' ? 'Acceso Especializado' : 'Acceso Básico' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accesos Directos -->
+    <div class="quick-actions-section mb-6 sm:mb-8">
+      <div class="section-header mb-4 sm:mb-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Accesos Directos</h2>
+        <p class="text-gray-600">Navega rápidamente a las funciones principales</p>
+      </div>
+
+      <div class="quick-actions-grid">
+        <div *ngFor="let action of quickActions; trackBy: trackByRoute" class="quick-action-card"
+          (click)="navigateTo(action.route)">
+
+          <div class="action-gradient" [ngClass]="'bg-gradient-to-br ' + action.color"></div>
+
+          <div class="action-content">
+            <div class="action-icon">
+              <i [class]="'bi ' + action.icon"></i>
+            </div>
+
+            <div class="action-text">
+              <h3 class="action-title">{{ action.title }}</h3>
+              <p class="action-description">{{ action.description }}</p>
+            </div>
+
+            <div class="action-arrow">
+              <i class="bi bi-arrow-right"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mensaje cuando no hay accesos disponibles -->
+        <div *ngIf="quickActions.length === 0" class="no-actions-message">
+          <div class="flex flex-col items-center justify-center py-8 text-center">
+            <i class="bi bi-info-circle text-gray-400 text-4xl mb-3"></i>
+            <h3 class="text-lg font-semibold text-gray-600 mb-2">No hay accesos disponibles</h3>
+            <p class="text-gray-500">Contacta al administrador para obtener más permisos</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

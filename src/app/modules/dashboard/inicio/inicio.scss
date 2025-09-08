@@ -1,59 +1,597 @@
-.inicio-container {
-  padding: 2rem;
+
+// Animaciones
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(243, 156, 18, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(243, 156, 18, 0.6);
+  }
+}
+
+// Welcome Section
+.welcome-section {
+  animation: slideInUp 0.6s ease-out;
   
-  .welcome-section {
-    text-align: center;
-    margin-bottom: 2rem;
+  .time-widget {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid #e5e7eb;
+    animation: slideInRight 0.6s ease-out 0.2s both;
     
-    h1 {
-      color: var(--powergym-primary);
-      font-size: 2.5rem;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
+    @screen sm {
+      padding: 1.5rem 2rem;
     }
     
-    p {
-      color: #666;
-      font-size: 1.2rem;
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(44, 62, 80, 0.2);
+    }
+  }
+}
+
+// Loading
+.loading-section {
+  animation: fadeInScale 0.4s ease-out;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+// Role Welcome Section (para no-admins)
+.role-welcome-section {
+  animation: slideInUp 0.6s ease-out;
+}
+
+.role-welcome-card {
+  @apply bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-gray-200 transition-all duration-300;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,250,252,0.95));
+  
+  &:hover {
+    @apply -translate-y-1;
+    box-shadow: 0 12px 35px rgba(44, 62, 80, 0.15);
+  }
+}
+
+.role-welcome-content {
+  @apply flex items-center gap-6;
+  
+  @screen sm {
+    gap: 8;
+  }
+}
+
+.role-icon {
+  @apply w-16 h-16 sm:w-20 sm:h-20 rounded-xl flex items-center justify-center flex-shrink-0;
+  
+  i {
+    @apply text-3xl sm:text-4xl;
+  }
+}
+
+.role-text {
+  @apply flex-1;
+  
+  .role-title {
+    @apply text-2xl sm:text-3xl font-bold text-gray-800 mb-2;
+  }
+  
+  .role-description {
+    @apply text-gray-600 leading-relaxed mb-3;
+  }
+}
+
+// No actions message
+.no-actions-message {
+  @apply col-span-full bg-white rounded-xl border-2 border-dashed border-gray-300;
+}
+.dashboard-content {
+  animation: slideInUp 0.6s ease-out 0.3s both;
+}
+
+// Stats Grid
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  
+  @screen sm {
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+  
+  @screen lg {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+// Stat Cards mejoradas
+.stat-card {
+  @apply bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-200 transition-all duration-300 relative overflow-hidden;
+  animation: slideInUp 0.5s ease-out both;
+  
+  &:hover {
+    @apply -translate-y-1;
+    box-shadow: 0 12px 35px rgba(44, 62, 80, 0.15);
+  }
+  
+  // Variaciones por tipo
+  &.primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  }
+  
+  &.success::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #10b981, #059669);
+  }
+  
+  &.warning::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+  }
+  
+  &.info::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #8b5cf6, #7c3aed);
+  }
+  
+  &.activity::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #6366f1, #4f46e5);
+  }
+  
+  &.nutrition::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #10b981, #047857);
+  }
+  
+  &.sessions::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #06b6d4, #0891b2);
+  }
+  
+  &.user-role::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+  }
+}
+
+.stat-icon {
+  @apply w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center mb-3 sm:mb-4;
+  transition: all 0.3s ease;
+  
+  i {
+    @apply text-2xl sm:text-3xl;
+  }
+  
+  .stat-card:hover & {
+    transform: scale(1.1) rotate(5deg);
+  }
+}
+
+.stat-content {
+  .stat-number {
+    @apply text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 leading-none mb-1 sm:mb-2;
+  }
+  
+  .stat-label {
+    @apply text-sm sm:text-base text-gray-600 font-medium mb-2 sm:mb-3;
+  }
+}
+
+// Trends y badges
+.stat-trend {
+  @apply inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium;
+  
+  &.positive {
+    @apply bg-green-100 text-green-700;
+  }
+  
+  &.negative {
+    @apply bg-red-100 text-red-700;
+  }
+  
+  &.neutral {
+    @apply bg-gray-100 text-gray-700;
+  }
+  
+  i {
+    @apply text-xs;
+  }
+}
+
+.stat-badge {
+  @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700;
+}
+
+.role-badge {
+  @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium;
+  
+  &.admin {
+    @apply bg-red-100 text-red-700;
+  }
+  
+  &.nutricionista {
+    @apply bg-green-100 text-green-700;
+  }
+  
+  &.usuario {
+    @apply bg-blue-100 text-blue-700;
+  }
+}
+
+// Activity Bar
+.activity-bar {
+  @apply w-full h-2 bg-gray-200 rounded-full overflow-hidden mt-2;
+  
+  .activity-progress {
+    @apply h-full rounded-full transition-all duration-1000 ease-out;
+    background: linear-gradient(90deg, #6366f1, #4f46e5);
+    animation: slideInLeft 1s ease-out 0.5s both;
+  }
+}
+
+// Section Headers
+.section-header {
+  animation: slideInUp 0.6s ease-out;
+  
+  h2 {
+    position: relative;
+    display: inline-block;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+      border-radius: 2px;
+    }
+  }
+}
+
+// Quick Actions
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  
+  @screen sm {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  @screen lg {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+}
+
+.quick-action-card {
+  @apply bg-white rounded-xl shadow-lg border border-gray-200 cursor-pointer transition-all duration-300 relative overflow-hidden;
+  animation: slideInUp 0.5s ease-out both;
+  
+  &:hover {
+    @apply -translate-y-2;
+    box-shadow: 0 15px 40px rgba(44, 62, 80, 0.15);
+    
+    .action-gradient {
+      opacity: 0.1;
+    }
+    
+    .action-arrow {
+      transform: translateX(4px);
+    }
+    
+    .action-icon {
+      transform: scale(1.1);
     }
   }
   
-  .stats-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  &:active {
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+.action-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.action-content {
+  @apply p-4 sm:p-6 flex items-center gap-4;
+}
+
+.action-icon {
+  @apply w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 flex-shrink-0 transition-all duration-300;
+  
+  i {
+    @apply text-xl sm:text-2xl;
+  }
+}
+
+.action-text {
+  @apply flex-1 min-w-0;
+  
+  .action-title {
+    @apply text-lg sm:text-xl font-bold text-gray-800 mb-1;
+  }
+  
+  .action-description {
+    @apply text-sm text-gray-600 leading-relaxed;
+  }
+}
+
+.action-arrow {
+  @apply text-gray-400 text-xl transition-all duration-300 flex-shrink-0;
+}
+
+// Recent Activity
+.activity-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  
+  @screen sm {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
-    margin-top: 2rem;
+  }
+}
+
+.activity-card {
+  @apply bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-200 transition-all duration-300;
+  animation: slideInUp 0.5s ease-out both;
+  
+  &:hover {
+    @apply -translate-y-1;
+    box-shadow: 0 8px 25px rgba(44, 62, 80, 0.1);
+  }
+  
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.activity-icon {
+  @apply w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0;
+  
+  i {
+    @apply text-xl;
+  }
+}
+
+.activity-content {
+  flex: 1;
+  
+  .activity-title {
+    @apply text-lg font-bold text-gray-800 mb-1;
+  }
+  
+  .activity-description {
+    @apply text-sm text-gray-600 mb-2 leading-relaxed;
+  }
+  
+  .activity-time {
+    @apply text-xs text-gray-500 font-medium;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .stat-card {
+    @apply p-3;
+  }
+  
+  .stat-icon {
+    @apply w-10 h-10 mb-2;
     
-    .stat-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      transition: transform 0.3s ease;
-      
-      &:hover {
-        transform: translateY(-5px);
-      }
-      
-      i {
-        font-size: 3rem;
-        color: var(--powergym-primary);
-        margin-bottom: 1rem;
-      }
-      
-      h3 {
-        color: #333;
-        margin-bottom: 0.5rem;
-        font-size: 1.1rem;
-      }
-      
-      .stat-number {
-        font-size: 2rem;
-        font-weight: bold;
-        color: var(--powergym-primary);
-        margin: 0;
-      }
+    i {
+      @apply text-lg;
     }
+  }
+  
+  .stat-content .stat-number {
+    @apply text-xl;
+  }
+  
+  .quick-actions-grid {
+    gap: 0.75rem;
+  }
+  
+  .action-content {
+    @apply p-4 gap-3;
+  }
+  
+  .action-icon {
+    @apply w-10 h-10;
+    
+    i {
+      @apply text-lg;
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  .stats-grid {
+    gap: 2rem;
+  }
+  
+  .quick-actions-grid {
+    gap: 2rem;
+  }
+  
+  .activity-cards {
+    gap: 2rem;
+  }
+}
+
+// Animations con delays escalonados
+.stat-card {
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.3s; }
+  &:nth-child(4) { animation-delay: 0.4s; }
+  &:nth-child(5) { animation-delay: 0.5s; }
+  &:nth-child(6) { animation-delay: 0.6s; }
+  &:nth-child(7) { animation-delay: 0.7s; }
+  &:nth-child(8) { animation-delay: 0.8s; }
+}
+
+.quick-action-card {
+  &:nth-child(1) { animation-delay: 0.3s; }
+  &:nth-child(2) { animation-delay: 0.4s; }
+  &:nth-child(3) { animation-delay: 0.5s; }
+  &:nth-child(4) { animation-delay: 0.6s; }
+}
+
+.activity-card {
+  &:nth-child(1) { animation-delay: 0.5s; }
+  &:nth-child(2) { animation-delay: 0.6s; }
+  &:nth-child(3) { animation-delay: 0.7s; }
+}
+
+// Mejoras de accesibilidad
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// Estados hover adicionales para interactividad
+.stat-card:hover {
+  .stat-number {
+    color: var(--primary-color);
+  }
+}
+
+.quick-action-card:hover {
+  .action-title {
+    color: var(--primary-color);
+  }
+}
+
+// Dark mode support (opcional)
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --background: #0f172a;
+    --sidebar-bg: #1e293b;
   }
 }
