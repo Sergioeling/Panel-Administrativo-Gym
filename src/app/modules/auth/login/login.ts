@@ -61,7 +61,12 @@ export class Login {
 
       const credenciales = this.loginForm.value;
 
-      this.authService.login(credenciales).subscribe({
+      this.authService.login(credenciales).pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      ).subscribe({
         next: (response) => {
           this.activeModal.close('success');
           setTimeout(() => {
@@ -71,25 +76,25 @@ export class Login {
               window.location.reload();
             }
           }, 100);
-
-          this.isLoading = false;
         },
         error: (error) => {
           console.error('Error en login:', error);
-          this.isLoading = false;
         }
       });
     } else {
       this.markFormGroupTouched();
     }
   }
-  
+
   private markFormGroupTouched() {
     Object.keys(this.loginForm.controls).forEach(key => {
       const control = this.loginForm.get(key);
       control?.markAsTouched();
     });
   }
+
+
+
 
   getErrorMessage(fieldName: string): string {
     const field = this.loginForm.get(fieldName);
