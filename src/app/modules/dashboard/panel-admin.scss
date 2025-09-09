@@ -163,6 +163,7 @@
   background: var(--sidebar-bg);
   border-right: 1px solid #E9ECEF;
   box-shadow: var(--shadow);
+  z-index: 1000;
 
   .sidebar-content {
     height: 100%;
@@ -351,10 +352,33 @@
   .modern-sidebar {
     width: 100%;
     max-width: 280px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
   }
 
   .main-content .content-wrapper {
     padding: 16px;
+  }
+  
+  // Backdrop personalizado para móvil
+  .mobile-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 998;
+    animation: fadeIn 0.3s ease-out;
+    cursor: pointer;
+  }
+  
+  .drawer-container.drawer-open {
+    position: relative;
+  }
+  
+  // Material backdrop override
+  ::ng-deep .cdk-overlay-backdrop {
+    background: rgba(0, 0, 0, 0.6) !important;
   }
 }
 
@@ -366,6 +390,15 @@
   }
   to {
     transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
     opacity: 1;
   }
 }

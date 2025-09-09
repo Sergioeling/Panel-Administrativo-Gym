@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, ViewChild, HostListener } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import { MatDrawer, MatDrawerContainer, MatSidenavModule } from "@angular/material/sidenav";
 import { MatIcon } from "@angular/material/icon";
@@ -37,8 +37,10 @@ export class PanelAdmin implements OnInit {
   protected activeRoute: string = '';
   protected isDrawerOpen: boolean = true;
   protected expandedMenus: { [key: string]: boolean } = {};
+  protected isMobile: boolean = false;
 
   @ViewChild('drawer') drawerlstn!: MatDrawer;
+  @ViewChild('drawer', { read: ElementRef }) drawerElement!: ElementRef;
 
   constructor() {
     this.router.events.subscribe((event: any) => {
@@ -52,6 +54,35 @@ export class PanelAdmin implements OnInit {
     this.InitMenu();
     this.loadUserData();
     this.expandedMenus['dashboard'] = true;
+    this.checkMobileView();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.checkMobileView();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (this.isMobile && this.isDrawerOpen) {
+      const target = event.target as HTMLElement;
+      const drawer = this.drawerElement?.nativeElement;
+      const navbar = document.querySelector('app-navbar');
+      
+      if (drawer && !drawer.contains(target) && !navbar?.contains(target)) {
+        this.closeDrawer();
+      }
+    }
+  }
+
+  checkMobileView() {
+    this.isMobile = window.innerWidth <= 768;
+    
+    if (this.isMobile && this.isDrawerOpen) {
+      this.closeDrawer();
+    } else if (!this.isMobile && !this.isDrawerOpen) {
+      this.openDrawer();
+    }
   }
 
   loadUserData() {
@@ -74,6 +105,24 @@ export class PanelAdmin implements OnInit {
     }
   }
 
+  closeDrawer() {
+    this.isDrawerOpen = false;
+    if (this.drawerlstn) {
+      this.drawerlstn.close();
+    }
+  }
+
+  openDrawer() {
+    this.isDrawerOpen = true;
+    if (this.drawerlstn) {
+      this.drawerlstn.open();
+    }
+  }
+
+  onDrawerClosed() {
+    this.isDrawerOpen = false;
+  }
+
   onToggleDrawer() {
     this.showMenu();
   }
@@ -86,6 +135,11 @@ export class PanelAdmin implements OnInit {
     if (url == 'web') {
       localStorage.clear();
     }
+    
+    if (this.isMobile && this.isDrawerOpen) {
+      this.closeDrawer();
+    }
+    
     this.auth.redirectTo(url);
   }
 

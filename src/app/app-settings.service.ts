@@ -7,7 +7,7 @@ import { URLS_ENTORNO } from './Environments/urlEntorno';
 
 
 export class AppSettingsService {
-  private static ENTORNO = URLS_ENTORNO.local;
+  private static ENTORNO = URLS_ENTORNO.produccion;
   public static API_ENDPOINT = AppSettingsService.ENTORNO.API_ENDPOINT;
 
   public static getHeaders(includeToken: boolean = false): Record<string, string> {

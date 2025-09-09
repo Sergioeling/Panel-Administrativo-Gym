@@ -3,9 +3,13 @@
     (redirectTo)="onNavbarRedirect($event)">
   </app-navbar>
 
-  <mat-drawer-container class="drawer-container">
-    <mat-drawer #drawer mode="side" class="modern-sidebar" [opened]="isDrawerOpen">
-      <div class="sidebar-content">
+  <mat-drawer-container class="drawer-container" [class.drawer-open]="isMobile && isDrawerOpen">
+    <!-- Backdrop personalizado para móvil -->
+    <div *ngIf="isMobile && isDrawerOpen" class="mobile-backdrop" (click)="closeDrawer()"></div>
+    
+    <mat-drawer #drawer [mode]="isMobile ? 'over' : 'side'" class="modern-sidebar" [opened]="isDrawerOpen" 
+               (closedStart)="onDrawerClosed()" [disableClose]="false">>>
+      <div class="sidebar-content"> 
         <div class="sidebar-header">
           <div class="user-avatar">
             <i class="bi bi-person-circle avatar-icon"></i>
