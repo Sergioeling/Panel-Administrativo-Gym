@@ -5,7 +5,7 @@ import { Inicio } from './inicio/inicio';
 import { Perfil } from './perfil/perfil';
 import { ListaUsers } from './lista-users/lista-users';
 import { alimentos } from './alimentos/alimentos';
-import { Dietas } from './dietas/dietas';
+import { Platillos } from './platillos/platillos';
 import { authGuard } from '../../core/guards/auth.guard';
 import path from 'path';
 
@@ -16,7 +16,7 @@ const userRoutes = {
   ],
   NUTRICIONISTA: [
     { path: 'inicio', component: Inicio, data: { permission: null } },
-    { path: 'dietas-nutricionista', component: Dietas, data: { permission: null } },
+    { path: 'platillos-nutricionista', component: Platillos, data: { permission: null } },
 
   ],
   USUARIO: [

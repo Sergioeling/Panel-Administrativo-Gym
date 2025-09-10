@@ -135,4 +135,37 @@ export class HttpServices {
     return this.post('enviar-correo', emailData);
   }
 
+  obtenerPlatillos(): Observable<any> {
+    return this.get('platillos');
+  }
+
+  obtenerPlatilloById(platilloId: number): Observable<any> {
+    return this.get(`platillos&id=${platilloId}`);
+  }
+
+  crearPlatillo(platilloData: any): Observable<any> {
+    return this.post('platillos', platilloData);
+  }
+
+  actualizarPlatillo(platilloData: any): Observable<any> {
+    return this.put(`platillos&id=${platilloData.id}`, platilloData);
+  }
+
+  eliminarPlatillo(platilloId: number): Observable<any> {
+    return this.delete(`platillos&id=${platilloId}`);
+  }
+
+  obtenerTiposDieta(): Observable<any> {
+    return this.get('tipos-dieta');
+  }
+
+  obtenerTiposComida(): Observable<any> {
+    return this.get('tipos-comida');
+  }
+
+  obtenerTiposObjetivos(): Observable<any> {
+    return this.get('tipos-objetivo');
+  }
+
+
 }

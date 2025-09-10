@@ -8,7 +8,7 @@
     <div *ngIf="isMobile && isDrawerOpen" class="mobile-backdrop" (click)="closeDrawer()"></div>
     
     <mat-drawer #drawer [mode]="isMobile ? 'over' : 'side'" class="modern-sidebar" [opened]="isDrawerOpen" 
-               (closedStart)="onDrawerClosed()" [disableClose]="false">>>
+               (closedStart)="onDrawerClosed()" [disableClose]="false">
       <div class="sidebar-content"> 
         <div class="sidebar-header">
           <div class="user-avatar">

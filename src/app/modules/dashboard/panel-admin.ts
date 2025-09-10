@@ -23,7 +23,7 @@ import { Navbar } from '../shared/components/navbar/navbar';
     FormsModule,
     CommonModule,
     Navbar,
-],
+  ],
   templateUrl: './panel-admin.html',
   styleUrl: './panel-admin.scss'
 })
@@ -68,7 +68,7 @@ export class PanelAdmin implements OnInit {
       const target = event.target as HTMLElement;
       const drawer = this.drawerElement?.nativeElement;
       const navbar = document.querySelector('app-navbar');
-      
+
       if (drawer && !drawer.contains(target) && !navbar?.contains(target)) {
         this.closeDrawer();
       }
@@ -77,7 +77,7 @@ export class PanelAdmin implements OnInit {
 
   checkMobileView() {
     this.isMobile = window.innerWidth <= 768;
-    
+
     if (this.isMobile && this.isDrawerOpen) {
       this.closeDrawer();
     } else if (!this.isMobile && !this.isDrawerOpen) {
@@ -135,11 +135,11 @@ export class PanelAdmin implements OnInit {
     if (url == 'web') {
       localStorage.clear();
     }
-    
+
     if (this.isMobile && this.isDrawerOpen) {
       this.closeDrawer();
     }
-    
+
     this.auth.redirectTo(url);
   }
 
@@ -160,7 +160,7 @@ export class PanelAdmin implements OnInit {
       {
         title: 'Gestión de Alimentos', icon: null, bi: 'bi-egg-fried', id: 'dietas', role: 'ADMIN,NUTRICIONISTA,USUARIO', options: [
           { title: 'Alimentos', route: 'alimentos', role: 'ADMIN', icon: null, bi: 'bi-egg-fried' },
-          { title: 'Dietas', route: 'dietas-nutricionista', role: 'NUTRICIONISTA', icon: null, bi: 'bi-droplet' }
+          { title: 'Platillos', route: 'platillos-nutricionista', role: 'NUTRICIONISTA', icon: null, bi: 'bi-cup-hot' }
         ]
       },
 

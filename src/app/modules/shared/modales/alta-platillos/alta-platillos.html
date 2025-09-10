@@ -1,0 +1,393 @@
+<div class="modal-header border-0 bg-gradient-primary">
+    <h4 class="modal-title text-white fw-bold">
+        <i class="fas fa-utensils me-2"></i>
+        {{ modalTitle }}
+    </h4>
+    <button type="button" class="btn-close btn-close-white" aria-label="Close" (click)="onCancel()"></button>
+</div>
+
+<div class="modal-body p-0">
+    <!-- Loading Overlay -->
+    <div *ngIf="loading || loadingCatalogos" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-3 text-muted">{{ loadingCatalogos ? 'Cargando catálogos...' : 'Procesando...' }}</p>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMsg" class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ errorMsg }}
+        <button type="button" class="btn-close" aria-label="Close" (click)="clearError()"></button>
+    </div>
+
+    <!-- Form Content -->
+    <div class="form-container p-4" *ngIf="isFormReady">
+        <form [formGroup]="platilloForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+
+            <!-- Información Básica -->
+            <div class="section-card mb-4">
+                <div class="section-header">
+                    <h5 class="section-title">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Información Básica
+                    </h5>
+                </div>
+
+                <div class="section-content">
+                    <div class="row g-3">
+                        <!-- Nombre -->
+                        <div class="col-md-6">
+                            <label class="form-label required">Nombre del Platillo</label>
+                            <input type="text" class="form-control" [class.is-invalid]="isFieldInvalid('nombre')"
+                                formControlName="nombre" placeholder="Ej: Ensalada César">
+                            <div *ngIf="isFieldInvalid('nombre')" class="invalid-feedback">
+                                {{ getFieldError('nombre') }}
+                            </div>
+                        </div>
+
+                        <!-- Calorías -->
+                        <div class="col-md-6">
+                            <label class="form-label required">Calorías</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control"
+                                    [class.is-invalid]="isFieldInvalid('calorias')" formControlName="calorias" min="1"
+                                    placeholder="0">
+                                <span class="input-group-text">kcal</span>
+                            </div>
+                            <div *ngIf="isFieldInvalid('calorias')" class="invalid-feedback">
+                                {{ getFieldError('calorias') }}
+                            </div>
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="col-12">
+                            <label class="form-label required">Descripción</label>
+                            <textarea class="form-control" [class.is-invalid]="isFieldInvalid('descripcion')"
+                                formControlName="descripcion" rows="3"
+                                placeholder="Describe el platillo, sus ingredientes principales y preparación..."></textarea>
+                            <div *ngIf="isFieldInvalid('descripcion')" class="invalid-feedback">
+                                {{ getFieldError('descripcion') }}
+                            </div>
+                        </div>
+
+                        <!-- Tiempo de Preparación -->
+                        <div class="col-md-6">
+                            <label class="form-label required">Tiempo de Preparación</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control"
+                                    [class.is-invalid]="isFieldInvalid('tiempo_preparacion')"
+                                    formControlName="tiempo_preparacion" min="1" placeholder="0">
+                                <span class="input-group-text">min</span>
+                            </div>
+                            <div *ngIf="isFieldInvalid('tiempo_preparacion')" class="invalid-feedback">
+                                {{ getFieldError('tiempo_preparacion') }}
+                            </div>
+                        </div>
+
+                        <!-- Imagen URL -->
+                        <div class="col-md-6">
+                            <label class="form-label">URL de Imagen</label>
+                            <input type="url" class="form-control" formControlName="imagen_url"
+                                placeholder="https://ejemplo.com/imagen.jpg">
+                        </div>
+
+                        <!-- Visibilidad -->
+                        <div class="col-12">
+                            <label class="form-label required">Visibilidad</label>
+                            <div class="form-check-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" formControlName="es_publico"
+                                        [value]="1" id="publico">
+                                    <label class="form-check-label" for="publico">
+                                        <i class="fas fa-globe text-success me-2"></i>
+                                        Público (visible para todos)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" formControlName="es_publico"
+                                        [value]="0" id="privado">
+                                    <label class="form-check-label" for="privado">
+                                        <i class="fas fa-lock text-warning me-2"></i>
+                                        Privado (solo administradores)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ingredientes -->
+            <div class="section-card mb-4">
+                <div class="section-header">
+                    <h5 class="section-title">
+                        <i class="fas fa-carrot me-2"></i>
+                        Ingredientes
+                    </h5>
+                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="agregarIngrediente()">
+                        <i class="fas fa-plus me-1"></i>
+                        Agregar
+                    </button>
+                </div>
+
+                <!-- INGREDIENTES -->
+                <div class="section-content">
+                    <div class="ingredientes-container" formArrayName="ingredientes">
+                        <div *ngFor="let ingrediente of ingredientesArray.controls; let i = index; trackBy: trackByIndex"
+                            class="ingrediente-item mb-3" [formGroupName]="i">
+
+                            <div class="row g-3 align-items-end">
+                                <!-- Alimento -->
+                                <div class="col-md-5">
+                                    <label class="form-label required">Alimento</label>
+                                    <select class="form-select"
+                                        [class.is-invalid]="isIngredienteFieldInvalid(i, 'alimento_id')"
+                                        formControlName="alimento_id">
+                                        <option value="">Seleccionar alimento</option>
+                                        <option *ngFor="let alimento of alimentos; trackBy: trackByAlimento"
+                                            [value]="alimento.id">
+                                            {{ alimento.nombre }}
+                                        </option>
+                                    </select>
+                                    <div *ngIf="isIngredienteFieldInvalid(i, 'alimento_id')" class="invalid-feedback">
+                                        Alimento es requerido
+                                    </div>
+                                </div>
+
+                                <!-- Cantidad -->
+                                <div class="col-md-3">
+                                    <label class="form-label required">Cantidad</label>
+                                    <input type="number" class="form-control"
+                                        [class.is-invalid]="isIngredienteFieldInvalid(i, 'cantidad')"
+                                        formControlName="cantidad" min="0.1" step="0.1" placeholder="0">
+                                    <div *ngIf="isIngredienteFieldInvalid(i, 'cantidad')" class="invalid-feedback">
+                                        Cantidad requerida
+                                    </div>
+                                </div>
+
+                                <!-- Unidad -->
+                                <div class="col-md-3">
+                                    <label class="form-label required">Unidad</label>
+                                    <select class="form-select"
+                                        [class.is-invalid]="isIngredienteFieldInvalid(i, 'unidad_medida')"
+                                        formControlName="unidad_medida">
+                                        <option *ngFor="let unidad of unidadesMedida" [value]="unidad">
+                                            {{ unidad }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <!-- Eliminar -->
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-outline-danger btn-sm w-100"
+                                        [disabled]="ingredientesArray.length <= 1" (click)="eliminarIngrediente(i)"
+                                        title="Eliminar ingrediente">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="ingredientesArray.length === 0" class="empty-state py-4 text-center">
+                            <i class="fas fa-carrot text-muted mb-2 fs-2"></i>
+                            <p class="text-muted">No hay ingredientes agregados</p>
+                            <button type="button" class="btn btn-primary btn-sm" (click)="agregarIngrediente()">
+                                <i class="fas fa-plus me-1"></i>
+                                Agregar primer ingrediente
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Configuraciones -->
+            <!-- CONFIGURACIONES -->
+            <div class="section-card mb-4">
+                <div class="section-header">
+                    <h5 class="section-title">
+                        <i class="fas fa-cogs me-2"></i>
+                        Configuraciones Nutricionales
+                    </h5>
+                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="agregarConfiguracion()">
+                        <i class="fas fa-plus me-1"></i>
+                        Agregar
+                    </button>
+                </div>
+
+                <div class="section-content">
+                    <div class="configuraciones-container" formArrayName="configuraciones">
+                        <div *ngFor="let config of configuracionesArray.controls; let i = index; trackBy: trackByIndex"
+                            class="configuracion-item mb-3" [formGroupName]="i">
+
+                            <div class="row g-3 align-items-end">
+                                <!-- Tipo de Dieta -->
+                                <div class="col-md-4">
+                                    <label class="form-label required">Tipo de Dieta</label>
+                                    <select class="form-select"
+                                        [class.is-invalid]="isConfiguracionFieldInvalid(i, 'tipo_dieta_id')"
+                                        formControlName="tipo_dieta_id">
+                                        <option value="">Seleccionar dieta</option>
+                                        <option *ngFor="let dieta of tiposDieta; trackBy: trackByTipoDieta"
+                                            [value]="dieta.id">
+                                            {{ dieta.nombre }}
+                                        </option>
+                                    </select>
+                                    <div *ngIf="isConfiguracionFieldInvalid(i, 'tipo_dieta_id')"
+                                        class="invalid-feedback">
+                                        Tipo de dieta requerido
+                                    </div>
+                                </div>
+
+                                <!-- Tipo de Comida -->
+                                <div class="col-md-4">
+                                    <label class="form-label required">Tipo de Comida</label>
+                                    <select class="form-select"
+                                        [class.is-invalid]="isConfiguracionFieldInvalid(i, 'tipo_comida_id')"
+                                        formControlName="tipo_comida_id">
+                                        <option value="">Seleccionar comida</option>
+                                        <option *ngFor="let comida of tiposComida; trackBy: trackByTipoComida"
+                                            [value]="comida.id">
+                                            {{ comida.nombre }}
+                                        </option>
+                                    </select>
+                                    <div *ngIf="isConfiguracionFieldInvalid(i, 'tipo_comida_id')"
+                                        class="invalid-feedback">
+                                        Tipo de comida requerido
+                                    </div>
+                                </div>
+
+                                <!-- Tipo de Objetivo -->
+                                <div class="col-md-3">
+                                    <label class="form-label required">Objetivo</label>
+                                    <select class="form-select"
+                                        [class.is-invalid]="isConfiguracionFieldInvalid(i, 'tipo_objetivo_id')"
+                                        formControlName="tipo_objetivo_id">
+                                        <option value="">Seleccionar objetivo</option>
+                                        <option *ngFor="let objetivo of tiposObjetivo; trackBy: trackByTipoObjetivo"
+                                            [value]="objetivo.id">
+                                            {{ objetivo.nombre }}
+                                        </option>
+                                    </select>
+                                    <div *ngIf="isConfiguracionFieldInvalid(i, 'tipo_objetivo_id')"
+                                        class="invalid-feedback">
+                                        Objetivo requerido
+                                    </div>
+                                </div>
+
+                                <!-- Eliminar -->
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-outline-danger btn-sm w-100"
+                                        [disabled]="configuracionesArray.length <= 1" (click)="eliminarConfiguracion(i)"
+                                        title="Eliminar configuración">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="configuracionesArray.length === 0" class="empty-state py-4 text-center">
+                            <i class="fas fa-cogs text-muted mb-2 fs-2"></i>
+                            <p class="text-muted">No hay configuraciones agregadas</p>
+                            <button type="button" class="btn btn-primary btn-sm" (click)="agregarConfiguracion()">
+                                <i class="fas fa-plus me-1"></i>
+                                Agregar primera configuración
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Resumen -->
+            <div class="section-card mb-4">
+                <div class="section-header">
+                    <h5 class="section-title">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Resumen del Platillo
+                    </h5>
+                </div>
+
+                <div class="section-content">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-primary">
+                                    <i class="fas fa-fire"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h6 class="stat-value">{{ calcularCaloriasTotales() }}</h6>
+                                    <p class="stat-label">Calorías</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-success">
+                                    <i class="fas fa-carrot"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h6 class="stat-value">{{ ingredientesArray.length }}</h6>
+                                    <p class="stat-label">Ingredientes</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-info">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h6 class="stat-value">{{ platilloForm.get('tiempo_preparacion')?.value || 0 }}</h6>
+                                    <p class="stat-label">Minutos</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-warning">
+                                    <i class="fas fa-cogs"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h6 class="stat-value">{{ configuracionesArray.length }}</h6>
+                                    <p class="stat-label">Configuraciones</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<div class="modal-footer border-0 bg-light p-4">
+    <div class="w-100 d-flex flex-column flex-md-row gap-3">
+        <button type="button" class="btn btn-outline-secondary flex-fill order-2 order-md-1" (click)="onCancel()"
+            [disabled]="loading">
+            <i class="fas fa-times me-2"></i>
+            Cancelar
+        </button>
+
+        <button type="submit" class="btn btn-primary flex-fill order-1 order-md-2" (click)="onSubmit()">
+            <i class="fas fa-save me-2"></i>
+            {{ submitButtonText }}
+        </button>
+    </div>
+
+    <!-- Form Validation Summary -->
+    <div *ngIf="platilloForm.invalid && platilloForm.touched" class="validation-summary mt-3">
+        <small class="text-danger">
+            <i class="fas fa-exclamation-triangle me-1"></i>
+            Por favor completa todos los campos requeridos
+        </small>
+    </div>
+</div>

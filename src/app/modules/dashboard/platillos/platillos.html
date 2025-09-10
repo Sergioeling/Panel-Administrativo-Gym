@@ -1,0 +1,318 @@
+<div class="w-full max-w-screen-2xl mx-auto p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <!-- Header Section -->
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div class="flex items-center gap-3">
+            <div class="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg">
+                <i class="bi bi-egg-fried text-white text-lg sm:text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-1">Gestión de Platillos</h1>
+                <p class="text-sm sm:text-base text-gray-600">Administra todos los platillos del sistema</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+            <button *ngIf="!isMobile" (click)="openModalAltaPlatillos(undefined, false)"
+                class="btn-add-user w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">
+                <i class="bi bi-plus-circle me-2 text-base"></i>
+                <span class="hidden sm:inline">Agregar</span> Platillo
+            </button>
+
+            <div class="relative w-full sm:w-auto">
+                <!-- Buscador HTML puro mejorado -->
+                <div class="search-container">
+                    <div class="search-input-wrapper">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" class="search-input" placeholder="Buscar platillos..." [(ngModel)]="search"
+                            (input)="applyFilter(search)" />
+                        <button *ngIf="search.length > 0" type="button" class="clear-btn" (click)="clearSearch()"
+                            title="Limpiar búsqueda">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+
+                    <!-- Indicador de resultados -->
+                    <div *ngIf="search.length > 0" class="search-results-indicator">
+                        <span class="results-count">
+                            <i class="bi bi-check-circle me-1"></i>
+                            {{ filteredData.length }} resultado{{ filteredData.length !== 1 ? 's' : '' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div *ngIf="!loading && dataSource.data.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
+        <div class="stat-card">
+            <div class="stat-icon bg-orange-100">
+                <i class="bi bi-egg-fried text-orange-600"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-number">{{ totalPlatillos }}</p>
+                <p class="stat-label">Total Platillos</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-green-100">
+                <i class="bi bi-globe text-green-600"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-number">{{ platillosPublicos }}</p>
+                <p class="stat-label">Públicos</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-blue-100">
+                <i class="bi bi-lock text-blue-600"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-number">{{ platillosPrivados }}</p>
+                <p class="stat-label">Privados</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-purple-100">
+                <i class="bi bi-lightning text-purple-600"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-number">{{ promedioCalorias }}</p>
+                <p class="stat-label">Calorías Promedio</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop/Tablet Table View -->
+    <div class="hidden md:block" *ngIf="!loading">
+        <div class="table-container">
+            <table mat-table [dataSource]="dataSource" matSort class="platillos-table w-full">
+
+                <!-- Imagen Column -->
+                <ng-container matColumnDef="imagen">
+                    <th mat-header-cell *matHeaderCellDef class="table-header">Imagen</th>
+                    <td mat-cell *matCellDef="let platillo" class="table-cell">
+                        <div class="platillo-imagen">
+                            <img [src]="platillo.imagen_url || 'assets/default-platillo.jpg'" [alt]="platillo.nombre"
+                                class="w-12 h-12 rounded-lg object-cover shadow-sm"
+                                onerror="this.src='assets/default-platillo.jpg'">
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- Nombre Column -->
+                <ng-container matColumnDef="nombre">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-header">Nombre</th>
+                    <td mat-cell *matCellDef="let platillo" class="table-cell">
+                        <div class="platillo-info">
+                            <h3 class="font-semibold text-gray-800 text-sm mb-1">{{ platillo.nombre }}</h3>
+                            <p class="text-xs text-gray-600 line-clamp-2">{{ platillo.descripcion }}</p>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- Calorías Column -->
+                <ng-container matColumnDef="calorias">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-header">Calorías</th>
+                    <td mat-cell *matCellDef="let platillo" class="table-cell">
+                        <span [class]="getCaloriasBadgeClass(platillo.calorias)">
+                            {{ platillo.calorias }} kcal
+                        </span>
+                    </td>
+                </ng-container>
+
+                <!-- Tiempo Column -->
+                <ng-container matColumnDef="tiempo_preparacion">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-header">Tiempo</th>
+                    <td mat-cell *matCellDef="let platillo" class="table-cell">
+                        <div class="flex items-center gap-1 text-sm text-gray-600">
+                            <i [class]="'bi ' + getTiempoIcon(platillo.tiempo_preparacion)"></i>
+                            <span>{{ platillo.tiempo_preparacion }} min</span>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- Estado Público Column -->
+                <ng-container matColumnDef="es_publico">
+                    <th mat-header-cell *matHeaderCellDef class="table-header">Estado</th>
+                    <td mat-cell *matCellDef="let platillo" class="table-cell">
+                        <div class="custom-toggle" [class.active]="isPlatilloPublico(platillo)"
+                            (click)="togglePlatilloPublico(platillo, !isPlatilloPublico(platillo))"
+                            *ngIf="canEditOrDelete(platillo)">
+                            <div class="toggle-thumb"></div>
+                        </div>
+                        <span *ngIf="!canEditOrDelete(platillo)"
+                            [class]="isPlatilloPublico(platillo) ? 'badge bg-success' : 'badge bg-secondary'">
+                            {{ isPlatilloPublico(platillo) ? 'Público' : 'Privado' }}
+                        </span>
+                    </td>
+                </ng-container>
+
+                <!-- Fecha Column -->
+                <ng-container matColumnDef="fecha_creacion">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-header">Fecha</th>
+                    <td mat-cell *matCellDef="let platillo" class="table-cell">
+                        <span class="text-sm text-gray-600">{{ formatearFecha(platillo.fecha_creacion) }}</span>
+                    </td>
+                </ng-container>
+
+                <!-- Acciones Column -->
+                <ng-container matColumnDef="acciones">
+                    <th mat-header-cell *matHeaderCellDef class="table-header">Acciones</th>
+                    <td mat-cell *matCellDef="let platillo" class="table-cell">
+                        <div class="flex gap-2">
+                            <button *ngIf="canEditOrDelete(platillo)" (click)="editarPlatillo(platillo)"
+                                class="btn-action btn-action-edit" title="Editar platillo">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button *ngIf="canEditOrDelete(platillo)" (click)="eliminarPlatillo(platillo)"
+                                class="btn-action btn-action-delete" title="Eliminar platillo">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            <button *ngIf="!canEditOrDelete(platillo)" class="btn-action btn-action-view"
+                                title="Ver detalles">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="currentDisplayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: currentDisplayedColumns;" class="table-row-hover"></tr>
+            </table>
+
+            <!-- Paginator -->
+            <mat-paginator [pageSize]="10" [pageSizeOptions]="[5,10,25,50]" class="paginator-custom"
+                showFirstLastButtons>
+            </mat-paginator>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-card">
+        <div class="flex items-center justify-center gap-3">
+            <div class="spinner"></div>
+            <span class="text-gray-700">Cargando platillos...</span>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!loading && errorMsg" class="error-card">
+        <div class="flex items-center gap-3">
+            <i class="bi bi-exclamation-triangle text-red-500 text-xl"></i>
+            <div>
+                <h3 class="font-semibold text-red-800 mb-1">Error al cargar platillos</h3>
+                <p class="text-red-600 text-sm">{{ errorMsg }}</p>
+            </div>
+            <button (click)="retryLoad()" class="ml-auto btn btn-sm btn-outline-danger">
+                <i class="bi bi-arrow-clockwise me-1"></i>
+                Reintentar
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="block md:hidden" *ngIf="!loading">
+        <div class="space-y-3">
+            <div *ngFor="let platillo of mobilePagedData; trackBy: trackById; let i = index" class="platillo-card">
+                <div class="flex gap-3">
+                    <!-- Imagen del platillo -->
+                    <div class="platillo-imagen-mobile">
+                        <img [src]="platillo.imagen_url || 'assets/default-platillo.jpg'" [alt]="platillo.nombre"
+                            class="w-16 h-16 rounded-lg object-cover shadow-sm"
+                            onerror="this.src='assets/default-platillo.jpg'">
+                    </div>
+
+                    <!-- Información principal -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between mb-2">
+                            <h3 class="font-semibold text-gray-800 text-sm truncate pr-2">{{ platillo.nombre }}</h3>
+                            <div class="custom-toggle-mobile" [class.active]="isPlatilloPublico(platillo)"
+                                (click)="togglePlatilloPublico(platillo, !isPlatilloPublico(platillo))"
+                                *ngIf="canEditOrDelete(platillo)">
+                                <div class="toggle-thumb-mobile"></div>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-gray-600 mb-2 line-clamp-2">{{ platillo.descripcion }}</p>
+
+                        <!-- Información nutricional -->
+                        <div class="flex items-center gap-3 mb-2">
+                            <span [class]="getCaloriasBadgeClass(platillo.calorias) + ' text-xs'">
+                                {{ platillo.calorias }} kcal
+                            </span>
+                            <div class="flex items-center gap-1 text-xs text-gray-600">
+                                <i [class]="'bi ' + getTiempoIcon(platillo.tiempo_preparacion)"></i>
+                                <span>{{ platillo.tiempo_preparacion }}min</span>
+                            </div>
+                        </div>
+
+                        <!-- Footer con fecha y acciones -->
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-gray-500">{{ formatearFecha(platillo.fecha_creacion) }}</span>
+
+                            <div class="flex gap-2" *ngIf="canEditOrDelete(platillo)">
+                                <button (click)="editarPlatillo(platillo)" class="btn-action-mobile btn-action-edit">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button (click)="eliminarPlatillo(platillo)"
+                                    class="btn-action-mobile btn-action-delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Pagination -->
+        <div *ngIf="mobileTotalPages > 1" class="mobile-pagination mt-6">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm text-gray-600">
+                    Página {{ mobileCurrentPage + 1 }} de {{ mobileTotalPages }}
+                </span>
+                <span class="text-sm text-gray-500">
+                    {{ mobilePagedData.length }} de {{ filteredData.length }} platillos
+                </span>
+            </div>
+
+            <div class="flex items-center justify-center gap-2">
+                <button (click)="previousMobilePage()" [disabled]="mobileCurrentPage === 0" class="pagination-btn">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+
+                <button *ngFor="let page of getMobilePageNumbers(); let i = index" (click)="onMobilePageChange(i)"
+                    [class.active]="i === mobileCurrentPage" class="pagination-number">
+                    {{ i + 1 }}
+                </button>
+
+                <button (click)="nextMobilePage()" [disabled]="mobileCurrentPage >= mobileTotalPages - 1"
+                    class="pagination-btn">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !errorMsg && dataSource.data.length === 0" class="empty-state">
+        <div class="flex flex-col items-center justify-center py-12 text-center">
+            <i class="bi bi-egg-fried text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">No hay platillos</h3>
+            <p class="text-gray-500 mb-4">Comienza creando tu primer platillo</p>
+            <button (click)="openModalAltaPlatillos(undefined, false)" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>
+                Crear Platillo
+            </button>
+        </div>
+    </div>
+
+    <!-- FAB para móvil -->
+    <button *ngIf="isMobile" class="fab" (click)="openModalAltaPlatillos(undefined, false)">
+        <i class="bi bi-plus text-xl"></i>
+    </button>
+</div>
