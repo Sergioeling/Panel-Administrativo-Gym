@@ -17,6 +17,7 @@ const userRoutes = {
   NUTRICIONISTA: [
     { path: 'inicio', component: Inicio, data: { permission: null } },
     { path: 'platillos-nutricionista', component: Platillos, data: { permission: null } },
+     { path: 'miembros-nutricionista', component: ListaUsers, data: { permission: null } },
 
   ],
   USUARIO: [

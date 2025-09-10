@@ -260,10 +260,9 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
 
   editarPlatillo(platillo: Platillo): void {
     const modalRef = this.modalService.open(AltaPlatillos, {
-      size: 'lg',
       backdrop: 'static',
-      keyboard: false,
-      centered: true
+      size: 'lg',
+      scrollable: true
     });
 
     modalRef.componentInstance.platilloData = platillo;
@@ -437,6 +436,7 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
     const modalRef = this.modalService.open(AltaPlatillos, {
       backdrop: 'static',
       size: 'lg',
+      scrollable: true
     });
 
     if (edit && item) {
