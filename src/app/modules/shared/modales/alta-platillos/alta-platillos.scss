@@ -525,6 +525,480 @@
     }
 }
 
+// Dropdown de búsqueda de alimentos
+.alimento-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+
+    .dropdown-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        border-bottom: 1px solid #f8f9fa;
+        transition: background-color 0.15s ease-in-out;
+
+        &:hover,
+        &.active {
+            background-color: var(--primary-color);
+            color: white;
+
+            .text-muted {
+                color: rgba(255, 255, 255, 0.8) !important;
+            }
+        }
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        small {
+            font-size: 0.75rem;
+        }
+    }
+}
+
+// Mejoras para ingredientes y configuraciones
+.ingrediente-item,
+.configuracion-item {
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef !important;
+
+    &:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+    }
+}
+
+// Switch personalizado para visibilidad
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-check-input:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 0.25rem rgba(231, 76, 60, 0.25);
+}
+
+// Botón eliminar mejorado
+.eliminate-btn {
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    
+    &:hover:not(:disabled) {
+        opacity: 1;
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+    }
+    
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+}
+
+// Mejoras responsivas para ingredientes
+.ingrediente-item {
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef !important;
+    position: relative;
+    padding-top: 3.5rem !important; // Más espacio para el botón eliminar
+    margin-bottom: 2rem !important; // Espacio extra entre elementos para evitar superposición
+
+    &:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+        border-color: var(--primary-color) !important;
+        z-index: 5; // Asegurar que esté por encima de otros elementos
+    }
+
+    .eliminate-btn {
+        transform: translate(10px, -10px);
+    }
+}
+
+// Estados vacíos mejorados
+.empty-state {
+    border: 2px dashed #dee2e6;
+    border-radius: 0.5rem;
+    background: linear-gradient(145deg, #f8f9fa, #ffffff);
+    position: relative;
+    z-index: 1;
+    margin: 1.5rem 0; // Separación clara
+    
+    .btn {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border: none;
+        font-weight: 600;
+        position: relative;
+        z-index: 3;
+        
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+    }
+}
+
+// Mejoras responsivas
+@media (max-width: 575.98px) {
+    .ingrediente-item {
+        padding: 1rem 0.75rem 0.75rem 0.75rem !important;
+        padding-top: 3rem !important; // Más espacio en móvil
+        margin-bottom: 1.5rem !important;
+        
+        .eliminate-btn {
+            width: 28px !important;
+            height: 28px !important;
+            font-size: 0.75rem;
+            transform: translate(5px, -5px);
+        }
+        
+        .form-label {
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .form-control,
+        .form-select {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+        }
+    }
+    
+    .empty-state {
+        padding: 2rem 1rem !important;
+        margin: 1rem 0 !important;
+        
+        i {
+            font-size: 2rem !important;
+        }
+        
+        h6 {
+            font-size: 0.9rem;
+        }
+        
+        p {
+            font-size: 0.8rem;
+        }
+    }
+    
+    .add-ingredient-section {
+        padding: 2rem 1rem !important;
+        margin: 1.5rem 0 !important;
+        
+        h6 {
+            font-size: 1rem;
+        }
+        
+        p {
+            font-size: 0.8rem;
+        }
+        
+        .btn {
+            font-size: 0.9rem;
+            padding: 0.75rem 1.5rem;
+        }
+    }
+    
+    .eliminate-btn-improved {
+        width: 28px !important;
+        height: 28px !important;
+        top: -10px !important;
+        right: -10px !important;
+        
+        i {
+            font-size: 0.75rem !important;
+        }
+    }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .ingrediente-item {
+        .eliminate-btn {
+            width: 30px !important;
+            height: 30px !important;
+        }
+    }
+}
+
+// Mejoras para labels con iconos
+.form-label {
+    i {
+        color: var(--primary-color);
+        opacity: 0.8;
+    }
+}
+
+// Animación para botones de agregar
+.btn-outline-warning {
+    transition: all 0.3s ease;
+    border-width: 2px;
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+        border-width: 2px;
+    }
+}
+
+// Mejoras para el dropdown de búsqueda
+.alimento-dropdown {
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    z-index: 1050; // Z-index muy alto para estar por encima de todo
+    
+    .dropdown-item {
+        &:hover,
+        &.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        }
+    }
+}
+
+// Prevenir superposiciones globales
+.ingredientes-container {
+    isolation: isolate; // Crear nuevo contexto de apilamiento
+    
+    .ingrediente-item {
+        isolation: isolate; // Cada ingrediente en su propio contexto
+    }
+}
+
+// Asegurar que elementos de formulario tengan el z-index correcto
+.modal-body {
+    .card {
+        position: relative;
+        z-index: 1;
+        
+        .card-header {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .card-body {
+            position: relative;
+            z-index: 1;
+        }
+    }
+}
+
+// Manejo específico para elementos amarillos que pueden superponerse
+.bg-warning,
+.btn-warning,
+.text-warning,
+.border-warning {
+    position: relative;
+    z-index: auto; // Reset z-index para evitar conflictos
+}
+
+.add-ingredient-section.bg-warning {
+    z-index: 1 !important; // Forzar z-index bajo
+}
+
+// Nuevo botón eliminar mejorado
+.eliminate-btn-improved {
+    top: -12px; // Más arriba para evitar superposición
+    right: -12px; // Más a la derecha
+    width: 32px; // Ligeramente más grande para mejor visibilidad
+    height: 32px;
+    border-radius: 50%;
+    z-index: 15; // Z-index más alto para estar siempre encima
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+    border: 3px solid white; // Border más grueso para mejor separación
+    transition: all 0.3s ease;
+    background: #dc3545 !important;
+    
+    &:hover:not(:disabled) {
+        transform: scale(1.2); // Menos escala para evitar superposición
+        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+        background: #c82333 !important;
+        border-color: white;
+        z-index: 20; // Z-index aún más alto en hover
+    }
+    
+    &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+        z-index: 10;
+    }
+    
+    i {
+        font-size: 0.85rem;
+        color: white;
+    }
+}
+
+// Sección de agregar ingredientes mejorada
+.add-ingredient-section {
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1; // Z-index bajo para que no interfiera con botones
+    margin-top: 2rem; // Más separación de arriba
+    margin-bottom: 1.5rem; // Separación de abajo
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 193, 7, 0.2);
+        z-index: 2; // Ligero incremento en hover
+    }
+    
+    .btn {
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 3;
+        
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+        }
+    }
+}
+
+// Resumen del platillo mejorado
+.stat-card {
+    border-radius: 1rem;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: white;
+    
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.25rem;
+        
+        &.bg-gradient-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+        
+        &.bg-gradient-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        
+        &.bg-gradient-info {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+        }
+        
+        &.bg-gradient-warning {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+        }
+    }
+    
+    .stat-icon-mini {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+    }
+}
+
+// Header con gradiente mejorado
+.bg-gradient {
+    position: relative;
+    overflow: hidden;
+}
+
+// Mejoras responsivas adicionales
+@media (max-width: 575.98px) {
+    .add-ingredient-section {
+        padding: 2rem 1rem !important;
+        
+        h6 {
+            font-size: 1rem;
+        }
+        
+        p {
+            font-size: 0.8rem;
+        }
+        
+        .btn {
+            font-size: 0.9rem;
+            padding: 0.75rem 1.5rem;
+        }
+    }
+    
+    .stat-card {
+        padding: 1rem;
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 1.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+        }
+    }
+    
+    .eliminate-btn-improved {
+        width: 24px;
+        height: 24px;
+        top: -6px;
+        right: -6px;
+        
+        i {
+            font-size: 0.7rem;
+        }
+    }
+}
+
+// Animaciones adicionales
+@keyframes pulse-warning {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+    }
+}
+
+.btn-warning:focus {
+    animation: pulse-warning 1.5s infinite;
+}
+
 // Estilos específicos para el modal de usuarios
 .user-role-description {
     padding: 0.75rem;

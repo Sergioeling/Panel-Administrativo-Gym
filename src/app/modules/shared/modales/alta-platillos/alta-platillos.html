@@ -6,7 +6,7 @@
     <button type="button" class="btn-close btn-close-white" (click)="onCancel()"></button>
 </div>
 
-<div class="modal-body p-3 p-md-4" style="max-height: 80vh; overflow-y: auto;">
+<div class="modal-body p-3 p-md-4" style="max-height: 80vh; overflow-y: auto;" (click)="hideAllDropdowns($event)">
     <!-- Loading Overlay -->
     <div *ngIf="loading || loadingCatalogos" class="loading-overlay">
         <div class="loading-spinner">
@@ -59,8 +59,11 @@
                                 formControlName="calorias" placeholder="250" min="1" />
                             <span class="input-group-text">kcal</span>
                         </div>
-                        <div *ngIf="isFieldInvalid('calorias')" class="invalid-feedback">{{ getFieldError('calorias') }}
-                        </div>
+                        <div *ngIf="isFieldInvalid('calorias')" class="invalid-feedback">{{ getFieldError('calorias') }}</div>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-fire me-1"></i>
+                            Valor mínimo: 1 kcal
+                        </small>
                     </div>
 
                     <!-- Descripción -->
@@ -114,24 +117,33 @@
                 <div class="row g-3">
                     <div class="col-12">
                         <label class="form-label fw-semibold text-gray-700">Visibilidad del Platillo *</label>
-                        <select class="form-select" [class.is-invalid]="isFieldInvalid('es_publico')"
-                            formControlName="es_publico">
-                            <option value="1">Público - Visible para todos los usuarios</option>
-                            <option value="0">Privado - Solo visible para administradores</option>
-                        </select>
-                        <div *ngIf="isFieldInvalid('es_publico')" class="invalid-feedback">{{
-                            getFieldError('es_publico') }}</div>
+                        
+                        <!-- Switch personalizado -->
+                        <div class="d-flex align-items-center gap-3 mt-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" 
+                                       id="visibilidadSwitch" 
+                                       [checked]="platilloForm.get('es_publico')?.value == '1'"
+                                       (change)="onVisibilidadChange($event)">
+                                <label class="form-check-label fw-semibold" for="visibilidadSwitch">
+                                    {{ platilloForm.get('es_publico')?.value == '1' ? 'Público' : 'Privado' }}
+                                </label>
+                            </div>
+                        </div>
 
                         <!-- Descripciones de visibilidad -->
                         <div class="mt-3">
-                            <div class="alert alert-info" *ngIf="platilloForm.get('es_publico')?.value == '1'">
+                            <div class="alert alert-info d-flex align-items-center" *ngIf="platilloForm.get('es_publico')?.value == '1'">
                                 <i class="fas fa-globe me-2"></i>
-                                <strong>Público:</strong> Este platillo será visible para todos los usuarios del
-                                sistema.
+                                <div>
+                                    <strong>Público:</strong> Este platillo será visible para todos los usuarios del sistema.
+                                </div>
                             </div>
-                            <div class="alert alert-warning" *ngIf="platilloForm.get('es_publico')?.value == '0'">
+                            <div class="alert alert-warning d-flex align-items-center" *ngIf="platilloForm.get('es_publico')?.value == '0'">
                                 <i class="fas fa-lock me-2"></i>
-                                <strong>Privado:</strong> Solo los administradores podrán ver y usar este platillo.
+                                <div>
+                                    <strong>Privado:</strong> Solo los administradores podrán ver y usar este platillo.
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -141,80 +153,162 @@
 
         <!-- INGREDIENTES -->
         <div class="card mb-4 shadow-sm">
-            <div class="card-header bg-warning text-white">
+            <div class="card-header bg-warning text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 d-flex align-items-center">
                     <i class="fas fa-carrot me-2"></i>
-                    Ingredientes
+                    Ingredientes ({{ ingredientesArray.length }}/15)
                 </h5>
-                <button type="button" class="btn btn-sm btn-outline-light" (click)="agregarIngrediente()">
+                <button type="button" class="btn btn-sm btn-outline-light" 
+                        (click)="agregarIngrediente()"
+                        [disabled]="ingredientesArray.length >= 15">
                     <i class="fas fa-plus me-1"></i>
                     Agregar
                 </button>
             </div>
             <div class="card-body p-3 p-md-4">
+                
+                <!-- Alerta de límite -->
+                <div *ngIf="ingredientesArray.length >= 15" class="alert alert-warning mb-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Límite alcanzado:</strong> Se permite un máximo de 15 ingredientes por platillo.
+                </div>
+
                 <div class="ingredientes-container" formArrayName="ingredientes">
                     <div *ngFor="let ingrediente of ingredientesArray.controls; let i = index; trackBy: trackByIndex"
-                        class="ingrediente-item mb-3" [formGroupName]="i">
+                        class="ingrediente-item mb-3 p-3 border rounded bg-light position-relative" [formGroupName]="i">
 
-                        <div class="row g-3 align-items-end">
-                            <!-- Alimento -->
-                            <div class="col-md-5">
-                                <label class="form-label required">Alimento</label>
-                                <select class="form-select"
-                                    [class.is-invalid]="isIngredienteFieldInvalid(i, 'alimento_id')"
-                                    formControlName="alimento_id">
-                                    <option value="">Seleccionar alimento</option>
-                                    <option *ngFor="let alimento of alimentos; trackBy: trackByAlimento"
-                                        [value]="alimento.id">
-                                        {{ alimento.nombre }}
-                                    </option>
-                                </select>
+                        <!-- Botón eliminar rediseñado -->
+                        <button type="button" 
+                                class="btn btn-danger btn-sm position-absolute eliminate-btn-improved"
+                                [disabled]="ingredientesArray.length <= 1" 
+                                (click)="eliminarIngrediente(i)"
+                                title="Eliminar ingrediente">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+
+                        <div class="row g-3">
+                            <!-- Alimento con búsqueda -->
+                            <div class="col-12 col-lg-6">
+                                <label class="form-label required">
+                                    <i class="fas fa-apple-alt me-1"></i>
+                                    Alimento
+                                </label>
+                                <div class="position-relative">
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-search text-muted"></i>
+                                        </span>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               placeholder="Buscar alimento..."
+                                               [value]="getAlimentoSearch(i)"
+                                               (input)="onAlimentoSearch($event, i)"
+                                               (focus)="showAlimentoDropdown(i)"
+                                               [class.is-invalid]="isIngredienteFieldInvalid(i, 'alimento_id')">
+                                    </div>
+                                    
+                                    <!-- Dropdown de resultados -->
+                                    <div class="alimento-dropdown" 
+                                         *ngIf="alimentoDropdownVisible[i] && getFilteredAlimentos(i).length > 0"
+                                         [style.display]="alimentoDropdownVisible[i] ? 'block' : 'none'">
+                                        <div class="dropdown-item" 
+                                             *ngFor="let alimento of getFilteredAlimentos(i); let idx = index"
+                                             (click)="selectAlimento(alimento, i)"
+                                             [class.active]="alimento.id === ingrediente.get('alimento_id')?.value">
+                                            {{ alimento.nombre }}
+                                            <small class="text-muted d-block">{{ alimento.categoria || 'Sin categoría' }}</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Input oculto para el valor real -->
+                                    <input type="hidden" formControlName="alimento_id">
+                                </div>
                                 <div *ngIf="isIngredienteFieldInvalid(i, 'alimento_id')" class="invalid-feedback">
                                     Alimento es requerido
                                 </div>
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Mínimo 2 caracteres para buscar
+                                </small>
                             </div>
 
-                            <!-- Cantidad -->
-                            <div class="col-md-3">
-                                <label class="form-label required">Cantidad</label>
-                                <input type="number" class="form-control"
-                                    [class.is-invalid]="isIngredienteFieldInvalid(i, 'cantidad')"
-                                    formControlName="cantidad" min="0.1" step="0.1" placeholder="0">
-                                <div *ngIf="isIngredienteFieldInvalid(i, 'cantidad')" class="invalid-feedback">
-                                    Cantidad requerida
+                            <!-- Cantidad y Unidad en una sola fila en móvil -->
+                            <div class="col-12 col-lg-6">
+                                <div class="row g-2">
+                                    <!-- Cantidad -->
+                                    <div class="col-7">
+                                        <label class="form-label required">
+                                            <i class="fas fa-weight me-1"></i>
+                                            Cantidad
+                                        </label>
+                                        <input type="number" class="form-control"
+                                            [class.is-invalid]="isIngredienteFieldInvalid(i, 'cantidad')"
+                                            formControlName="cantidad" min="0.1" step="0.1" placeholder="0">
+                                        <div *ngIf="isIngredienteFieldInvalid(i, 'cantidad')" class="invalid-feedback">
+                                            Cantidad requerida
+                                        </div>
+                                    </div>
+
+                                    <!-- Unidad -->
+                                    <div class="col-5">
+                                        <label class="form-label required">
+                                            <i class="fas fa-ruler me-1"></i>
+                                            Unidad
+                                        </label>
+                                        <select class="form-select"
+                                            [class.is-invalid]="isIngredienteFieldInvalid(i, 'unidad_medida')"
+                                            formControlName="unidad_medida">
+                                            <option *ngFor="let unidad of unidadesMedida" [value]="unidad">
+                                                {{ unidad }}
+                                            </option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <!-- Unidad -->
-                            <div class="col-md-3">
-                                <label class="form-label required">Unidad</label>
-                                <select class="form-select"
-                                    [class.is-invalid]="isIngredienteFieldInvalid(i, 'unidad_medida')"
-                                    formControlName="unidad_medida">
-                                    <option *ngFor="let unidad of unidadesMedida" [value]="unidad">
-                                        {{ unidad }}
-                                    </option>
-                                </select>
-                            </div>
-
-                            <!-- Eliminar -->
-                            <div class="col-md-1">
-                                <button type="button" class="btn btn-outline-danger btn-sm w-100"
-                                    [disabled]="ingredientesArray.length <= 1" (click)="eliminarIngrediente(i)"
-                                    title="Eliminar ingrediente">
-                                    <i class="fas fa-trash"></i>
-                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <div *ngIf="ingredientesArray.length === 0" class="empty-state py-4 text-center">
-                        <i class="fas fa-carrot text-muted mb-2 fs-2"></i>
-                        <p class="text-muted">No hay ingredientes agregados</p>
-                        <button type="button" class="btn btn-primary btn-sm" (click)="agregarIngrediente()">
-                            <i class="fas fa-plus me-1"></i>
+                    <!-- Estado vacío mejorado -->
+                    <div *ngIf="ingredientesArray.length === 0" class="empty-state py-5 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-carrot text-warning" style="font-size: 3rem;"></i>
+                        </div>
+                        <h6 class="text-muted mb-2">No hay ingredientes agregados</h6>
+                        <p class="text-muted small mb-3">Agrega al menos un ingrediente para continuar</p>
+                        <button type="button" class="btn btn-warning" (click)="agregarIngrediente()">
+                            <i class="fas fa-plus me-2"></i>
                             Agregar primer ingrediente
                         </button>
+                    </div>
+
+                    <!-- Botón agregar más ingredientes mejorado -->
+                    <div *ngIf="ingredientesArray.length > 0 && ingredientesArray.length < 15" 
+                         class="text-center mt-4">
+                        <div class="add-ingredient-section p-4 rounded-3 border-2 border-dashed border-warning bg-warning bg-opacity-10">
+                            <div class="mb-3">
+                                <i class="fas fa-plus-circle text-warning" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <h6 class="text-warning fw-bold mb-2">¿Necesitas más ingredientes?</h6>
+                            <p class="text-muted small mb-3">Puedes agregar hasta {{ 15 - ingredientesArray.length }} ingredientes más</p>
+                            <button type="button" 
+                                    class="btn btn-warning btn-lg px-4 py-2 shadow-sm"
+                                    (click)="agregarIngrediente()">
+                                <i class="fas fa-plus me-2"></i>
+                                Agregar otro ingrediente
+                                <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                            
+                            <!-- Progreso de ingredientes -->
+                            <div class="mt-3">
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar bg-warning" 
+                                         role="progressbar" 
+                                         [style.width.%]="(ingredientesArray.length / 15) * 100">
+                                    </div>
+                                </div>
+                                <small class="text-muted mt-1 d-block">{{ ingredientesArray.length }} de 15 ingredientes</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -225,24 +319,25 @@
             <div class="card-header bg-info text-white">
                 <h5 class="mb-0 d-flex align-items-center">
                     <i class="fas fa-cogs me-2"></i>
-                    Configuraciones Nutricionales
+                    Configuración Nutricional
                 </h5>
-                <button type="button" class="btn btn-sm btn-outline-light" (click)="agregarConfiguracion()">
-                    <i class="fas fa-plus me-1"></i>
-                    Agregar
-                </button>
             </div>
             <div class="card-body p-3 p-md-4">
                 <div class="configuraciones-container" formArrayName="configuraciones">
-                    <div *ngFor="let config of configuracionesArray.controls; let i = index; trackBy: trackByIndex"
-                        class="configuracion-item mb-3" [formGroupName]="i">
+                    <!-- Solo una configuración -->
+                    <div *ngIf="configuracionesArray.length > 0" 
+                         class="configuracion-item p-3 border rounded bg-light" 
+                         [formGroupName]="0">
 
-                        <div class="row g-3 align-items-end">
+                        <div class="row g-3">
                             <!-- Tipo de Dieta -->
-                            <div class="col-md-4">
-                                <label class="form-label required">Tipo de Dieta</label>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label required">
+                                    <i class="fas fa-leaf me-1"></i>
+                                    Tipo de Dieta
+                                </label>
                                 <select class="form-select"
-                                    [class.is-invalid]="isConfiguracionFieldInvalid(i, 'tipo_dieta_id')"
+                                    [class.is-invalid]="isConfiguracionFieldInvalid(0, 'tipo_dieta_id')"
                                     formControlName="tipo_dieta_id">
                                     <option value="">Seleccionar dieta</option>
                                     <option *ngFor="let dieta of tiposDieta; trackBy: trackByTipoDieta"
@@ -250,16 +345,19 @@
                                         {{ dieta.nombre }}
                                     </option>
                                 </select>
-                                <div *ngIf="isConfiguracionFieldInvalid(i, 'tipo_dieta_id')" class="invalid-feedback">
+                                <div *ngIf="isConfiguracionFieldInvalid(0, 'tipo_dieta_id')" class="invalid-feedback">
                                     Tipo de dieta requerido
                                 </div>
                             </div>
 
                             <!-- Tipo de Comida -->
-                            <div class="col-md-4">
-                                <label class="form-label required">Tipo de Comida</label>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label required">
+                                    <i class="fas fa-utensils me-1"></i>
+                                    Tipo de Comida
+                                </label>
                                 <select class="form-select"
-                                    [class.is-invalid]="isConfiguracionFieldInvalid(i, 'tipo_comida_id')"
+                                    [class.is-invalid]="isConfiguracionFieldInvalid(0, 'tipo_comida_id')"
                                     formControlName="tipo_comida_id">
                                     <option value="">Seleccionar comida</option>
                                     <option *ngFor="let comida of tiposComida; trackBy: trackByTipoComida"
@@ -267,16 +365,19 @@
                                         {{ comida.nombre }}
                                     </option>
                                 </select>
-                                <div *ngIf="isConfiguracionFieldInvalid(i, 'tipo_comida_id')" class="invalid-feedback">
+                                <div *ngIf="isConfiguracionFieldInvalid(0, 'tipo_comida_id')" class="invalid-feedback">
                                     Tipo de comida requerido
                                 </div>
                             </div>
 
                             <!-- Tipo de Objetivo -->
-                            <div class="col-md-3">
-                                <label class="form-label required">Objetivo</label>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label required">
+                                    <i class="fas fa-bullseye me-1"></i>
+                                    Objetivo
+                                </label>
                                 <select class="form-select"
-                                    [class.is-invalid]="isConfiguracionFieldInvalid(i, 'tipo_objetivo_id')"
+                                    [class.is-invalid]="isConfiguracionFieldInvalid(0, 'tipo_objetivo_id')"
                                     formControlName="tipo_objetivo_id">
                                     <option value="">Seleccionar objetivo</option>
                                     <option *ngFor="let objetivo of tiposObjetivo; trackBy: trackByTipoObjetivo"
@@ -284,29 +385,24 @@
                                         {{ objetivo.nombre }}
                                     </option>
                                 </select>
-                                <div *ngIf="isConfiguracionFieldInvalid(i, 'tipo_objetivo_id')"
+                                <div *ngIf="isConfiguracionFieldInvalid(0, 'tipo_objetivo_id')"
                                     class="invalid-feedback">
                                     Objetivo requerido
                                 </div>
                             </div>
-
-                            <!-- Eliminar -->
-                            <div class="col-md-1">
-                                <button type="button" class="btn btn-outline-danger btn-sm w-100"
-                                    [disabled]="configuracionesArray.length <= 1" (click)="eliminarConfiguracion(i)"
-                                    title="Eliminar configuración">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
                         </div>
                     </div>
 
+                    <!-- Estado vacío -->
                     <div *ngIf="configuracionesArray.length === 0" class="empty-state py-4 text-center">
-                        <i class="fas fa-cogs text-muted mb-2 fs-2"></i>
-                        <p class="text-muted">No hay configuraciones agregadas</p>
-                        <button type="button" class="btn btn-primary btn-sm" (click)="agregarConfiguracion()">
-                            <i class="fas fa-plus me-1"></i>
-                            Agregar primera configuración
+                        <div class="mb-3">
+                            <i class="fas fa-cogs text-info" style="font-size: 3rem;"></i>
+                        </div>
+                        <h6 class="text-muted mb-2">Configuración nutricional requerida</h6>
+                        <p class="text-muted small mb-3">Define el tipo de dieta, comida y objetivo para este platillo</p>
+                        <button type="button" class="btn btn-info" (click)="agregarConfiguracion()">
+                            <i class="fas fa-plus me-2"></i>
+                            Agregar configuración
                         </button>
                     </div>
                 </div>
@@ -314,60 +410,89 @@
         </div>
 
         <!-- RESUMEN DEL PLATILLO -->
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header bg-secondary text-white">
-                <h5 class="mb-0 d-flex align-items-center">
-                    <i class="fas fa-chart-pie me-2"></i>
+        <div class="card mb-4 shadow-lg border-0">
+            <div class="card-header bg-gradient text-white position-relative overflow-hidden" style="background: linear-gradient(135deg, #6f42c1, #8b5cf6);">
+                <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10">
+                    <i class="fas fa-chart-pie position-absolute" style="font-size: 8rem; right: -2rem; top: -3rem;"></i>
+                </div>
+                <h5 class="mb-0 d-flex align-items-center position-relative">
+                    <div class="stat-icon-mini bg-white bg-opacity-20 rounded-circle p-2 me-3">
+                        <i class="fas fa-chart-pie text-white"></i>
+                    </div>
                     Resumen del Platillo
                 </h5>
             </div>
-            <div class="card-body p-3 p-md-4">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-icon bg-primary">
+            <div class="card-body p-4">
+                <div class="row g-4">
+                    <!-- Calorías -->
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card h-100 border-0 shadow-sm">
+                            <div class="stat-icon bg-gradient-danger text-white">
                                 <i class="fas fa-fire"></i>
                             </div>
                             <div class="stat-content">
-                                <h6 class="stat-value">{{ calcularCaloriasTotales() }}</h6>
-                                <p class="stat-label">Calorías</p>
+                                <h4 class="stat-value text-primary fw-bold mb-1">{{ calcularCaloriasTotales() }}</h4>
+                                <p class="stat-label text-muted small mb-0">Calorías</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-icon bg-success">
+                    <!-- Ingredientes -->
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card h-100 border-0 shadow-sm">
+                            <div class="stat-icon bg-gradient-success text-white">
                                 <i class="fas fa-carrot"></i>
                             </div>
                             <div class="stat-content">
-                                <h6 class="stat-value">{{ ingredientesArray.length }}</h6>
-                                <p class="stat-label">Ingredientes</p>
+                                <h4 class="stat-value text-success fw-bold mb-1">{{ ingredientesArray.length }}/15</h4>
+                                <p class="stat-label text-muted small mb-0">Ingredientes</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-icon bg-info">
+                    <!-- Tiempo -->
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card h-100 border-0 shadow-sm">
+                            <div class="stat-icon bg-gradient-info text-white">
                                 <i class="fas fa-clock"></i>
                             </div>
                             <div class="stat-content">
-                                <h6 class="stat-value">{{ platilloForm.get('tiempo_preparacion')?.value || 0 }}</h6>
-                                <p class="stat-label">Minutos</p>
+                                <h4 class="stat-value text-info fw-bold mb-1">{{ platilloForm.get('tiempo_preparacion')?.value || 0 }}</h4>
+                                <p class="stat-label text-muted small mb-0">Minutos</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-icon bg-warning">
-                                <i class="fas fa-cogs"></i>
+                    <!-- Configuración -->
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card h-100 border-0 shadow-sm">
+                            <div class="stat-icon text-white" 
+                                 [class.bg-gradient-warning]="configuracionesArray.length > 0"
+                                 [class.bg-secondary]="configuracionesArray.length === 0">
+                                <i class="fas fa-{{ configuracionesArray.length > 0 ? 'check-circle' : 'exclamation-circle' }}"></i>
                             </div>
                             <div class="stat-content">
-                                <h6 class="stat-value">{{ configuracionesArray.length }}</h6>
-                                <p class="stat-label">Configuraciones</p>
+                                <h4 class="stat-value fw-bold mb-1" 
+                                    [class.text-warning]="configuracionesArray.length > 0"
+                                    [class.text-secondary]="configuracionesArray.length === 0">
+                                    {{ configuracionesArray.length > 0 ? 'Completo' : 'Pendiente' }}
+                                </h4>
+                                <p class="stat-label text-muted small mb-0">Estado</p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barra de progreso -->
+                <div class="mt-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted fw-semibold">Progreso del formulario</small>
+                        <small class="text-muted">{{ getFormProgress() }}%</small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-gradient-success progress-bar-striped progress-bar-animated" 
+                             role="progressbar" 
+                             [style.width.%]="getFormProgress()">
                         </div>
                     </div>
                 </div>

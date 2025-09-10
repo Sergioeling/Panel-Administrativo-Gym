@@ -4,7 +4,6 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } fr
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
-
 import { HttpServices } from '../../../../core/services/http/http.service';
 
 interface PlatilloData {
@@ -95,6 +94,11 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     'g', 'kg', 'ml', 'l', 'pza', 'taza', 'cdita', 'cda', 'onza', 'lb'
   ];
 
+  // Variables para la búsqueda de alimentos
+  alimentoSearchTerms: string[] = [];
+  alimentoDropdownVisible: boolean[] = [];
+  filteredAlimentos: Alimento[][] = [];
+
   constructor() {
     this.platilloForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3)]],
@@ -114,11 +118,17 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     // Cargar catálogos primero
     this.cargarCatalogos();
 
+    // Inicializar arrays de búsqueda
+    this.alimentoSearchTerms = [];
+    this.alimentoDropdownVisible = [];
+    this.filteredAlimentos = [];
+
     // Inicializar arrays del formulario si están vacíos
     if (this.ingredientesArray.length === 0) {
       this.agregarIngrediente();
     }
 
+    // Solo permitir una configuración
     if (this.configuracionesArray.length === 0) {
       this.agregarConfiguracion();
     }
@@ -261,6 +271,95 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     }
   }
 
+  // Métodos de búsqueda de alimentos
+  onAlimentoSearch(event: any, index: number): void {
+    const term = event.target.value.toLowerCase();
+    this.alimentoSearchTerms[index] = event.target.value;
+    
+    if (term.length >= 2) {
+      this.filteredAlimentos[index] = this.alimentos.filter(alimento =>
+        alimento.nombre.toLowerCase().includes(term)
+      );
+      this.alimentoDropdownVisible[index] = true;
+    } else {
+      this.filteredAlimentos[index] = [...this.alimentos];
+      this.alimentoDropdownVisible[index] = false;
+    }
+  }
+
+  showAlimentoDropdown(index: number): void {
+    this.alimentoDropdownVisible[index] = true;
+    if (!this.filteredAlimentos[index] || this.filteredAlimentos[index].length === 0) {
+      this.filteredAlimentos[index] = [...this.alimentos];
+    }
+  }
+
+  selectAlimento(alimento: Alimento, index: number): void {
+    this.ingredientesArray.at(index).get('alimento_id')?.setValue(alimento.id);
+    this.alimentoSearchTerms[index] = alimento.nombre;
+    this.alimentoDropdownVisible[index] = false;
+    this.cdr.markForCheck();
+  }
+
+  getAlimentoSearch(index: number): string {
+    return this.alimentoSearchTerms[index] || '';
+  }
+
+  getFilteredAlimentos(index: number): Alimento[] {
+    return this.filteredAlimentos[index] || [];
+  }
+
+  // Método para manejar el cambio de visibilidad
+  onVisibilidadChange(event: any): void {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    this.platilloForm.get('es_publico')?.setValue(isChecked ? '1' : '0');
+  }
+
+  // Ocultar todos los dropdowns
+  hideAllDropdowns(event?: any): void {
+    // Solo cerrar si el click no es en un input de búsqueda o dropdown
+    if (event && (event.target.closest('.alimento-dropdown') || event.target.closest('input[placeholder="Buscar alimento..."]'))) {
+      return;
+    }
+    
+    this.alimentoDropdownVisible.fill(false);
+  }
+
+  // Calcular progreso del formulario
+  getFormProgress(): number {
+    let progress = 0;
+    const totalFields = 7; // Total de campos principales
+    
+    // Información básica (4 campos obligatorios)
+    if (this.platilloForm.get('nombre')?.value) progress++;
+    if (this.platilloForm.get('descripcion')?.value) progress++;
+    if (this.platilloForm.get('calorias')?.value > 0) progress++;
+    if (this.platilloForm.get('tiempo_preparacion')?.value > 0) progress++;
+    
+    // Visibilidad
+    if (this.platilloForm.get('es_publico')?.value !== null) progress++;
+    
+    // Ingredientes (al menos 1)
+    if (this.ingredientesArray.length > 0) {
+      const validIngredients = this.ingredientesArray.controls.filter(ing => 
+        ing.get('alimento_id')?.value && ing.get('cantidad')?.value > 0
+      );
+      if (validIngredients.length > 0) progress++;
+    }
+    
+    // Configuración nutricional
+    if (this.configuracionesArray.length > 0) {
+      const config = this.configuracionesArray.at(0);
+      if (config.get('tipo_dieta_id')?.value && 
+          config.get('tipo_comida_id')?.value && 
+          config.get('tipo_objetivo_id')?.value) {
+        progress++;
+      }
+    }
+    
+    return Math.round((progress / totalFields) * 100);
+  }
+
   // También actualiza el método onSubmit para mejor debugging:
   onSubmit(): void {
     console.log('Enviando formulario...');
@@ -295,6 +394,16 @@ export class AltaPlatillos implements OnInit, OnDestroy {
         icon: 'warning',
         title: 'Ingredientes requeridos',
         text: 'Debes agregar al menos un ingrediente válido'
+      });
+      return;
+    }
+
+    if (ingredientesValidos.length > 15) {
+      this.loading = false;
+      Swal.fire({
+        icon: 'warning',
+        title: 'Límite de ingredientes excedido',
+        text: 'No se pueden agregar más de 15 ingredientes por platillo'
       });
       return;
     }
@@ -410,6 +519,11 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   agregarIngrediente(ingrediente?: Ingrediente): void {
     console.log('Agregando ingrediente:', ingrediente);
 
+    // Validar límite máximo de ingredientes
+    if (this.ingredientesArray.length >= 15) {
+      return;
+    }
+
     const ingredienteForm = this.fb.group({
       alimento_id: [ingrediente?.alimento_id || '', Validators.required],
       cantidad: [ingrediente?.cantidad || '', [Validators.required, Validators.min(0.1)]],
@@ -417,6 +531,13 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     });
 
     this.ingredientesArray.push(ingredienteForm);
+    
+    // Inicializar arrays de búsqueda para el nuevo ingrediente
+    const index = this.ingredientesArray.length - 1;
+    this.alimentoSearchTerms[index] = '';
+    this.alimentoDropdownVisible[index] = false;
+    this.filteredAlimentos[index] = [...this.alimentos];
+
     console.log('Ingredientes array length:', this.ingredientesArray.length);
     this.cdr.markForCheck();
   }
@@ -424,6 +545,12 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   eliminarIngrediente(index: number): void {
     if (this.ingredientesArray.length > 1) {
       this.ingredientesArray.removeAt(index);
+      
+      // Remover elementos correspondientes de los arrays de búsqueda
+      this.alimentoSearchTerms.splice(index, 1);
+      this.alimentoDropdownVisible.splice(index, 1);
+      this.filteredAlimentos.splice(index, 1);
+      
       this.cdr.markForCheck();
     }
   }
@@ -431,6 +558,11 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   // Métodos para configuraciones
   agregarConfiguracion(configuracion?: Configuracion): void {
     console.log('Agregando configuración:', configuracion);
+
+    // Solo permitir una configuración
+    if (this.configuracionesArray.length >= 1) {
+      return;
+    }
 
     const configForm = this.fb.group({
       tipo_dieta_id: [configuracion?.tipo_dieta_id || '', Validators.required],
@@ -550,4 +682,5 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   trackByTipoObjetivo(index: number, tipo: TipoObjetivo): number {
     return tipo.id;
   }
+
 }
