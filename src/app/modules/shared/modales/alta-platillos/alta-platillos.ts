@@ -98,6 +98,8 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   alimentoSearchTerms: string[] = [];
   alimentoDropdownVisible: boolean[] = [];
   filteredAlimentos: Alimento[][] = [];
+  alimentoNotFound: boolean[] = []; // Nuevo: array para controlar si no se encuentra el alimento
+  alimentoSelected: boolean[] = []; // Nuevo: array para controlar si se ha seleccionado un alimento
 
   constructor() {
     this.platilloForm = this.fb.group({
@@ -122,6 +124,8 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     this.alimentoSearchTerms = [];
     this.alimentoDropdownVisible = [];
     this.filteredAlimentos = [];
+    this.alimentoNotFound = [];
+    this.alimentoSelected = [];
 
     // Inicializar arrays del formulario si están vacíos
     if (this.ingredientesArray.length === 0) {
@@ -276,15 +280,25 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     const term = event.target.value.toLowerCase();
     this.alimentoSearchTerms[index] = event.target.value;
     
+    // Resetear estado de selección cuando el usuario está escribiendo
+    this.alimentoSelected[index] = false;
+    this.ingredientesArray.at(index).get('alimento_id')?.setValue('');
+    
     if (term.length >= 2) {
       this.filteredAlimentos[index] = this.alimentos.filter(alimento =>
         alimento.nombre.toLowerCase().includes(term)
       );
+      
+      // Verificar si no se encontraron resultados
+      this.alimentoNotFound[index] = this.filteredAlimentos[index].length === 0;
       this.alimentoDropdownVisible[index] = true;
     } else {
       this.filteredAlimentos[index] = [...this.alimentos];
       this.alimentoDropdownVisible[index] = false;
+      this.alimentoNotFound[index] = false;
     }
+    
+    this.cdr.markForCheck();
   }
 
   showAlimentoDropdown(index: number): void {
@@ -298,6 +312,8 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     this.ingredientesArray.at(index).get('alimento_id')?.setValue(alimento.id);
     this.alimentoSearchTerms[index] = alimento.nombre;
     this.alimentoDropdownVisible[index] = false;
+    this.alimentoNotFound[index] = false;
+    this.alimentoSelected[index] = true;
     this.cdr.markForCheck();
   }
 
@@ -307,6 +323,37 @@ export class AltaPlatillos implements OnInit, OnDestroy {
 
   getFilteredAlimentos(index: number): Alimento[] {
     return this.filteredAlimentos[index] || [];
+  }
+
+  // Nuevo método para verificar si no se encontró el alimento
+  isAlimentoNotFound(index: number): boolean {
+    return this.alimentoNotFound[index] || false;
+  }
+
+  // Nuevo método para verificar si se ha seleccionado un alimento
+  isAlimentoSelected(index: number): boolean {
+    return this.alimentoSelected[index] || false;
+  }
+
+  // Nuevo método para verificar si el campo de búsqueda está vacío pero es requerido
+  isAlimentoSearchEmpty(index: number): boolean {
+    const searchTerm = this.alimentoSearchTerms[index] || '';
+    const isSelected = this.isAlimentoSelected(index);
+    return searchTerm.length === 0 && !isSelected;
+  }
+
+  // Nuevo método para obtener el mensaje de error específico del alimento
+  getAlimentoErrorMessage(index: number): string {
+    if (this.isAlimentoSearchEmpty(index)) {
+      return 'Debes seleccionar un alimento';
+    }
+    if (this.isAlimentoNotFound(index)) {
+      return 'No se encontró ningún alimento con ese nombre';
+    }
+    if (!this.isAlimentoSelected(index) && this.alimentoSearchTerms[index]) {
+      return 'Debes seleccionar un alimento de la lista';
+    }
+    return 'Alimento es requerido';
   }
 
   // Método para manejar el cambio de visibilidad
@@ -323,6 +370,16 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     }
     
     this.alimentoDropdownVisible.fill(false);
+    
+    // Marcar campos como touched si el usuario hizo click fuera sin seleccionar
+    this.ingredientesArray.controls.forEach((control, index) => {
+      const searchTerm = this.alimentoSearchTerms[index];
+      const isSelected = this.alimentoSelected[index];
+      
+      if (searchTerm && !isSelected) {
+        control.get('alimento_id')?.markAsTouched();
+      }
+    });
   }
 
   // Calcular progreso del formulario
@@ -382,18 +439,33 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     console.log('Raw form data:', rawFormData);
 
     // Validar que hay al menos un ingrediente válido
-    const ingredientesValidos = rawFormData.ingredientes?.filter((ing: any) =>
-      ing.alimento_id && ing.cantidad && ing.cantidad > 0 && ing.unidad_medida
-    ) || [];
+    const ingredientesValidos = rawFormData.ingredientes?.filter((ing: any, index: number) => {
+      const isAlimentoSelected = this.isAlimentoSelected(index);
+      const alimentoId = ing.alimento_id;
+      const cantidad = ing.cantidad;
+      const unidadMedida = ing.unidad_medida;
+      
+      return alimentoId && cantidad && cantidad > 0 && unidadMedida && isAlimentoSelected;
+    }) || [];
 
     console.log('Ingredientes válidos:', ingredientesValidos);
 
     if (ingredientesValidos.length === 0) {
       this.loading = false;
+      
+      // Marcar todos los campos de alimento como touched para mostrar errores
+      this.ingredientesArray.controls.forEach((control, index) => {
+        control.get('alimento_id')?.markAsTouched();
+        if (!this.isAlimentoSelected(index)) {
+          this.alimentoNotFound[index] = this.alimentoSearchTerms[index] ? true : false;
+        }
+      });
+      
       Swal.fire({
         icon: 'warning',
         title: 'Ingredientes requeridos',
-        text: 'Debes agregar al menos un ingrediente válido'
+        text: 'Debes agregar al menos un ingrediente válido. Asegúrate de seleccionar alimentos de la lista.',
+        confirmButtonColor: 'var(--primary-color)'
       });
       return;
     }
@@ -537,6 +609,17 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     this.alimentoSearchTerms[index] = '';
     this.alimentoDropdownVisible[index] = false;
     this.filteredAlimentos[index] = [...this.alimentos];
+    this.alimentoNotFound[index] = false;
+    this.alimentoSelected[index] = false;
+
+    // Si es un ingrediente existente, configurar el estado apropiado
+    if (ingrediente?.alimento_id) {
+      const alimento = this.alimentos.find(a => a.id === ingrediente.alimento_id);
+      if (alimento) {
+        this.alimentoSearchTerms[index] = alimento.nombre;
+        this.alimentoSelected[index] = true;
+      }
+    }
 
     console.log('Ingredientes array length:', this.ingredientesArray.length);
     this.cdr.markForCheck();
@@ -550,6 +633,8 @@ export class AltaPlatillos implements OnInit, OnDestroy {
       this.alimentoSearchTerms.splice(index, 1);
       this.alimentoDropdownVisible.splice(index, 1);
       this.filteredAlimentos.splice(index, 1);
+      this.alimentoNotFound.splice(index, 1);
+      this.alimentoSelected.splice(index, 1);
       
       this.cdr.markForCheck();
     }
@@ -590,7 +675,18 @@ export class AltaPlatillos implements OnInit, OnDestroy {
 
   isIngredienteFieldInvalid(index: number, fieldName: string): boolean {
     const field = this.ingredientesArray.at(index).get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
+    const isFieldInvalid = !!(field && field.invalid && (field.dirty || field.touched));
+    
+    // Para el campo alimento_id, también considerar los estados de búsqueda
+    if (fieldName === 'alimento_id') {
+      const isNotFound = this.isAlimentoNotFound(index);
+      const isNotSelected = !this.isAlimentoSelected(index) && !!this.alimentoSearchTerms[index];
+      const isEmpty = this.isAlimentoSearchEmpty(index);
+      
+      return isFieldInvalid || isNotFound || isNotSelected || (isEmpty && !!(field?.dirty || field?.touched));
+    }
+    
+    return isFieldInvalid;
   }
 
   isConfiguracionFieldInvalid(index: number, fieldName: string): boolean {

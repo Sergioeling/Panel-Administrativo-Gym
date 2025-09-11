@@ -156,6 +156,15 @@
                 box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
             }
         }
+        
+        &.is-valid {
+            border-color: #28a745;
+            
+            &:focus {
+                border-color: #28a745;
+                box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+            }
+        }
 
         // Placeholders más sutiles
         &::placeholder {
@@ -225,6 +234,25 @@
             content: "⚠ ";
             margin-right: 0.25rem;
         }
+        
+        i {
+            color: #dc3545;
+            margin-right: 0.25rem;
+        }
+    }
+    
+    // VALID FEEDBACK - Nuevo
+    .valid-feedback {
+        display: block;
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+        color: #28a745;
+        font-weight: 500;
+        
+        i {
+            color: #28a745;
+            margin-right: 0.25rem;
+        }
     }
 
     // FORM TEXT
@@ -235,6 +263,10 @@
 
         &.text-muted {
             color: #6c757d !important;
+        }
+        
+        i {
+            color: #6c757d;
         }
     }
 
@@ -532,12 +564,12 @@
     left: 0;
     right: 0;
     background: white;
-    border: 1px solid #ddd;
+    border: 1px solid var(--primary-color);
     border-radius: 0.375rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     max-height: 200px;
     overflow-y: auto;
-    z-index: 1000;
+    z-index: 1050; // Z-index muy alto para estar por encima de todo
 
     .dropdown-item {
         padding: 0.75rem 1rem;
@@ -547,7 +579,7 @@
 
         &:hover,
         &.active {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: white;
 
             .text-muted {
@@ -561,6 +593,31 @@
 
         small {
             font-size: 0.75rem;
+        }
+    }
+    
+    // Nuevo: estilo para el mensaje de "no encontrado"
+    .dropdown-item-no-results {
+        padding: 1rem;
+        background: #f8f9fa;
+        border: none;
+        
+        p {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        small {
+            color: #6c757d !important;
+            font-size: 0.8rem;
+        }
+        
+        i.fa-search {
+            color: #adb5bd;
+        }
+        
+        i.fa-lightbulb {
+            color: #ffc107;
         }
     }
 }
@@ -718,6 +775,41 @@
         i {
             font-size: 0.75rem !important;
         }
+    }
+    
+    // Mejoras para dropdown en móvil
+    .alimento-dropdown {
+        max-height: 150px; // Menos altura en móvil
+        
+        .dropdown-item {
+            padding: 0.6rem 0.8rem;
+            
+            small {
+                font-size: 0.7rem;
+            }
+        }
+        
+        .dropdown-item-no-results {
+            padding: 0.8rem;
+            
+            p {
+                font-size: 0.8rem;
+            }
+            
+            small {
+                font-size: 0.7rem;
+            }
+            
+            i.fa-search {
+                font-size: 1.2rem !important;
+            }
+        }
+    }
+    
+    // Mensajes de feedback en móvil
+    .invalid-feedback,
+    .valid-feedback {
+        font-size: 0.75rem;
     }
 }
 

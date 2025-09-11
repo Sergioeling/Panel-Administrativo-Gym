@@ -182,9 +182,9 @@
                                 class="btn btn-danger btn-sm position-absolute eliminate-btn-improved"
                                 [disabled]="ingredientesArray.length <= 1" 
                                 (click)="eliminarIngrediente(i)"
-                                title="Eliminar ingrediente">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
+                                title="Eliminar ingrediente"
+                                >
+                            </button>
 
                         <div class="row g-3">
                             <!-- Alimento con búsqueda -->
@@ -204,13 +204,16 @@
                                                [value]="getAlimentoSearch(i)"
                                                (input)="onAlimentoSearch($event, i)"
                                                (focus)="showAlimentoDropdown(i)"
-                                               [class.is-invalid]="isIngredienteFieldInvalid(i, 'alimento_id')">
+                                               [class.is-invalid]="isIngredienteFieldInvalid(i, 'alimento_id')"
+                                               [class.is-valid]="isAlimentoSelected(i)">
                                     </div>
                                     
                                     <!-- Dropdown de resultados -->
                                     <div class="alimento-dropdown" 
-                                         *ngIf="alimentoDropdownVisible[i] && getFilteredAlimentos(i).length > 0"
+                                         *ngIf="alimentoDropdownVisible[i] && (getFilteredAlimentos(i).length > 0 || isAlimentoNotFound(i))"
                                          [style.display]="alimentoDropdownVisible[i] ? 'block' : 'none'">
+                                        
+                                        <!-- Resultados encontrados -->
                                         <div class="dropdown-item" 
                                              *ngFor="let alimento of getFilteredAlimentos(i); let idx = index"
                                              (click)="selectAlimento(alimento, i)"
@@ -218,14 +221,36 @@
                                             {{ alimento.nombre }}
                                             <small class="text-muted d-block">{{ alimento.categoria || 'Sin categoría' }}</small>
                                         </div>
+                                        
+                                        <!-- Mensaje cuando no se encuentra nada -->
+                                        <div class="dropdown-item-no-results" *ngIf="isAlimentoNotFound(i)">
+                                            <div class="text-center py-3">
+                                                <i class="fas fa-search text-muted mb-2" style="font-size: 1.5rem;"></i>
+                                                <p class="text-muted mb-1">No se encontró "<strong>{{ getAlimentoSearch(i) }}</strong>"</p>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-lightbulb me-1"></i>
+                                                    Intenta con otra palabra o contacta al administrador
+                                                </small>
+                                            </div>
+                                        </div>
                                     </div>
                                     
                                     <!-- Input oculto para el valor real -->
                                     <input type="hidden" formControlName="alimento_id">
                                 </div>
-                                <div *ngIf="isIngredienteFieldInvalid(i, 'alimento_id')" class="invalid-feedback">
-                                    Alimento es requerido
+                                
+                                <!-- Mensaje de error mejorado -->
+                                <div *ngIf="isIngredienteFieldInvalid(i, 'alimento_id')" class="invalid-feedback d-block">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    {{ getAlimentoErrorMessage(i) }}
                                 </div>
+                                
+                                <!-- Mensaje de éxito cuando se selecciona correctamente -->
+                                <div *ngIf="isAlimentoSelected(i)" class="valid-feedback d-block">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    Alimento seleccionado correctamente
+                                </div>
+                                
                                 <small class="form-text text-muted">
                                     <i class="fas fa-info-circle me-1"></i>
                                     Mínimo 2 caracteres para buscar
