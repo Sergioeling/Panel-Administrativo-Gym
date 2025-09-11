@@ -1,19 +1,17 @@
-// Animaciones
 @keyframes slideInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 @keyframes slideInLeft {
   from {
     opacity: 0;
-    transform: translateX(-30px);
+    transform: translateX(-20px);
   }
   to {
     opacity: 1;
@@ -45,6 +43,51 @@
 // Clases de utilidad
 .fade-in {
   animation: slideInUp 0.3s ease-out;
+}
+
+// Clases para truncar texto
+.truncate-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  overflow: hidden;
+  line-height: 1.2em;
+  max-height: 1.2em;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.2em;
+  max-height: 2.4em;
+}
+
+// Botón de agregar (heredado de lista-users)
+.btn-add-user {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  border: none;
+  
+  &:hover {
+    background: linear-gradient(135deg, var(--primary-dark), #b91c1c);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+  }
 }
 
 // Toggle personalizado - Desktop
@@ -126,6 +169,18 @@
   }
 }
 
+// Animaciones adicionales para el toggle personalizado
+.custom-toggle, .custom-toggle-mobile {
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  &:focus {
+    outline: 2px solid rgba(34, 197, 94, 0.2);
+    outline-offset: 2px;
+  }
+}
+
 // Estados de carga y error
 .loading-card {
   @apply bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-200;
@@ -181,235 +236,420 @@
   }
 }
 
+// Buscador HTML puro mejorado
+.search-container {
+  width: 100%;
+  
+  @screen sm {
+    width: 320px;
+  }
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(44, 62, 80, 0.08);
+  overflow: hidden;
+  
+  &:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 6px 16px rgba(44, 62, 80, 0.12);
+  }
+  
+  &:focus-within {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+  }
+}
+
+.search-icon {
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-left: 14px;
+  margin-right: 10px;
+  transition: color 0.3s ease;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 14px 8px 14px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: transparent;
+  
+  &::placeholder {
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+  
+  &:focus {
+    color: var(--text-primary);
+  }
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px;
+  margin-right: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    background: rgba(107, 114, 128, 0.1);
+    color: var(--text-primary);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  i {
+    font-size: 14px;
+  }
+}
+
+.search-results-indicator {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  z-index: 10;
+  
+  .results-count {
+    background: var(--accent-color);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+  }
+}
+
+// Estados cuando hay búsqueda activa
+.search-input-wrapper:has(.search-input:not(:placeholder-shown)) {
+  border-color: var(--accent-color);
+  background: rgba(243, 156, 18, 0.03);
+  
+  .search-icon {
+    color: var(--accent-color);
+  }
+  
+  &:hover {
+    border-color: var(--accent-color);
+  }
+}
+
+// Responsive ajustes
+@media (max-width: 640px) {
+  .search-input {
+    padding: 12px 6px 12px 0;
+    font-size: 13px;
+  }
+  
+  .search-icon {
+    font-size: 14px;
+    margin-left: 12px;
+    margin-right: 8px;
+  }
+}
+
 // Contenedor de tabla
 .table-container {
-  @apply bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden;
+  @apply bg-white rounded-lg sm:rounded-xl shadow-lg border border-gray-200 overflow-hidden;
   animation: slideInUp 0.6s ease-out;
 }
 
-.platillos-table {
-  width: 100%;
+.users-table {
+  @apply min-w-full;
+}
+
+// Estilos de tabla responsive
+:host ::ng-deep .table-header th.mat-mdc-header-cell {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border-bottom: none !important;
+  position: relative;
+  height: 56px !important;
   
-  .mat-mdc-header-cell {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    color: white;
-    font-weight: 600;
-    padding: 16px 12px;
-    border-bottom: none;
+  @screen lg {
+    font-size: 12px !important;
   }
   
-  .mat-mdc-cell {
-    padding: 12px;
-    border-bottom: 1px solid #f1f5f9;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.2);
   }
   
-  .mat-mdc-row {
-    transition: all 0.2s ease;
-    
-    &:hover {
-      background-color: rgba(231, 76, 60, 0.02);
-    }
+  i {
+    font-size: 12px;
+    opacity: 0.9;
+  }
+}
+
+:host ::ng-deep .table-row-hover {
+  transition: var(--transition);
+  height: 72px !important;
+  
+  &:hover {
+    background-color: rgba(243, 156, 18, 0.05) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  td.mat-mdc-cell {
+    border-bottom: 1px solid #f1f5f9 !important;
+    padding: 16px 12px !important;
+    vertical-align: middle !important;
   }
 }
 
 // Elementos específicos de platillos
-.platillo-imagen {
-  @apply flex items-center justify-center;
+.platillo-avatar {
+  @apply w-10 h-10 rounded-lg flex items-center justify-center;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+  transition: all 0.3s ease;
   
-  img {
-    transition: transform 0.3s ease;
-    
-    &:hover {
-      transform: scale(1.1);
-    }
+  i {
+    @apply text-lg font-semibold;
   }
 }
 
-.platillo-imagen-mobile {
-  @apply flex-shrink-0;
-}
-
-.platillo-info {
-  h3 {
-    @apply font-semibold text-gray-800 mb-1;
-  }
-
-  p {
-    @apply text-sm text-gray-600;
-
-    /* Estándar */
-    line-clamp: 2;
-
-    /* Fallback WebKit (necesita estas 3) */
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-
-    overflow: hidden;
+.user-avatar-mobile {
+  @apply w-12 h-12 rounded-lg flex items-center justify-center;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+  transition: all 0.3s ease;
+  
+  i {
+    @apply text-xl font-semibold;
   }
 }
 
-
-// Badges de calorías
-.badge {
-  @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium;
+// Badges de roles (adaptados para calorías)
+.role-badge {
+  @apply inline-flex items-center px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium text-white shadow-sm;
   
-  &.bg-success {
-    @apply bg-green-100 text-green-800;
+  &.admin {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    border: 1px solid rgba(220, 38, 38, 0.3);
   }
   
-  &.bg-warning {
-    @apply bg-yellow-100 text-yellow-800;
+  &.nutricionista {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    border: 1px solid rgba(22, 163, 74, 0.3);
   }
   
-  &.bg-orange {
-    @apply bg-orange-100 text-orange-800;
+  &.recepcionista {
+    background: linear-gradient(135deg, #ca8a04, #a16207);
+    border: 1px solid rgba(202, 138, 4, 0.3);
   }
   
-  &.bg-danger {
-    @apply bg-red-100 text-red-800;
+  &.usuario {
+    background: linear-gradient(135deg, #ea580c, #c2410c);
+    border: 1px solid rgba(234, 88, 12, 0.3);
   }
   
-  &.bg-secondary {
-    @apply bg-gray-100 text-gray-800;
+  &.default {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+    border: 1px solid rgba(107, 114, 128, 0.3);
   }
 }
 
 // Botones de acción
 .btn-action {
-  @apply w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 text-sm;
+  @apply bg-transparent border-none p-2 rounded-lg cursor-pointer transition-all duration-300;
   
-  &.btn-action-edit {
-    @apply bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700;
+  &.edit {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    
+    &:hover {
+      background-color: rgba(59, 130, 246, 0.2);
+      color: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+    }
   }
   
-  &.btn-action-delete {
-    @apply bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700;
-  }
-  
-  &.btn-action-view {
-    @apply bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-700;
-  }
-  
-  &:hover {
-    @apply -translate-y-0.5 shadow-md;
+  i {
+    font-size: 14px;
   }
 }
 
 .btn-action-mobile {
-  @apply w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 text-xs;
+  @apply bg-transparent border-none p-2 rounded-lg cursor-pointer transition-all duration-300;
   
-  &.btn-action-edit {
-    @apply bg-blue-50 text-blue-600 hover:bg-blue-100;
+  &.edit {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    
+    &:hover {
+      background-color: rgba(59, 130, 246, 0.2);
+      color: #2563eb;
+    }
   }
   
-  &.btn-action-delete {
-    @apply bg-red-50 text-red-600 hover:bg-red-100;
-  }
-}
-
-// Cards móviles de platillos
-.platillo-card {
-  @apply bg-white rounded-xl p-4 shadow-lg border border-gray-200 transition-all duration-300;
-  animation: slideInUp 0.4s ease-out;
-  
-  &:hover {
-    @apply -translate-y-1;
-    box-shadow: 0 8px 25px rgba(44, 62, 80, 0.12);
-  }
-}
-
-// Paginación móvil
-.mobile-pagination {
-  @apply bg-white rounded-xl p-4 shadow-lg border border-gray-200;
-}
-
-.pagination-btn {
-  @apply w-10 h-10 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center transition-all duration-200;
-  
-  &:hover:not(:disabled) {
-    @apply bg-gray-200 text-gray-800;
-  }
-  
-  &:disabled {
-    @apply opacity-50 cursor-not-allowed;
-  }
-}
-
-.pagination-number {
-  @apply w-10 h-10 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center transition-all duration-200 text-sm font-medium;
-  
-  &:hover {
-    @apply bg-gray-200 text-gray-800;
-  }
-  
-  &.active {
-    @apply bg-orange-500 text-white shadow-lg;
-  }
-}
-
-// Estado vacío
-.empty-state {
-  @apply bg-white rounded-xl p-8 shadow-lg border border-gray-200;
-  animation: slideInUp 0.6s ease-out;
-}
-
-// Floating Action Button
-.fab {
-  @apply fixed bottom-6 right-6 w-14 h-14 bg-orange-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-50;
-  
-  &:hover {
-    @apply bg-orange-600 -translate-y-1;
-  }
-  
-  &:active {
-    @apply scale-95;
+  i {
+    font-size: 12px;
   }
 }
 
 // Paginador personalizado
 :host ::ng-deep .paginator-custom {
-  @apply bg-white border-t border-gray-200;
-  
-  .mat-mdc-paginator-container {
-    @apply justify-between;
-  }
+  background: white !important;
+  border-top: 1px solid #e5e7eb;
   
   .mat-mdc-paginator-range-label {
-    @apply text-sm text-gray-600;
+    color: var(--text-secondary) !important;
+    font-size: 14px !important;
+  }
+  
+  .mat-mdc-icon-button {
+    color: var(--text-secondary) !important;
+    
+    &:hover {
+      background-color: rgba(243, 156, 18, 0.1) !important;
+      color: var(--accent-color) !important;
+    }
+  }
+}
+
+// Cards móviles de platillos
+.user-card {
+  @apply bg-white rounded-lg sm:rounded-xl p-4 shadow-md border border-gray-200 transition-all duration-300;
+  animation: slideInUp 0.4s ease-out both;
+  
+  &:hover {
+    @apply -translate-y-1;
+    box-shadow: 0 8px 25px rgba(44, 62, 80, 0.12);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Paginación móvil
+.mobile-pagination {
+  @apply bg-white rounded-xl p-4 shadow-md border border-gray-200;
+  animation: slideInUp 0.4s ease-out;
+}
+
+.pagination-btn {
+  @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white border-2 border-gray-200 flex items-center justify-center text-gray-600 font-medium transition-all duration-200;
+  
+  &:hover:not(.disabled) {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    background-color: rgba(243, 156, 18, 0.05);
+  }
+  
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.pagination-number {
+  @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 transition-all duration-200;
+  
+  &:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    background-color: rgba(243, 156, 18, 0.05);
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, var(--accent-color), #d97706);
+    color: white;
+    border-color: var(--accent-color);
+    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+  }
+}
+
+// Estado vacío
+.empty-state {
+  @apply text-center py-12 px-4;
+  animation: slideInUp 0.5s ease-out;
+  
+  .empty-icon {
+    font-size: 4rem;
+    color: #d1d5db;
+    margin-bottom: 1rem;
+  }
+  
+  .clear-search-btn {
+    @apply mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors;
+  }
+}
+
+// Floating Action Button
+.fab {
+  @apply fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white transition-all duration-300 z-50;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  
+  &:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 12px 24px rgba(239, 68, 68, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(0) scale(0.98);
   }
 }
 
 // Mejoras responsive específicas
 @media (max-width: 640px) {
+  .user-card {
+    @apply p-3;
+  }
+  
   .stat-card {
     @apply p-3;
   }
   
-  .stat-icon {
-    @apply w-8 h-8 mb-2;
-    
-    i {
-      @apply text-base;
-    }
-  }
-  
-  .stat-content .stat-number {
-    @apply text-base;
-  }
-  
-  .platillo-card {
-    @apply p-3;
+  .role-badge {
+    @apply px-2 py-1 text-xs;
   }
 }
 
 @media (min-width: 641px) and (max-width: 768px) {
-  .platillos-table {
-    .mat-mdc-header-cell,
-    .mat-mdc-cell {
-      padding: 8px;
-      font-size: 0.875rem;
-    }
+  .user-card {
+    @apply p-4;
+  }
+}
+
+// Animaciones específicas por breakpoint
+@media (max-width: 768px) {
+  .user-card {
+    animation-delay: calc(var(--animation-order, 0) * 0.1s);
   }
 }
 
@@ -422,70 +662,22 @@
   }
 }
 
-// Estilos adicionales para line-clamp
-.line-clamp-2 {
-  /* Estándar */
-  line-clamp: 2;
-
-  /* Fallback WebKit */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-
-  overflow: hidden;
-}
-
-
-// Hover effects para imágenes
-.platillo-imagen img:hover,
-.platillo-imagen-mobile img:hover {
-  transform: scale(1.05);
-  transition: transform 0.3s ease;
-}
-
-// Estados de los toggles con animaciones mejoradas
-.custom-toggle,
-.custom-toggle-mobile {
-  &:active {
-    transform: scale(0.95);
-  }
-  
-  &:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-}
-
-// Estilos para SweetAlert2 Toast Notifications
-:host ::ng-deep {
-  .swal2-toast {
-    border-radius: 12px !important;
-    font-family: inherit !important;
-  }
-  
-  .swal2-toast .swal2-title {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-  }
-}
-
-// Responsive para estadísticas
-@media (max-width: 768px) {
-  .stat-card:nth-child(1) { animation-delay: 0.1s; }
-  .stat-card:nth-child(2) { animation-delay: 0.2s; }
-  .stat-card:nth-child(3) { animation-delay: 0.3s; }
-  .stat-card:nth-child(4) { animation-delay: 0.4s; }
-}
-
 // Estilos específicos para la tabla en tablet
 @media (min-width: 768px) and (max-width: 1024px) {
-  .platillos-table {
-    .platillo-info h3 {
-      font-size: 0.875rem;
-    }
+  :host ::ng-deep .table-header th.mat-mdc-header-cell {
+    padding: 12px 8px !important;
+    font-size: 10px !important;
+  }
+  
+  :host ::ng-deep .table-row-hover td.mat-mdc-cell {
+    padding: 12px 8px !important;
+  }
+  
+  .platillo-avatar {
+    @apply w-8 h-8;
     
-    .platillo-info p {
-      font-size: 0.75rem;
+    i {
+      @apply text-base;
     }
   }
 }

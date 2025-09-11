@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, AfterViewInit, OnDestroy, ViewChild, ChangeDetectorRef, ChangeDetectionStrategy, TrackByFunction } from '@angular/core';
-import { CommonModule, NgIf, NgForOf } from '@angular/common';
+import { CommonModule, NgIf, NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
@@ -36,7 +36,7 @@ interface Platillo {
   imports: [
     CommonModule,
     NgIf,
-    NgForOf,
+    NgFor,
     FormsModule,
     MatTableModule,
     MatPaginatorModule,
@@ -67,19 +67,21 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
   mobileTotalPages = 0;
   mobilePagedData: Platillo[] = [];
   userRole = '';
+  currentUserId = '';
 
   displayedColumns: string[] = [
     'imagen',
     'nombre',
+    'creador',
     'calorias',
     'tiempo_preparacion',
     'es_publico',
-    'fecha_creacion',
     'acciones'
   ];
 
   displayedColumnsTablet: string[] = [
     'nombre',
+    'creador',
     'calorias',
     'tiempo_preparacion',
     'es_publico',
@@ -94,10 +96,24 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
   constructor(private modalService: NgbModal) { }
 
   ngOnInit(): void {
+    this.obtenerPerfilUsuario();
     this.userRole = this.auth.getUserRole() || 'USUARIO';
     this.setupResponsive();
     this.obtenerPlatillos();
     this.setupDataSourceConfig();
+  }
+
+  obtenerPerfilUsuario(): void {
+    this.http.getUsuarios().subscribe({
+      next: (resp: any) => {
+        if (resp?.status === 'success' && resp?.data) {
+          this.currentUserId = resp.data.id;
+        }
+      },
+      error: (err: any) => {
+        this.currentUserId = this.auth.getUser() || '';
+      }
+    });
   }
 
   setupResponsive(): void {
@@ -124,15 +140,16 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
       return data.nombre.toLowerCase().includes(searchStr) ||
         data.descripcion.toLowerCase().includes(searchStr) ||
         data.calorias.toString().includes(searchStr) ||
-        data.tiempo_preparacion.toString().includes(searchStr);
+        data.tiempo_preparacion.toString().includes(searchStr) ||
+        (data.creador_nombre || '').toLowerCase().includes(searchStr);
     };
 
     this.dataSource.sortingDataAccessor = (item: Platillo, prop: string) => {
       switch (prop) {
         case 'nombre': return item.nombre.toLowerCase();
+        case 'creador': return (item.creador_nombre || '').toLowerCase();
         case 'calorias': return item.calorias;
         case 'tiempo_preparacion': return item.tiempo_preparacion;
-        case 'fecha_creacion': return new Date(item.fecha_creacion).getTime();
         default: return item[prop as keyof Platillo] as string;
       }
     };
@@ -377,10 +394,10 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getCaloriasBadgeClass(calorias: number): string {
-    if (calorias <= 200) return 'badge bg-success';
-    if (calorias <= 400) return 'badge bg-warning';
-    if (calorias <= 600) return 'badge bg-orange';
-    return 'badge bg-danger';
+    if (calorias <= 200) return 'role-badge nutricionista';
+    if (calorias <= 400) return 'role-badge recepcionista';
+    if (calorias <= 600) return 'role-badge usuario';
+    return 'role-badge admin';
   }
 
   getTiempoIcon(tiempo: number): string {
@@ -395,6 +412,12 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
       month: '2-digit',
       year: 'numeric'
     });
+  }
+
+  truncateText(text: string, maxLength: number): string {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength).trim() + '...';
   }
 
   get currentDisplayedColumns(): string[] {
@@ -417,8 +440,12 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
 
   get promedioCalorias(): number {
     if (this.dataSource.data.length === 0) return 0;
-    const total = this.dataSource.data.reduce((sum, p) => sum + p.calorias, 0);
-    return Math.round(total / this.dataSource.data.length);
+    const total = this.dataSource.data.reduce((sum, p) => {
+      const calorias = Number(p.calorias) || 0;
+      return sum + calorias;
+    }, 0);
+    const promedio = total / this.dataSource.data.length;
+    return Math.round(promedio);
   }
 
   isPlatilloPublico(platillo: Platillo): boolean {
@@ -426,10 +453,25 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
   }
 
   canEditOrDelete(platillo: Platillo): boolean {
-    const currentUserId = this.auth.getUser();
-    return this.userRole === 'ADMIN' ||
-      this.userRole === 'NUTRICIONISTA' ||
-      platillo.creador_id === currentUserId;
+    const currentUserRole = this.userRole.toUpperCase();
+    const platilloCreadorId = platillo.creador_id.toString();
+    const currentUserId = this.currentUserId.toString();
+    
+    if (currentUserRole === 'ADMIN') {
+      return true;
+    }
+    
+    const isOwner = platilloCreadorId === currentUserId;
+    
+    if (currentUserRole === 'NUTRICIONISTA' && isOwner) {
+      return true;
+    }
+    
+    if (isOwner) {
+      return true;
+    }
+    
+    return false;
   }
 
   openModalAltaPlatillos(item?: any, edit?: boolean): void {
