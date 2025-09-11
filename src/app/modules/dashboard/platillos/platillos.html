@@ -116,10 +116,10 @@
                                 <i class="bi bi-egg-fried text-red-600"></i>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <h3 class="font-semibold text-gray-800 text-sm truncate" 
-                                    [title]="platillo.nombre">{{ platillo.nombre }}</h3>
-                                <p class="text-xs text-gray-600 line-clamp-1" 
-                                   [title]="platillo.descripcion">{{ truncateText(platillo.descripcion, 50) }}</p>
+                                <h3 class="font-semibold text-gray-800 text-sm truncate" [title]="platillo.nombre">{{
+                                    platillo.nombre }}</h3>
+                                <p class="text-xs text-gray-600 line-clamp-1" [title]="platillo.descripcion">{{
+                                    truncateText(platillo.descripcion, 50) }}</p>
                             </div>
                         </div>
                     </td>
@@ -266,12 +266,12 @@
                             <i class="bi bi-egg-fried text-red-600"></i>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <h3 class="font-semibold text-gray-800 text-sm truncate" 
-                                [title]="platillo.nombre">{{ truncateText(platillo.nombre, 25) }}</h3>
-                            <p class="text-xs text-gray-600 mb-1 truncate" 
-                               [title]="platillo.creador_nombre">{{ truncateText(platillo.creador_nombre || 'Usuario', 20) }}</p>
-                            <p class="text-xs text-gray-500 line-clamp-1" 
-                               [title]="platillo.descripcion">{{ truncateText(platillo.descripcion, 35) }}</p>
+                            <h3 class="font-semibold text-gray-800 text-sm truncate" [title]="platillo.nombre">{{
+                                truncateText(platillo.nombre, 25) }}</h3>
+                            <p class="text-xs text-gray-600 mb-1 truncate" [title]="platillo.creador_nombre">{{
+                                truncateText(platillo.creador_nombre || 'Usuario', 20) }}</p>
+                            <p class="text-xs text-gray-500 line-clamp-1" [title]="platillo.descripcion">{{
+                                truncateText(platillo.descripcion, 35) }}</p>
                         </div>
                     </div>
 

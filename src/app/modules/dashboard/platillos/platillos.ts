@@ -456,21 +456,21 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
     const currentUserRole = this.userRole.toUpperCase();
     const platilloCreadorId = platillo.creador_id.toString();
     const currentUserId = this.currentUserId.toString();
-    
+
     if (currentUserRole === 'ADMIN') {
       return true;
     }
-    
+
     const isOwner = platilloCreadorId === currentUserId;
-    
+
     if (currentUserRole === 'NUTRICIONISTA' && isOwner) {
       return true;
     }
-    
+
     if (isOwner) {
       return true;
     }
-    
+
     return false;
   }
 
