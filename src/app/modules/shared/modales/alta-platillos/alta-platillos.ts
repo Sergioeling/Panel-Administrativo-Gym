@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, OnDestroy, Input, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -28,6 +28,12 @@ interface Ingrediente {
   cantidad: number;
   unidad_medida: string;
   nombre_alimento?: string;
+  id?: string;
+  alimento_nombre?: string;
+  energia_kcal?: string;
+  proteina_g?: string;
+  lipidos_g?: string;
+  hidratos_de_carbono_g?: string;
 }
 
 interface Configuracion {
@@ -37,6 +43,9 @@ interface Configuracion {
   nombre_dieta?: string;
   nombre_comida?: string;
   nombre_objetivo?: string;
+  tipo_dieta_nombre?: string;
+  tipo_comida_nombre?: string;
+  tipo_objetivo_nombre?: string;
 }
 
 interface Alimento {
@@ -63,7 +72,7 @@ interface TipoObjetivo {
 @Component({
   selector: 'app-alta-platillos',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './alta-platillos.html',
   styleUrl: './alta-platillos.scss'
 })
@@ -78,28 +87,31 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   @Input() isEdit: boolean = false;
 
   loading = false;
+  isLoadingConfig = false;
+  isLoadingData = false;
   errorMsg: string | null = null;
   platilloForm: FormGroup;
   isFormReady = false;
 
-  // Catálogos
+  selectedDietaId: number | null = null;
+  selectedComidaId: number | null = null;
+  selectedObjetivoId: number | null = null;
+
   alimentos: Alimento[] = [];
   tiposDieta: TipoDieta[] = [];
   tiposComida: TipoComida[] = [];
   tiposObjetivo: TipoObjetivo[] = [];
   loadingCatalogos = false;
 
-  // Unidades de medida disponibles
   unidadesMedida = [
     'g', 'kg', 'ml', 'l', 'pza', 'taza', 'cdita', 'cda', 'onza', 'lb'
   ];
 
-  // Variables para la búsqueda de alimentos
   alimentoSearchTerms: string[] = [];
   alimentoDropdownVisible: boolean[] = [];
   filteredAlimentos: Alimento[][] = [];
-  alimentoNotFound: boolean[] = []; // Nuevo: array para controlar si no se encuentra el alimento
-  alimentoSelected: boolean[] = []; // Nuevo: array para controlar si se ha seleccionado un alimento
+  alimentoNotFound: boolean[] = [];
+  alimentoSelected: boolean[] = [];
 
   constructor() {
     this.platilloForm = this.fb.group({
@@ -115,37 +127,79 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('ngOnInit - Inicializando componente');
-
-    // Cargar catálogos primero
     this.cargarCatalogos();
 
-    // Inicializar arrays de búsqueda
     this.alimentoSearchTerms = [];
     this.alimentoDropdownVisible = [];
     this.filteredAlimentos = [];
     this.alimentoNotFound = [];
     this.alimentoSelected = [];
 
-    // Inicializar arrays del formulario si están vacíos
     if (this.ingredientesArray.length === 0) {
       this.agregarIngrediente();
     }
 
-    // Solo permitir una configuración
     if (this.configuracionesArray.length === 0) {
       this.agregarConfiguracion();
     }
 
-    // Marcar formulario como listo
     this.isFormReady = true;
     this.cdr.markForCheck();
 
-    // Si es edición, cargar datos después de que todo esté listo
     if (this.isEdit && this.platilloData) {
+      this.isLoadingData = true;
       setTimeout(() => {
-        this.cargarDatosPlatillo();
-      }, 1000);
+        if (!this.loadingCatalogos) {
+          this.cargarDatosPlatillo();
+        } else {
+          setTimeout(() => {
+            this.cargarDatosPlatillo();
+          }, 1500);
+        }
+      }, 1200);
+    } else {
+      this.isLoadingData = false;
+    }
+  }
+
+  private actualizarSelectsConDatos(): void {
+    if (!this.isEdit || !this.platilloData) return;
+
+    if (this.configuracionesArray.length > 0 &&
+      this.tiposDieta.length > 0 &&
+      this.tiposComida.length > 0 &&
+      this.tiposObjetivo.length > 0) {
+
+      const config = this.configuracionesArray.at(0);
+      if (config) {
+        const valores = config.value;
+
+        this.selectedDietaId = valores.tipo_dieta_id;
+        this.selectedComidaId = valores.tipo_comida_id;
+        this.selectedObjetivoId = valores.tipo_objetivo_id;
+
+        this.cdr.detectChanges();
+
+        setTimeout(() => {
+          config.patchValue({
+            tipo_dieta_id: valores.tipo_dieta_id,
+            tipo_comida_id: valores.tipo_comida_id,
+            tipo_objetivo_id: valores.tipo_objetivo_id
+          });
+
+          this.cdr.detectChanges();
+
+          setTimeout(() => {
+            this.cdr.detectChanges();
+
+            const dietaSeleccionada = this.tiposDieta.find(d => d.id == valores.tipo_dieta_id);
+            const comidaSeleccionada = this.tiposComida.find(c => c.id == valores.tipo_comida_id);
+            const objetivoSeleccionado = this.tiposObjetivo.find(o => o.id == valores.tipo_objetivo_id);
+
+            this.forceSelectValues();
+          }, 100);
+        }, 150);
+      }
     }
   }
 
@@ -180,6 +234,8 @@ export class AltaPlatillos implements OnInit, OnDestroy {
 
           this.loadingCatalogos = false;
           this.cdr.markForCheck();
+
+          this.actualizarSelectsConDatos();
         },
         error: (error) => {
           this.loadingCatalogos = false;
@@ -192,21 +248,20 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   private cargarDatosPlatillo(): void {
     if (!this.platilloData) return;
 
-    // Si tenemos un ID, obtener los detalles completos del platillo
     if (this.platilloData.id && !this.platilloData.ingredientes) {
       this.http.obtenerPlatilloById(Number(this.platilloData.id))
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
+            this.isLoadingData = false;
             if (response?.status === 'success' && response.data) {
               this.cargarDatosFormulario(response.data);
             } else {
-              // Si no hay detalles, usar los datos básicos
               this.cargarDatosFormulario(this.platilloData!);
             }
           },
           error: () => {
-            // En caso de error, usar los datos básicos
+            this.isLoadingData = false;
             this.cargarDatosFormulario(this.platilloData!);
           }
         });
@@ -216,13 +271,11 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   }
 
   private cargarDatosFormulario(platilloData: PlatilloData): void {
-    // Cargar datos básicos del formulario
     const platilloFormData: any = {};
     Object.keys(this.platilloForm.controls).forEach(key => {
       if (key !== 'ingredientes' && key !== 'configuraciones') {
         let valor = platilloData[key as keyof PlatilloData] || '';
 
-        // Convertir a números cuando sea necesario
         if (key === 'calorias' || key === 'tiempo_preparacion') {
           valor = Number(valor) || 0;
         }
@@ -236,60 +289,70 @@ export class AltaPlatillos implements OnInit, OnDestroy {
 
     this.platilloForm.patchValue(platilloFormData);
 
-    // Limpiar arrays existentes de forma segura
     this.limpiarFormArrays();
 
-    // Cargar ingredientes
     if (platilloData.ingredientes && platilloData.ingredientes.length > 0) {
-      platilloData.ingredientes.forEach(ingrediente => {
-        this.agregarIngrediente(ingrediente);
+      platilloData.ingredientes.forEach((ingrediente, index) => {
+        const ingredienteMapeado: Ingrediente = {
+          alimento_id: ingrediente.alimento_id || Number(ingrediente.alimento_id),
+          cantidad: ingrediente.cantidad || Number(ingrediente.cantidad),
+          unidad_medida: ingrediente.unidad_medida || 'g',
+          nombre_alimento: ingrediente.alimento_nombre || ingrediente.nombre_alimento
+        };
+        this.agregarIngrediente(ingredienteMapeado);
       });
     } else {
-      // Si no hay ingredientes, agregar uno vacío
       this.agregarIngrediente();
     }
 
-    // Cargar configuraciones
     if (platilloData.configuraciones && platilloData.configuraciones.length > 0) {
-      platilloData.configuraciones.forEach(config => {
-        this.agregarConfiguracion(config);
+      platilloData.configuraciones.forEach((config, index) => {
+        const configMapeada: Configuracion = {
+          tipo_dieta_id: config.tipo_dieta_id || Number(config.tipo_dieta_id),
+          tipo_comida_id: config.tipo_comida_id || Number(config.tipo_comida_id),
+          tipo_objetivo_id: config.tipo_objetivo_id || Number(config.tipo_objetivo_id),
+          nombre_dieta: config.tipo_dieta_nombre || config.nombre_dieta,
+          nombre_comida: config.tipo_comida_nombre || config.nombre_comida,
+          nombre_objetivo: config.tipo_objetivo_nombre || config.nombre_objetivo
+        };
+
+        this.agregarConfiguracion(configMapeada);
       });
     } else {
-      // Si no hay configuraciones, agregar una vacía
       this.agregarConfiguracion();
     }
 
-    // Forzar detección de cambios
     this.cdr.detectChanges();
+
+    setTimeout(() => {
+      if (this.configuracionesArray.length > 0) {
+        const config = this.configuracionesArray.at(0);
+      }
+    }, 100);
   }
 
   private limpiarFormArrays(): void {
-    // Limpiar ingredientes
     while (this.ingredientesArray.length !== 0) {
       this.ingredientesArray.removeAt(0);
     }
 
-    // Limpiar configuraciones
     while (this.configuracionesArray.length !== 0) {
       this.configuracionesArray.removeAt(0);
     }
   }
 
-  // Métodos de búsqueda de alimentos
   onAlimentoSearch(event: any, index: number): void {
     const term = event.target.value.toLowerCase();
     this.alimentoSearchTerms[index] = event.target.value;
-    
-    // Resetear estado de selección cuando el usuario está escribiendo
+
     this.alimentoSelected[index] = false;
     this.ingredientesArray.at(index).get('alimento_id')?.setValue('');
-    
+
     if (term.length >= 2) {
       this.filteredAlimentos[index] = this.alimentos.filter(alimento =>
         alimento.nombre.toLowerCase().includes(term)
       );
-      
-      // Verificar si no se encontraron resultados
+
       this.alimentoNotFound[index] = this.filteredAlimentos[index].length === 0;
       this.alimentoDropdownVisible[index] = true;
     } else {
@@ -297,7 +360,7 @@ export class AltaPlatillos implements OnInit, OnDestroy {
       this.alimentoDropdownVisible[index] = false;
       this.alimentoNotFound[index] = false;
     }
-    
+
     this.cdr.markForCheck();
   }
 
@@ -325,24 +388,20 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     return this.filteredAlimentos[index] || [];
   }
 
-  // Nuevo método para verificar si no se encontró el alimento
   isAlimentoNotFound(index: number): boolean {
     return this.alimentoNotFound[index] || false;
   }
 
-  // Nuevo método para verificar si se ha seleccionado un alimento
   isAlimentoSelected(index: number): boolean {
     return this.alimentoSelected[index] || false;
   }
 
-  // Nuevo método para verificar si el campo de búsqueda está vacío pero es requerido
   isAlimentoSearchEmpty(index: number): boolean {
     const searchTerm = this.alimentoSearchTerms[index] || '';
     const isSelected = this.isAlimentoSelected(index);
     return searchTerm.length === 0 && !isSelected;
   }
 
-  // Nuevo método para obtener el mensaje de error específico del alimento
   getAlimentoErrorMessage(index: number): string {
     if (this.isAlimentoSearchEmpty(index)) {
       return 'Debes seleccionar un alimento';
@@ -356,75 +415,60 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     return 'Alimento es requerido';
   }
 
-  // Método para manejar el cambio de visibilidad
   onVisibilidadChange(event: any): void {
     const isChecked = (event.target as HTMLInputElement).checked;
     this.platilloForm.get('es_publico')?.setValue(isChecked ? '1' : '0');
   }
 
-  // Ocultar todos los dropdowns
   hideAllDropdowns(event?: any): void {
-    // Solo cerrar si el click no es en un input de búsqueda o dropdown
     if (event && (event.target.closest('.alimento-dropdown') || event.target.closest('input[placeholder="Buscar alimento..."]'))) {
       return;
     }
-    
+
     this.alimentoDropdownVisible.fill(false);
-    
-    // Marcar campos como touched si el usuario hizo click fuera sin seleccionar
+
     this.ingredientesArray.controls.forEach((control, index) => {
       const searchTerm = this.alimentoSearchTerms[index];
       const isSelected = this.alimentoSelected[index];
-      
+
       if (searchTerm && !isSelected) {
         control.get('alimento_id')?.markAsTouched();
       }
     });
   }
 
-  // Calcular progreso del formulario
   getFormProgress(): number {
     let progress = 0;
-    const totalFields = 7; // Total de campos principales
-    
-    // Información básica (4 campos obligatorios)
+    const totalFields = 7;
+
     if (this.platilloForm.get('nombre')?.value) progress++;
     if (this.platilloForm.get('descripcion')?.value) progress++;
     if (this.platilloForm.get('calorias')?.value > 0) progress++;
     if (this.platilloForm.get('tiempo_preparacion')?.value > 0) progress++;
-    
-    // Visibilidad
+
     if (this.platilloForm.get('es_publico')?.value !== null) progress++;
-    
-    // Ingredientes (al menos 1)
+
     if (this.ingredientesArray.length > 0) {
-      const validIngredients = this.ingredientesArray.controls.filter(ing => 
+      const validIngredients = this.ingredientesArray.controls.filter(ing =>
         ing.get('alimento_id')?.value && ing.get('cantidad')?.value > 0
       );
       if (validIngredients.length > 0) progress++;
     }
-    
-    // Configuración nutricional
+
     if (this.configuracionesArray.length > 0) {
       const config = this.configuracionesArray.at(0);
-      if (config.get('tipo_dieta_id')?.value && 
-          config.get('tipo_comida_id')?.value && 
-          config.get('tipo_objetivo_id')?.value) {
+      if (config.get('tipo_dieta_id')?.value &&
+        config.get('tipo_comida_id')?.value &&
+        config.get('tipo_objetivo_id')?.value) {
         progress++;
       }
     }
-    
+
     return Math.round((progress / totalFields) * 100);
   }
 
-  // También actualiza el método onSubmit para mejor debugging:
   onSubmit(): void {
-    console.log('Enviando formulario...');
-    console.log('Form valid:', this.platilloForm.valid);
-    console.log('Form value:', this.platilloForm.value);
-
     if (this.platilloForm.invalid) {
-      console.log('Formulario inválido:', this.platilloForm.errors);
       this.markFormGroupTouched();
       this.scrollToFirstError();
       return;
@@ -433,34 +477,27 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     this.loading = true;
     this.errorMsg = null;
 
-    // Procesar y validar los datos del formulario
     const rawFormData = this.platilloForm.value;
 
-    console.log('Raw form data:', rawFormData);
-
-    // Validar que hay al menos un ingrediente válido
     const ingredientesValidos = rawFormData.ingredientes?.filter((ing: any, index: number) => {
       const isAlimentoSelected = this.isAlimentoSelected(index);
       const alimentoId = ing.alimento_id;
       const cantidad = ing.cantidad;
       const unidadMedida = ing.unidad_medida;
-      
+
       return alimentoId && cantidad && cantidad > 0 && unidadMedida && isAlimentoSelected;
     }) || [];
 
-    console.log('Ingredientes válidos:', ingredientesValidos);
-
     if (ingredientesValidos.length === 0) {
       this.loading = false;
-      
-      // Marcar todos los campos de alimento como touched para mostrar errores
+
       this.ingredientesArray.controls.forEach((control, index) => {
         control.get('alimento_id')?.markAsTouched();
         if (!this.isAlimentoSelected(index)) {
           this.alimentoNotFound[index] = this.alimentoSearchTerms[index] ? true : false;
         }
       });
-      
+
       Swal.fire({
         icon: 'warning',
         title: 'Ingredientes requeridos',
@@ -480,12 +517,9 @@ export class AltaPlatillos implements OnInit, OnDestroy {
       return;
     }
 
-    // Validar que hay al menos una configuración válida
     const configuracionesValidas = rawFormData.configuraciones?.filter((config: any) =>
       config.tipo_dieta_id && config.tipo_comida_id && config.tipo_objetivo_id
     ) || [];
-
-    console.log('Configuraciones válidas:', configuracionesValidas);
 
     if (configuracionesValidas.length === 0) {
       this.loading = false;
@@ -497,7 +531,6 @@ export class AltaPlatillos implements OnInit, OnDestroy {
       return;
     }
 
-    // Formatear los datos para la API
     const formData = {
       nombre: rawFormData.nombre?.trim(),
       descripcion: rawFormData.descripcion?.trim(),
@@ -516,8 +549,6 @@ export class AltaPlatillos implements OnInit, OnDestroy {
         tipo_objetivo_id: Number(config.tipo_objetivo_id)
       }))
     };
-
-    console.log('Datos finales a enviar:', formData);
 
     const action = this.isEdit ? 'actualizar' : 'crear';
 
@@ -539,7 +570,6 @@ export class AltaPlatillos implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('Respuesta del servidor:', response);
           this.loading = false;
           Swal.close();
 
@@ -559,7 +589,6 @@ export class AltaPlatillos implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
-          console.error('Error al enviar:', error);
           this.loading = false;
           Swal.close();
 
@@ -574,37 +603,39 @@ export class AltaPlatillos implements OnInit, OnDestroy {
         }
       });
   }
-  // Getter para arrays de formulario
   get ingredientesArray(): FormArray {
     const array = this.platilloForm.get('ingredientes') as FormArray;
-    console.log('Ingredientes array getter:', array ? array.length : 'null');
     return array;
   }
 
   get configuracionesArray(): FormArray {
     const array = this.platilloForm.get('configuraciones') as FormArray;
-    console.log('Configuraciones array getter:', array ? array.length : 'null');
     return array;
   }
 
-  // Métodos para ingredientes
   agregarIngrediente(ingrediente?: Ingrediente): void {
-    console.log('Agregando ingrediente:', ingrediente);
-
-    // Validar límite máximo de ingredientes
     if (this.ingredientesArray.length >= 15) {
       return;
     }
 
+    let alimentoId = '';
+    let cantidad = '';
+    let unidadMedida = 'g';
+
+    if (ingrediente) {
+      alimentoId = ingrediente.alimento_id ? String(ingrediente.alimento_id) : '';
+      cantidad = ingrediente.cantidad ? String(ingrediente.cantidad) : '';
+      unidadMedida = ingrediente.unidad_medida || 'g';
+    }
+
     const ingredienteForm = this.fb.group({
-      alimento_id: [ingrediente?.alimento_id || '', Validators.required],
-      cantidad: [ingrediente?.cantidad || '', [Validators.required, Validators.min(0.1)]],
-      unidad_medida: [ingrediente?.unidad_medida || 'g', Validators.required]
+      alimento_id: [alimentoId, Validators.required],
+      cantidad: [cantidad, [Validators.required, Validators.min(0.1)]],
+      unidad_medida: [unidadMedida, Validators.required]
     });
 
     this.ingredientesArray.push(ingredienteForm);
-    
-    // Inicializar arrays de búsqueda para el nuevo ingrediente
+
     const index = this.ingredientesArray.length - 1;
     this.alimentoSearchTerms[index] = '';
     this.alimentoDropdownVisible[index] = false;
@@ -612,52 +643,52 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     this.alimentoNotFound[index] = false;
     this.alimentoSelected[index] = false;
 
-    // Si es un ingrediente existente, configurar el estado apropiado
     if (ingrediente?.alimento_id) {
-      const alimento = this.alimentos.find(a => a.id === ingrediente.alimento_id);
+      const alimento = this.alimentos.find(a => a.id === Number(ingrediente.alimento_id));
       if (alimento) {
         this.alimentoSearchTerms[index] = alimento.nombre;
+        this.alimentoSelected[index] = true;
+      } else {
+        const nombreAlimento = ingrediente.alimento_nombre || ingrediente.nombre_alimento || `Alimento ID: ${ingrediente.alimento_id}`;
+        this.alimentoSearchTerms[index] = nombreAlimento;
         this.alimentoSelected[index] = true;
       }
     }
 
-    console.log('Ingredientes array length:', this.ingredientesArray.length);
     this.cdr.markForCheck();
   }
 
   eliminarIngrediente(index: number): void {
     if (this.ingredientesArray.length > 1) {
       this.ingredientesArray.removeAt(index);
-      
+
       // Remover elementos correspondientes de los arrays de búsqueda
       this.alimentoSearchTerms.splice(index, 1);
       this.alimentoDropdownVisible.splice(index, 1);
       this.filteredAlimentos.splice(index, 1);
-      this.alimentoNotFound.splice(index, 1);
-      this.alimentoSelected.splice(index, 1);
-      
-      this.cdr.markForCheck();
     }
   }
 
-  // Métodos para configuraciones
   agregarConfiguracion(configuracion?: Configuracion): void {
-    console.log('Agregando configuración:', configuracion);
-
-    // Solo permitir una configuración
     if (this.configuracionesArray.length >= 1) {
-      return;
+      this.configuracionesArray.removeAt(0);
     }
 
+    let dietaId = configuracion?.tipo_dieta_id || '';
+    let comidaId = configuracion?.tipo_comida_id || '';
+    let objetivoId = configuracion?.tipo_objetivo_id || '';
+
     const configForm = this.fb.group({
-      tipo_dieta_id: [configuracion?.tipo_dieta_id || '', Validators.required],
-      tipo_comida_id: [configuracion?.tipo_comida_id || '', Validators.required],
-      tipo_objetivo_id: [configuracion?.tipo_objetivo_id || '', Validators.required]
+      tipo_dieta_id: [dietaId, Validators.required],
+      tipo_comida_id: [comidaId, Validators.required],
+      tipo_objetivo_id: [objetivoId, Validators.required]
     });
 
     this.configuracionesArray.push(configForm);
-    console.log('Configuraciones array length:', this.configuracionesArray.length);
-    this.cdr.markForCheck();
+
+    setTimeout(() => {
+      this.cdr.detectChanges();
+    }, 50);
   }
 
   eliminarConfiguracion(index: number): void {
@@ -676,16 +707,16 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   isIngredienteFieldInvalid(index: number, fieldName: string): boolean {
     const field = this.ingredientesArray.at(index).get(fieldName);
     const isFieldInvalid = !!(field && field.invalid && (field.dirty || field.touched));
-    
+
     // Para el campo alimento_id, también considerar los estados de búsqueda
     if (fieldName === 'alimento_id') {
       const isNotFound = this.isAlimentoNotFound(index);
       const isNotSelected = !this.isAlimentoSelected(index) && !!this.alimentoSearchTerms[index];
       const isEmpty = this.isAlimentoSearchEmpty(index);
-      
+
       return isFieldInvalid || isNotFound || isNotSelected || (isEmpty && !!(field?.dirty || field?.touched));
     }
-    
+
     return isFieldInvalid;
   }
 
@@ -704,15 +735,12 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     return '';
   }
 
-  // Métodos de utilidad
   getNombreAlimento(alimentoId: number): string {
     const alimento = this.alimentos.find(a => a.id === alimentoId);
     return alimento ? alimento.nombre : 'Seleccionar alimento';
   }
 
   calcularCaloriasTotales(): number {
-    // Aquí podrías implementar un cálculo real basado en los ingredientes
-    // Por ahora devolvemos el valor ingresado manualmente
     return this.platilloForm.get('calorias')?.value || 0;
   }
 
@@ -758,7 +786,6 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     return this.isEdit ? 'Actualizar Platillo' : 'Crear Platillo';
   }
 
-  // Track by functions para *ngFor
   trackByIndex(index: number): number {
     return index;
   }
@@ -779,4 +806,69 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     return tipo.id;
   }
 
+  onDietaChange(event: any) {
+    const value = event.target.value;
+    this.selectedDietaId = value ? Number(value) : null;
+
+    if (this.configuracionesArray.length > 0) {
+      this.configuracionesArray.at(0)?.patchValue({
+        tipo_dieta_id: this.selectedDietaId
+      });
+    }
+  }
+
+  onComidaChange(event: any) {
+    const value = event.target.value;
+    this.selectedComidaId = value ? Number(value) : null;
+
+    if (this.configuracionesArray.length > 0) {
+      this.configuracionesArray.at(0)?.patchValue({
+        tipo_comida_id: this.selectedComidaId
+      });
+    }
+  }
+
+  onObjetivoChange(event: any) {
+    const value = event.target.value;
+    this.selectedObjetivoId = value ? Number(value) : null;
+
+    if (this.configuracionesArray.length > 0) {
+      this.configuracionesArray.at(0)?.patchValue({
+        tipo_objetivo_id: this.selectedObjetivoId
+      });
+    }
+  }
+
+  forceSelectValues() {
+    if (this.configuracionesArray.length > 0) {
+      const config = this.configuracionesArray.at(0);
+      const valores = config?.value;
+
+      setTimeout(() => {
+        const selectDieta = document.querySelector('select[formControlName="tipo_dieta_id"]') as HTMLSelectElement;
+        const selectComida = document.querySelector('select[formControlName="tipo_comida_id"]') as HTMLSelectElement;
+        const selectObjetivo = document.querySelector('select[formControlName="tipo_objetivo_id"]') as HTMLSelectElement;
+
+        if (selectDieta && valores?.tipo_dieta_id) {
+          selectDieta.value = String(valores.tipo_dieta_id);
+        }
+
+        if (selectComida && valores?.tipo_comida_id) {
+          selectComida.value = String(valores.tipo_comida_id);
+        }
+
+        if (selectObjetivo && valores?.tipo_objetivo_id) {
+          selectObjetivo.value = String(valores.tipo_objetivo_id);
+
+          selectObjetivo.dispatchEvent(new Event('change'));
+        }
+
+        this.cdr.detectChanges();
+      }, 200);
+    }
+  }
+
+  getTypeOf(value: any): string {
+    return typeof value;
+  }
 }

@@ -28,6 +28,508 @@
     }
 }
 
+// LOADING OVERLAY CON TEMÁTICA DE COCINA
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.loading-spinner {
+    text-align: center;
+    background: white;
+    padding: 3rem 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 320px;
+    width: 90%;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+        animation: loadingBar 2s infinite;
+    }
+
+    .cooking-animation {
+        position: relative;
+        margin-bottom: 2rem;
+
+        // Sartén base
+        .pan {
+            width: 80px;
+            height: 40px;
+            background: linear-gradient(135deg, #444, #666);
+            border-radius: 0 0 40px 40px;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+            &::before {
+                content: '';
+                position: absolute;
+                right: -30px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 40px;
+                height: 8px;
+                background: linear-gradient(135deg, #666, #888);
+                border-radius: 4px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        // Huevos fritos animados
+        .egg {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            .white {
+                width: 35px;
+                height: 30px;
+                background: #fff;
+                border-radius: 50% 40% 50% 40%;
+                position: relative;
+                animation: sizzle 1.5s infinite ease-in-out;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .yolk {
+                position: absolute;
+                top: 8px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 14px;
+                height: 14px;
+                background: linear-gradient(135deg, #ffc107, #fd7e14);
+                border-radius: 50%;
+                animation: yolkBounce 2s infinite ease-in-out;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        // Vaporcitos
+        .steam {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            .steam-line {
+                width: 3px;
+                height: 20px;
+                background: rgba(255, 255, 255, 0.6);
+                border-radius: 2px;
+                display: inline-block;
+                margin: 0 2px;
+                animation: steam 2s infinite ease-in-out;
+
+                &:nth-child(1) {
+                    animation-delay: 0s;
+                }
+
+                &:nth-child(2) {
+                    animation-delay: 0.3s;
+                }
+
+                &:nth-child(3) {
+                    animation-delay: 0.6s;
+                }
+
+                &:nth-child(4) {
+                    animation-delay: 0.9s;
+                }
+
+                &:nth-child(5) {
+                    animation-delay: 1.2s;
+                }
+            }
+        }
+
+        // Utensilios decorativos
+        .utensils {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+
+            .fork,
+            .knife {
+                width: 3px;
+                height: 25px;
+                background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+                border-radius: 2px;
+                position: relative;
+                animation: float 3s infinite ease-in-out;
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    top: -8px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 8px;
+                    height: 8px;
+                    background: inherit;
+                    border-radius: 50%;
+                }
+            }
+
+            .fork {
+                animation-delay: 0s;
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    top: -12px;
+                    left: -1px;
+                    width: 5px;
+                    height: 4px;
+                    border-left: 1px solid #c0c0c0;
+                    border-right: 1px solid #c0c0c0;
+                }
+            }
+
+            .knife {
+                animation-delay: 1.5s;
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    top: -15px;
+                    left: -2px;
+                    width: 7px;
+                    height: 10px;
+                    background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+                    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+                }
+            }
+        }
+    }
+
+    // Texto de carga
+    .loading-text {
+        color: var(--text-primary);
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        animation: pulse 2s infinite ease-in-out;
+    }
+
+    .loading-subtext {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.8;
+    }
+
+    // Puntos de carga animados
+    .dots {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            animation: dotBounce 1.4s infinite ease-in-out both;
+
+            &:nth-child(1) {
+                animation-delay: -0.32s;
+            }
+
+            &:nth-child(2) {
+                animation-delay: -0.16s;
+            }
+
+            &:nth-child(3) {
+                animation-delay: 0s;
+            }
+        }
+    }
+
+    // Mensaje dinámico
+    .cooking-tip {
+        margin-top: 1rem;
+        padding: 0.75rem 1rem;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 0.5rem;
+        border-left: 4px solid var(--primary-color);
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        font-style: italic;
+
+        i {
+            color: #ffc107;
+            margin-right: 0.5rem;
+        }
+    }
+}
+
+// Animaciones para el loader
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes loadingBar {
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 100%;
+    }
+}
+
+@keyframes sizzle {
+
+    0%,
+    100% {
+        transform: translateX(-50%) scale(1) rotate(0deg);
+    }
+
+    25% {
+        transform: translateX(-52%) scale(1.02) rotate(-0.5deg);
+    }
+
+    50% {
+        transform: translateX(-48%) scale(0.98) rotate(0.5deg);
+    }
+
+    75% {
+        transform: translateX(-51%) scale(1.01) rotate(-0.3deg);
+    }
+}
+
+@keyframes yolkBounce {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0px);
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(-2px);
+    }
+}
+
+@keyframes steam {
+    0% {
+        opacity: 0;
+        transform: translateY(0px) scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translateY(-10px) scale(1.1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.8);
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-5px) rotate(2deg);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+@keyframes dotBounce {
+
+    0%,
+    80%,
+    100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+
+    40% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
+// Responsivo para el loader
+@media (max-width: 575.98px) {
+    .loading-spinner {
+        padding: 2rem 1.5rem;
+
+        .cooking-animation {
+            margin-bottom: 1.5rem;
+
+            .pan {
+                width: 60px;
+                height: 30px;
+
+                &::before {
+                    right: -25px;
+                    width: 30px;
+                    height: 6px;
+                }
+            }
+
+            .egg {
+                .white {
+                    width: 28px;
+                    height: 24px;
+                }
+
+                .yolk {
+                    width: 11px;
+                    height: 11px;
+                    top: 6px;
+                }
+            }
+
+            .steam {
+                top: -30px;
+
+                .steam-line {
+                    width: 2px;
+                    height: 15px;
+                }
+            }
+
+            .utensils {
+                padding: 0 15px;
+
+                .fork,
+                .knife {
+                    width: 2px;
+                    height: 20px;
+
+                    &::before {
+                        width: 6px;
+                        height: 6px;
+                        top: -6px;
+                    }
+                }
+            }
+        }
+
+        .loading-text {
+            font-size: 1rem;
+        }
+
+        .loading-subtext {
+            font-size: 0.8rem;
+        }
+
+        .cooking-tip {
+            font-size: 0.75rem;
+            padding: 0.5rem 0.75rem;
+        }
+    }
+}
+
+// Estados específicos para diferentes tipos de carga
+.loading-spinner {
+    &.loading-catalogs {
+        .cooking-animation .egg .white {
+            animation-duration: 1s;
+        }
+
+        .loading-text {
+            color: #28a745;
+        }
+
+        .dots .dot {
+            background: #28a745;
+        }
+    }
+
+    &.loading-data {
+        .cooking-animation .steam .steam-line {
+            animation-duration: 1.5s;
+        }
+
+        .loading-text {
+            color: #17a2b8;
+        }
+
+        .dots .dot {
+            background: #17a2b8;
+        }
+    }
+
+    &.processing {
+        .cooking-animation .pan {
+            animation: panShake 0.5s infinite;
+        }
+
+        .loading-text {
+            color: var(--primary-color);
+        }
+
+        .dots .dot {
+            background: var(--primary-color);
+        }
+    }
+}
+
+@keyframes panShake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-1px);
+    }
+
+    75% {
+        transform: translateX(1px);
+    }
+}
+
 // MODAL BODY
 .modal-body {
     background: linear-gradient(145deg, #ffffff, var(--background));
@@ -156,10 +658,10 @@
                 box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
             }
         }
-        
+
         &.is-valid {
             border-color: #28a745;
-            
+
             &:focus {
                 border-color: #28a745;
                 box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
@@ -234,13 +736,13 @@
             content: "⚠ ";
             margin-right: 0.25rem;
         }
-        
+
         i {
             color: #dc3545;
             margin-right: 0.25rem;
         }
     }
-    
+
     // VALID FEEDBACK - Nuevo
     .valid-feedback {
         display: block;
@@ -248,7 +750,7 @@
         margin-top: 0.25rem;
         color: #28a745;
         font-weight: 500;
-        
+
         i {
             color: #28a745;
             margin-right: 0.25rem;
@@ -264,7 +766,7 @@
         &.text-muted {
             color: #6c757d !important;
         }
-        
+
         i {
             color: #6c757d;
         }
@@ -595,27 +1097,27 @@
             font-size: 0.75rem;
         }
     }
-    
+
     // Nuevo: estilo para el mensaje de "no encontrado"
     .dropdown-item-no-results {
         padding: 1rem;
         background: #f8f9fa;
         border: none;
-        
+
         p {
             margin-bottom: 0.5rem;
             font-size: 0.9rem;
         }
-        
+
         small {
             color: #6c757d !important;
             font-size: 0.8rem;
         }
-        
+
         i.fa-search {
             color: #adb5bd;
         }
-        
+
         i.fa-lightbulb {
             color: #ffc107;
         }
@@ -649,13 +1151,13 @@
 .eliminate-btn {
     opacity: 0.7;
     transition: all 0.3s ease;
-    
+
     &:hover:not(:disabled) {
         opacity: 1;
         transform: scale(1.1);
         box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
     }
-    
+
     &:disabled {
         opacity: 0.3;
         cursor: not-allowed;
@@ -690,14 +1192,14 @@
     position: relative;
     z-index: 1;
     margin: 1.5rem 0; // Separación clara
-    
+
     .btn {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         border: none;
         font-weight: 600;
         position: relative;
         z-index: 3;
-        
+
         &:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
@@ -711,101 +1213,101 @@
         padding: 1rem 0.75rem 0.75rem 0.75rem !important;
         padding-top: 3rem !important; // Más espacio en móvil
         margin-bottom: 1.5rem !important;
-        
+
         .eliminate-btn {
             width: 28px !important;
             height: 28px !important;
             font-size: 0.75rem;
             transform: translate(5px, -5px);
         }
-        
+
         .form-label {
             font-size: 0.85rem;
             margin-bottom: 0.25rem;
         }
-        
+
         .form-control,
         .form-select {
             font-size: 0.85rem;
             padding: 0.5rem 0.75rem;
         }
     }
-    
+
     .empty-state {
         padding: 2rem 1rem !important;
         margin: 1rem 0 !important;
-        
+
         i {
             font-size: 2rem !important;
         }
-        
+
         h6 {
             font-size: 0.9rem;
         }
-        
+
         p {
             font-size: 0.8rem;
         }
     }
-    
+
     .add-ingredient-section {
         padding: 2rem 1rem !important;
         margin: 1.5rem 0 !important;
-        
+
         h6 {
             font-size: 1rem;
         }
-        
+
         p {
             font-size: 0.8rem;
         }
-        
+
         .btn {
             font-size: 0.9rem;
             padding: 0.75rem 1.5rem;
         }
     }
-    
+
     .eliminate-btn-improved {
         width: 28px !important;
         height: 28px !important;
         top: -10px !important;
         right: -10px !important;
-        
+
         i {
             font-size: 0.75rem !important;
         }
     }
-    
+
     // Mejoras para dropdown en móvil
     .alimento-dropdown {
         max-height: 150px; // Menos altura en móvil
-        
+
         .dropdown-item {
             padding: 0.6rem 0.8rem;
-            
+
             small {
                 font-size: 0.7rem;
             }
         }
-        
+
         .dropdown-item-no-results {
             padding: 0.8rem;
-            
+
             p {
                 font-size: 0.8rem;
             }
-            
+
             small {
                 font-size: 0.7rem;
             }
-            
+
             i.fa-search {
                 font-size: 1.2rem !important;
             }
         }
     }
-    
+
     // Mensajes de feedback en móvil
     .invalid-feedback,
     .valid-feedback {
@@ -826,7 +1328,7 @@
 .form-label {
     i {
         color: var(--primary-color);
-        opacity: 0.8; 
+        opacity: 0.8;
     }
 }
 
@@ -834,7 +1336,7 @@
 .btn-outline-warning {
     transition: all 0.3s ease;
     border-width: 2px;
-    
+
     &:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
@@ -847,8 +1349,9 @@
     border: 1px solid var(--primary-color);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     z-index: 1050; // Z-index muy alto para estar por encima de todo
-    
+
     .dropdown-item {
+
         &:hover,
         &.active {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
@@ -859,7 +1362,7 @@
 // Prevenir superposiciones globales
 .ingredientes-container {
     isolation: isolate; // Crear nuevo contexto de apilamiento
-    
+
     .ingrediente-item {
         isolation: isolate; // Cada ingrediente en su propio contexto
     }
@@ -870,12 +1373,12 @@
     .card {
         position: relative;
         z-index: 1;
-        
+
         .card-header {
             position: relative;
             z-index: 2;
         }
-        
+
         .card-body {
             position: relative;
             z-index: 1;
@@ -908,7 +1411,7 @@
     border: 3px solid white; // Border más grueso para mejor separación
     transition: all 0.3s ease;
     background: #dc3545 !important;
-    
+
     &:hover:not(:disabled) {
         transform: scale(1.2); // Menos escala para evitar superposición
         box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
@@ -916,14 +1419,14 @@
         border-color: white;
         z-index: 20; // Z-index aún más alto en hover
     }
-    
+
     &:disabled {
         opacity: 0.4;
         cursor: not-allowed;
         transform: none;
         z-index: 10;
     }
-    
+
     i {
         font-size: 0.85rem;
         color: white;
@@ -937,18 +1440,18 @@
     z-index: 1; // Z-index bajo para que no interfiera con botones
     margin-top: 2rem; // Más separación de arriba
     margin-bottom: 1.5rem; // Separación de abajo
-    
+
     &:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(255, 193, 7, 0.2);
         z-index: 2; // Ligero incremento en hover
     }
-    
+
     .btn {
         transition: all 0.3s ease;
         position: relative;
         z-index: 3;
-        
+
         &:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
@@ -963,12 +1466,12 @@
     text-align: center;
     transition: all 0.3s ease;
     background: white;
-    
+
     &:hover {
         transform: translateY(-4px);
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
     }
-    
+
     .stat-icon {
         width: 50px;
         height: 50px;
@@ -978,24 +1481,24 @@
         justify-content: center;
         margin: 0 auto 1rem;
         font-size: 1.25rem;
-        
+
         &.bg-gradient-danger {
             background: linear-gradient(135deg, #dc3545, #c82333);
         }
-        
+
         &.bg-gradient-success {
             background: linear-gradient(135deg, #28a745, #20c997);
         }
-        
+
         &.bg-gradient-info {
             background: linear-gradient(135deg, #17a2b8, #138496);
         }
-        
+
         &.bg-gradient-warning {
             background: linear-gradient(135deg, #ffc107, #e0a800);
         }
     }
-    
+
     .stat-icon-mini {
         width: 40px;
         height: 40px;
@@ -1003,13 +1506,13 @@
         align-items: center;
         justify-content: center;
     }
-    
+
     .stat-value {
         font-size: 1.5rem;
         font-weight: 700;
         line-height: 1;
     }
-    
+
     .stat-label {
         font-size: 0.85rem;
         text-transform: uppercase;
@@ -1028,46 +1531,46 @@
 @media (max-width: 575.98px) {
     .add-ingredient-section {
         padding: 2rem 1rem !important;
-        
+
         h6 {
             font-size: 1rem;
         }
-        
+
         p {
             font-size: 0.8rem;
         }
-        
+
         .btn {
             font-size: 0.9rem;
             padding: 0.75rem 1.5rem;
         }
     }
-    
+
     .stat-card {
         padding: 1rem;
-        
+
         .stat-icon {
             width: 40px;
             height: 40px;
             margin-bottom: 0.75rem;
             font-size: 1rem;
         }
-        
+
         .stat-value {
             font-size: 1.25rem;
         }
-        
+
         .stat-label {
             font-size: 0.75rem;
         }
     }
-    
+
     .eliminate-btn-improved {
         width: 24px;
         height: 24px;
         top: -6px;
         right: -6px;
-        
+
         i {
             font-size: 0.7rem;
         }
@@ -1079,9 +1582,11 @@
     0% {
         box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
     }
+
     70% {
         box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
     }
+
     100% {
         box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
     }
