@@ -11,6 +11,9 @@ interface PlatilloData {
   nombre: string;
   descripcion: string;
   calorias: number | string;
+  proteinas: number | string;
+  carbohidratos: number | string;
+  grasas: number | string;
   tiempo_preparacion: number | string;
   imagen_url: string;
   es_publico: number | string;
@@ -118,6 +121,9 @@ export class AltaPlatillos implements OnInit, OnDestroy {
       nombre: ['', [Validators.required, Validators.minLength(3)]],
       descripcion: ['', [Validators.required, Validators.minLength(10)]],
       calorias: [0, [Validators.required, Validators.min(1)]],
+      proteinas: [0, [Validators.required, Validators.min(0)]],
+      carbohidratos: [0, [Validators.required, Validators.min(0)]],
+      grasas: [0, [Validators.required, Validators.min(0)]],
       tiempo_preparacion: [0, [Validators.required, Validators.min(1)]],
       imagen_url: [''],
       es_publico: [1, Validators.required],
@@ -439,11 +445,14 @@ export class AltaPlatillos implements OnInit, OnDestroy {
 
   getFormProgress(): number {
     let progress = 0;
-    const totalFields = 7;
+    const totalFields = 10;
 
     if (this.platilloForm.get('nombre')?.value) progress++;
     if (this.platilloForm.get('descripcion')?.value) progress++;
     if (this.platilloForm.get('calorias')?.value > 0) progress++;
+    if (this.platilloForm.get('proteinas')?.value >= 0) progress++;
+    if (this.platilloForm.get('carbohidratos')?.value >= 0) progress++;
+    if (this.platilloForm.get('grasas')?.value >= 0) progress++;
     if (this.platilloForm.get('tiempo_preparacion')?.value > 0) progress++;
 
     if (this.platilloForm.get('es_publico')?.value !== null) progress++;
@@ -535,6 +544,9 @@ export class AltaPlatillos implements OnInit, OnDestroy {
       nombre: rawFormData.nombre?.trim(),
       descripcion: rawFormData.descripcion?.trim(),
       calorias: Number(rawFormData.calorias) || 0,
+      proteinas: Number(rawFormData.proteinas) || 0,
+      carbohidratos: Number(rawFormData.carbohidratos) || 0,
+      grasas: Number(rawFormData.grasas) || 0,
       tiempo_preparacion: Number(rawFormData.tiempo_preparacion) || 0,
       imagen_url: rawFormData.imagen_url?.trim() || '',
       es_publico: Number(rawFormData.es_publico) || 0,
@@ -739,12 +751,6 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     const alimento = this.alimentos.find(a => a.id === alimentoId);
     return alimento ? alimento.nombre : 'Seleccionar alimento';
   }
-
-  calcularCaloriasTotales(): number {
-    return this.platilloForm.get('calorias')?.value || 0;
-  }
-
-
 
   private markFormGroupTouched(): void {
     Object.keys(this.platilloForm.controls).forEach(key => {

@@ -124,6 +124,54 @@
                         </small>
                     </div>
 
+                    <!-- Proteínas -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-gray-700">Proteínas *</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" [class.is-invalid]="isFieldInvalid('proteinas')"
+                                formControlName="proteinas" placeholder="15" min="0" step="0.1" />
+                            <span class="input-group-text">g</span>
+                        </div>
+                        <div *ngIf="isFieldInvalid('proteinas')" class="invalid-feedback">{{ getFieldError('proteinas') }}
+                        </div>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-dumbbell me-1"></i>
+                            Gramos de proteína por porción
+                        </small>
+                    </div>
+
+                    <!-- Carbohidratos -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-gray-700">Carbohidratos *</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" [class.is-invalid]="isFieldInvalid('carbohidratos')"
+                                formControlName="carbohidratos" placeholder="30" min="0" step="0.1" />
+                            <span class="input-group-text">g</span>
+                        </div>
+                        <div *ngIf="isFieldInvalid('carbohidratos')" class="invalid-feedback">{{ getFieldError('carbohidratos') }}
+                        </div>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-bread-slice me-1"></i>
+                            Gramos de carbohidratos por porción
+                        </small>
+                    </div>
+
+                    <!-- Grasas -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-gray-700">Grasas *</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" [class.is-invalid]="isFieldInvalid('grasas')"
+                                formControlName="grasas" placeholder="8" min="0" step="0.1" />
+                            <span class="input-group-text">g</span>
+                        </div>
+                        <div *ngIf="isFieldInvalid('grasas')" class="invalid-feedback">{{ getFieldError('grasas') }}
+                        </div>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-cheese me-1"></i>
+                            Gramos de grasa por porción
+                        </small>
+                    </div>
+
                     <!-- Descripción -->
                     <div class="col-12">
                         <label class="form-label fw-semibold text-gray-700">Descripción *</label>
@@ -513,26 +561,68 @@
             <div class="card-body p-4">
                 <div class="row g-4">
                     <!-- Calorías -->
-                    <div class="col-6 col-md-3">
+                    <div class="col-6 col-lg-3">
                         <div class="stat-card h-100 border-0 shadow-sm">
-                            <div class="stat-icon bg-gradient-danger text-white">
+                            <div class="stat-icon bg-gradient-primary text-white">
                                 <i class="fas fa-fire"></i>
                             </div>
                             <div class="stat-content">
-                                <h4 class="stat-value text-primary fw-bold mb-1">{{ calcularCaloriasTotales() }}</h4>
+                                <h4 class="stat-value text-primary fw-bold mb-1">{{ platilloForm.get('calorias')?.value || 0 }}</h4>
                                 <p class="stat-label text-muted small mb-0">Calorías</p>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Proteínas -->
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card h-100 border-0 shadow-sm">
+                            <div class="stat-icon bg-gradient-danger text-white">
+                                <i class="fas fa-dumbbell"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h4 class="stat-value text-danger fw-bold mb-1">{{ platilloForm.get('proteinas')?.value || 0 }}g</h4>
+                                <p class="stat-label text-muted small mb-0">Proteínas</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Carbohidratos -->
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card h-100 border-0 shadow-sm">
+                            <div class="stat-icon bg-gradient-warning text-white">
+                                <i class="fas fa-bread-slice"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h4 class="stat-value text-warning fw-bold mb-1">{{ platilloForm.get('carbohidratos')?.value || 0 }}g</h4>
+                                <p class="stat-label text-muted small mb-0">Carbohidratos</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Grasas -->
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card h-100 border-0 shadow-sm">
+                            <div class="stat-icon bg-gradient-success text-white">
+                                <i class="fas fa-oil-can"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h4 class="stat-value text-success fw-bold mb-1">{{ platilloForm.get('grasas')?.value || 0 }}g</h4>
+                                <p class="stat-label text-muted small mb-0">Grasas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Segunda fila de estadísticas -->
+                <div class="row g-4 mt-2">
                     <!-- Ingredientes -->
                     <div class="col-6 col-md-3">
                         <div class="stat-card h-100 border-0 shadow-sm">
-                            <div class="stat-icon bg-gradient-success text-white">
+                            <div class="stat-icon bg-gradient-info text-white">
                                 <i class="fas fa-carrot"></i>
                             </div>
                             <div class="stat-content">
-                                <h4 class="stat-value text-success fw-bold mb-1">{{ ingredientesArray.length }}/15</h4>
+                                <h4 class="stat-value text-info fw-bold mb-1">{{ ingredientesArray.length }}/15</h4>
                                 <p class="stat-label text-muted small mb-0">Ingredientes</p>
                             </div>
                         </div>
@@ -541,11 +631,11 @@
                     <!-- Tiempo -->
                     <div class="col-6 col-md-3">
                         <div class="stat-card h-100 border-0 shadow-sm">
-                            <div class="stat-icon bg-gradient-info text-white">
+                            <div class="stat-icon bg-gradient-secondary text-white">
                                 <i class="fas fa-clock"></i>
                             </div>
                             <div class="stat-content">
-                                <h4 class="stat-value text-info fw-bold mb-1">{{
+                                <h4 class="stat-value text-secondary fw-bold mb-1">{{
                                     platilloForm.get('tiempo_preparacion')?.value || 0 }}</h4>
                                 <p class="stat-label text-muted small mb-0">Minutos</p>
                             </div>
@@ -568,6 +658,19 @@
                                     {{ configuracionesArray.length > 0 ? 'Completo' : 'Pendiente' }}
                                 </h4>
                                 <p class="stat-label text-muted small mb-0">Estado</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progreso -->
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card h-100 border-0 shadow-sm">
+                            <div class="stat-icon bg-gradient-primary text-white">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h4 class="stat-value text-primary fw-bold mb-1">{{ getFormProgress() }}%</h4>
+                                <p class="stat-label text-muted small mb-0">Completado</p>
                             </div>
                         </div>
                     </div>

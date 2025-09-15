@@ -167,5 +167,9 @@ export class HttpServices {
     return this.get('tipos-objetivo');
   }
 
+  platilloStatus(platilloId: number, statusData: any): Observable<any> {
+    return this.put(`platillos-status&id=${platilloId}`, statusData);
+  }
+
 
 }
