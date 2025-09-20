@@ -11,7 +11,6 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
-
 import { HttpServices } from '../../../core/services/http/http.service';
 import { AuthServices } from '../../../core/services/auth/auth.service';
 import { AltaPlatillos } from '../../shared/modales/alta-platillos/alta-platillos';
@@ -24,10 +23,17 @@ interface Platillo {
   tiempo_preparacion: number;
   imagen_url: string;
   es_publico: string | number;
+  status: string | number;
   creador_id: string;
   fecha_creacion: string;
   creador_nombre?: string;
   total_ingredientes?: number;
+  usuarios_asignados?: Array<{
+    usuario_id: number;
+    usuario_nombre: string;
+    dia_semana: string;
+    tipo_comida_id: number;
+  }>;
 }
 
 @Component({
@@ -52,7 +58,6 @@ interface Platillo {
 export class Platillos implements OnInit, AfterViewInit, OnDestroy {
   protected auth = inject(AuthServices);
   protected http = inject(HttpServices);
-
   private destroy$ = new Subject<void>();
   private cdr = inject(ChangeDetectorRef);
   private breakpointObserver = inject(BreakpointObserver);
@@ -75,7 +80,7 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
     'creador',
     'calorias',
     'tiempo_preparacion',
-    'es_publico',
+    'status',
     'acciones'
   ];
 
@@ -84,7 +89,7 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
     'creador',
     'calorias',
     'tiempo_preparacion',
-    'es_publico',
+    'status',
     'acciones'
   ];
 
@@ -123,10 +128,18 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
       Breakpoints.Medium
     ]).pipe(takeUntil(this.destroy$))
       .subscribe(result => {
+        const wasMobile = this.isMobile;
         this.isMobile = result.breakpoints[Breakpoints.XSmall] || result.breakpoints[Breakpoints.Small];
         this.isTablet = result.breakpoints[Breakpoints.Medium];
 
-        if (this.isMobile) {
+        if (wasMobile !== this.isMobile) {
+          if (this.isMobile) {
+            this.dataSource.paginator = null;
+            this.updateMobilePagination();
+          } else {
+            this.intentarConfigurarPaginator();
+          }
+        } else if (this.isMobile) {
           this.updateMobilePagination();
         }
 
@@ -156,9 +169,16 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    if (!this.isMobile) {
+    setTimeout(() => {
+      this.configurarPaginator();
+    }, 100);
+  }
+
+  private configurarPaginator(): void {
+    if (!this.isMobile && this.paginator && this.sort) {
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
+      this.cdr.detectChanges();
     }
   }
 
@@ -178,10 +198,7 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
         next: (resp: any) => {
           if (resp?.status === 'success' && resp?.data && Array.isArray(resp.data)) {
             this.dataSource.data = resp.data;
-
-            if (this.isMobile) {
-              this.updateMobilePagination();
-            }
+            this.intentarConfigurarPaginator();
           } else {
             this.errorMsg = 'Estructura de respuesta inválida';
           }
@@ -194,6 +211,23 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
           this.cdr.markForCheck();
         }
       });
+  }
+
+  private intentarConfigurarPaginator(intentos: number = 0): void {
+    const maxIntentos = 5;
+    
+    if (this.isMobile) {
+      this.updateMobilePagination();
+      return;
+    }
+
+    if (this.paginator && this.sort) {
+      this.configurarPaginator();
+    } else if (intentos < maxIntentos) {
+      setTimeout(() => {
+        this.intentarConfigurarPaginator(intentos + 1);
+      }, 200 * (intentos + 1));
+    }
   }
 
   applyFilter(value: string): void {
@@ -276,6 +310,12 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
   }
 
   editarPlatillo(platillo: Platillo): void {
+    // Verificar si tiene usuarios asignados
+    if (this.tieneUsuariosAsignados(platillo)) {
+      this.mostrarPlatilloConUsuarios(platillo, 'editar');
+      return;
+    }
+
     const modalRef = this.modalService.open(AltaPlatillos, {
       backdrop: 'static',
       size: 'lg',
@@ -292,64 +332,13 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
     }).catch(() => { });
   }
 
-  togglePlatilloPublico(platillo: Platillo, esPublico: boolean): void {
-    const action = esPublico ? 'hacer público' : 'hacer privado';
-
-    Swal.fire({
-      title: '¿Estás seguro?',
-      text: `¿Deseas ${action} el platillo "${platillo.nombre}"?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: `Sí, ${action}`,
-      cancelButtonText: 'Cancelar'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.actualizarEstadoPlatillo(platillo, esPublico);
-      }
-    });
-  }
-
-  private actualizarEstadoPlatillo(platillo: Platillo, esPublico: boolean): void {
-    const updateData = {
-      ...platillo,
-      es_publico: esPublico ? 1 : 0
-    };
-
-    this.http.actualizarPlatillo(updateData)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (resp: any) => {
-          if (resp?.status === 'success') {
-            platillo.es_publico = esPublico ? 1 : 0;
-            this.cdr.markForCheck();
-
-            const Toast = Swal.mixin({
-              toast: true,
-              position: 'top-end',
-              showConfirmButton: false,
-              timer: 3000,
-              timerProgressBar: true
-            });
-
-            Toast.fire({
-              icon: 'success',
-              title: `Platillo ${esPublico ? 'público' : 'privado'} correctamente`
-            });
-          }
-        },
-        error: (error) => {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: error?.error?.message || 'Error al actualizar el platillo'
-          });
-        }
-      });
-  }
-
   eliminarPlatillo(platillo: Platillo): void {
+    // Verificar si tiene usuarios asignados
+    if (this.tieneUsuariosAsignados(platillo)) {
+      this.mostrarPlatilloConUsuarios(platillo, 'eliminar');
+      return;
+    }
+
     Swal.fire({
       title: '¿Estás seguro?',
       text: `Esta acción eliminará permanentemente el platillo "${platillo.nombre}"`,
@@ -363,6 +352,474 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
       if (result.isConfirmed) {
         this.ejecutarEliminacion(platillo);
       }
+    });
+  }
+
+  private mostrarPlatilloConUsuarios(platillo: Platillo, accion: string): void {
+    const usuariosUnicos = new Map();
+
+    // Filtrar usuarios únicos
+    platillo.usuarios_asignados?.forEach((usuario) => {
+      if (!usuariosUnicos.has(usuario.usuario_id)) {
+        usuariosUnicos.set(usuario.usuario_id, usuario);
+      }
+    });
+
+    const usuariosList = Array.from(usuariosUnicos.values());
+
+    let usuariosHtml = '<div class="text-left">';
+    usuariosHtml += `<p class="mb-3"><strong>No se puede ${accion} porque está asignado a:</strong></p>`;
+    usuariosHtml += '<ul class="list-disc pl-5 space-y-1">';
+
+    usuariosList.forEach((usuario: any) => {
+      usuariosHtml += `<li><strong>${usuario.usuario_nombre}</strong></li>`;
+    });
+
+    usuariosHtml += '</ul>';
+    usuariosHtml += `<p class="mt-3 text-sm text-gray-600"><strong>Total de asignaciones:</strong> ${platillo.usuarios_asignados?.length || 0}</p>`;
+    usuariosHtml += '<p class="mt-2 text-sm text-blue-600"><strong>Puedes ver los detalles del platillo únicamente.</strong></p>';
+    usuariosHtml += '</div>';
+
+    Swal.fire({
+      title: `No se puede ${accion}`,
+      html: usuariosHtml,
+      icon: 'info',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#3085d6',
+      width: '600px'
+    });
+  }
+
+  mostrarUsuariosAsignados(platillo: Platillo): void {
+    const usuariosUnicos = new Map();
+
+    // Filtrar usuarios únicos
+    platillo.usuarios_asignados?.forEach((usuario) => {
+      if (!usuariosUnicos.has(usuario.usuario_id)) {
+        usuariosUnicos.set(usuario.usuario_id, usuario);
+      }
+    });
+
+    const usuariosList = Array.from(usuariosUnicos.values());
+    const totalUsuarios = usuariosList.length;
+    const USUARIOS_POR_PAGINA = 8; // Máximo 8 usuarios por página
+    const totalPaginas = Math.ceil(totalUsuarios / USUARIOS_POR_PAGINA);
+
+    // Función para truncar texto
+    const truncateText = (text: string, maxLength: number = 20): string => {
+      if (!text) return 'Usuario';
+      return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    };
+
+    // Colores basados en tu paleta
+    const colors = ['var(--primary-color)', 'var(--primary-dark)', 'var(--primary-light)', 'var(--accent-color)', '#34495E', '#5D6D7E', '#85929E', '#AEB6BF'];
+
+    let usuariosHtml = `
+      <style>
+        .usuarios-container {
+          max-height: 450px;
+          overflow-y: auto;
+          scrollbar-width: thin;
+          scrollbar-color: var(--text-secondary) var(--background);
+          position: relative;
+        }
+        .usuarios-container::-webkit-scrollbar {
+          width: 6px;
+        }
+        .usuarios-container::-webkit-scrollbar-track {
+          background: var(--background);
+          border-radius: 3px;
+        }
+        .usuarios-container::-webkit-scrollbar-thumb {
+          background: var(--text-secondary);
+          border-radius: 3px;
+        }
+        .usuario-card {
+          background: var(--sidebar-bg);
+          border: 2px solid var(--background);
+          border-radius: 12px;
+          padding: 12px 16px;
+          margin-bottom: 8px;
+          box-shadow: var(--shadow);
+          transition: var(--transition);
+        }
+        .usuario-card:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(44, 62, 80, 0.2);
+          border-color: var(--primary-color);
+        }
+        .avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          font-size: 16px;
+          color: white;
+          margin-right: 12px;
+          flex-shrink: 0;
+          box-shadow: var(--shadow);
+          border: 2px solid rgba(255,255,255,0.2);
+        }
+        .usuario-info h4 {
+          margin: 0 0 2px 0;
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--text-primary);
+          line-height: 1.3;
+          word-break: break-word;
+        }
+        .usuario-info p {
+          margin: 0;
+          font-size: 12px;
+          color: var(--text-secondary);
+          line-height: 1.2;
+        }
+        .stats-container {
+          background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+          color: white;
+          border-radius: 12px;
+          padding: 16px;
+          margin-top: 16px;
+          text-align: center;
+          box-shadow: var(--shadow);
+        }
+        .stat-item {
+          display: inline-block;
+          margin: 0 15px;
+        }
+        .stat-number {
+          font-size: 20px;
+          font-weight: 700;
+          display: block;
+          line-height: 1;
+        }
+        .stat-label {
+          font-size: 11px;
+          opacity: 0.9;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-top: 4px;
+        }
+        .platillo-header {
+          background: linear-gradient(135deg, var(--sidebar-bg) 0%, var(--background) 100%);
+          border-radius: 12px;
+          padding: 14px;
+          margin-bottom: 16px;
+          border-left: 4px solid var(--accent-color);
+          box-shadow: var(--shadow);
+        }
+        .platillo-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--text-primary);
+          margin: 0 0 6px 0;
+          line-height: 1.3;
+          word-break: break-word;
+        }
+        .platillo-desc {
+          font-size: 13px;
+          color: var(--text-secondary);
+          margin: 0;
+          line-height: 1.3;
+        }
+        .status-badge {
+          background: linear-gradient(135deg, var(--accent-color), #E67E22);
+          color: white;
+          padding: 4px 8px;
+          border-radius: 16px;
+          font-size: 10px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
+          box-shadow: 0 2px 6px rgba(243, 156, 18, 0.3);
+          white-space: nowrap;
+        }
+        .empty-state {
+          text-align: center;
+          padding: 30px;
+          color: var(--text-secondary);
+          background: var(--background);
+          border-radius: 12px;
+          border: 2px dashed var(--text-secondary);
+        }
+        .empty-icon {
+          font-size: 40px;
+          margin-bottom: 12px;
+          opacity: 0.6;
+        }
+        .accent-text {
+          color: var(--accent-color);
+          font-weight: 600;
+        }
+        .pagination-info {
+          background: var(--background);
+          padding: 8px 12px;
+          border-radius: 8px;
+          margin-bottom: 12px;
+          text-align: center;
+          font-size: 12px;
+          color: var(--text-secondary);
+          border: 1px solid var(--text-secondary);
+        }
+        .usuarios-count {
+          background: var(--accent-color);
+          color: white;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 11px;
+          font-weight: 600;
+          margin-left: 8px;
+        }
+        .tooltip-name {
+          cursor: help;
+          border-bottom: 1px dotted var(--text-secondary);
+        }
+        .warning-many-users {
+          background: linear-gradient(135deg, #FFF3CD, #FCF4DD);
+          border: 1px solid #F39C12;
+          border-radius: 8px;
+          padding: 10px;
+          margin-bottom: 12px;
+          font-size: 12px;
+          color: var(--text-primary);
+        }
+      </style>
+      
+      <div>
+        <!-- Header del platillo -->
+        <div class="platillo-header">
+          <h3 class="platillo-title">
+            <i class="bi bi-egg-fried" style="margin-right: 8px; color: var(--accent-color);"></i> ${truncateText(platillo.nombre, 35)}
+            ${totalUsuarios > 0 ? `<span class="usuarios-count">${totalUsuarios}</span>` : ''}
+          </h3>
+          <p class="platillo-desc">
+            ${totalUsuarios === 0 ? 'Este platillo no tiene usuarios asignados' :
+        totalUsuarios === 1 ? 'Este platillo está asignado a 1 usuario' :
+          `Este platillo está asignado a ${totalUsuarios} usuarios`}
+          </p>
+        </div>
+        
+        <!-- Advertencia para muchos usuarios -->
+        ${totalUsuarios > USUARIOS_POR_PAGINA ? `
+          <div class="warning-many-users">
+            ⚠️ <strong>Lista extensa:</strong> Mostrando los primeros ${USUARIOS_POR_PAGINA} usuarios de ${totalUsuarios} total. 
+            Usa el scroll para ver todos.
+          </div>
+        ` : ''}
+        
+        <!-- Info de paginación -->
+        ${totalUsuarios > 5 ? `
+          <div class="pagination-info">
+            📊 Mostrando <strong>${Math.min(USUARIOS_POR_PAGINA, totalUsuarios)}</strong> de <strong>${totalUsuarios}</strong> usuarios únicos
+          </div>
+        ` : ''}
+        
+        <!-- Lista de usuarios -->
+        <div class="usuarios-container">
+    `;
+
+    if (usuariosList.length === 0) {
+      usuariosHtml += `
+        <div class="empty-state">
+          <div class="empty-icon"><i class="bi bi-person-x" style="font-size: 48px; color: var(--text-secondary); opacity: 0.6;"></i></div>
+          <h4 style="color: var(--text-primary); margin-bottom: 8px; font-size: 14px;">No hay usuarios asignados</h4>
+          <p style="font-size: 12px;">Este platillo aún no ha sido asignado a ningún usuario.</p>
+        </div>
+      `;
+    } else {
+      // Mostrar solo los primeros usuarios (paginación básica)
+      const usuariosAMostrar = usuariosList.slice(0, USUARIOS_POR_PAGINA);
+      const usuariosRestantes = totalUsuarios - USUARIOS_POR_PAGINA;
+
+      usuariosAMostrar.forEach((usuario: any, index: number) => {
+        const avatarColor = colors[index % colors.length];
+        const inicial = usuario.usuario_nombre?.charAt(0)?.toUpperCase() || 'U';
+        const nombreCompleto = usuario.usuario_nombre || 'Usuario sin nombre';
+        const nombreTruncado = truncateText(nombreCompleto, 25);
+        const needsTooltip = nombreCompleto.length > 25;
+
+        usuariosHtml += `
+          <div class="usuario-card">
+            <div style="display: flex; align-items: center;">
+              <div class="avatar" style="background: ${avatarColor};">
+                ${inicial}
+              </div>
+              <div class="usuario-info" style="flex: 1; min-width: 0;">
+                <h4 ${needsTooltip ? `class="tooltip-name" title="${nombreCompleto}"` : ''}>
+                  ${nombreTruncado}
+                </h4>
+                <p><i class="bi bi-person-badge" style="margin-right: 4px; color: var(--accent-color);"></i>ID: <span class="accent-text">${usuario.usuario_id}</span> • <i class="bi bi-envelope" style="margin-right: 4px; color: var(--accent-color);"></i>Usuario del sistema</p>
+              </div>
+              <div style="text-align: right; flex-shrink: 0;">
+                <div class="status-badge"><i class="bi bi-check-circle" style="margin-right: 4px;"></i>Activo</div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      // Mostrar indicador de usuarios adicionales si hay más
+      if (usuariosRestantes > 0) {
+        usuariosHtml += `
+          <div style="text-align: center; padding: 16px; background: var(--background); border-radius: 8px; margin-top: 8px;">
+            <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 4px;">
+              <i class="bi bi-plus-circle" style="margin-right: 4px; color: var(--accent-color);"></i><strong>${usuariosRestantes}</strong> usuario${usuariosRestantes > 1 ? 's' : ''} adicional${usuariosRestantes > 1 ? 'es' : ''}
+            </div>
+            <div style="color: var(--accent-color); font-size: 11px; font-weight: 600;">
+              Scroll hacia arriba para ver la lista completa
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    usuariosHtml += `
+        </div>
+        
+        <!-- Estadísticas -->
+        <div class="stats-container">
+          <div class="stat-item">
+            <span class="stat-number">${totalUsuarios}</span>
+            <span class="stat-label">Usuarios Únicos</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">${platillo.usuarios_asignados?.length || 0}</span>
+            <span class="stat-label">Total Asignaciones</span>
+          </div>
+          ${totalUsuarios > USUARIOS_POR_PAGINA ? `
+            <div class="stat-item">
+              <span class="stat-number">${USUARIOS_POR_PAGINA}</span>
+              <span class="stat-label">Mostrados</span>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+
+    Swal.fire({
+      title: `<i class="bi bi-people" style="color: var(--accent-color); margin-right: 8px; font-size: 20px;"></i><span style="color: var(--text-primary);">Usuarios Asignados</span>`,
+      html: usuariosHtml,
+      showConfirmButton: true,
+      confirmButtonText: '<i class="bi bi-check2" style="margin-right: 8px;"></i>Entendido',
+      confirmButtonColor: 'var(--primary-color)',
+      width: totalUsuarios > 5 ? '650px' : '600px',
+      padding: '0',
+      background: 'var(--sidebar-bg)',
+      customClass: {
+        popup: 'swal2-popup',
+        title: 'text-lg font-bold py-4 px-6',
+        htmlContainer: 'p-6',
+        confirmButton: 'px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300'
+      },
+      showClass: {
+        popup: 'animate__animated animate__fadeInUp animate__faster'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutDown animate__faster'
+      },
+      allowOutsideClick: true,
+      allowEscapeKey: true,
+      focusConfirm: false
+    });
+  }
+
+  togglePlatilloStatus(platillo: Platillo, nuevoStatus: boolean): void {
+    const action = nuevoStatus ? 'activar' : 'desactivar';
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Deseas ${action} el platillo "${platillo.nombre}"?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: `Sí, ${action}`,
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.actualizarStatusPlatillo(platillo, nuevoStatus);
+      }
+    });
+  }
+
+  private actualizarStatusPlatillo(platillo: Platillo, nuevoStatus: boolean): void {
+    const statusData = {
+      status: nuevoStatus ? 1 : 0
+    };
+
+    this.http.platilloStatus(Number(platillo.id), statusData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (resp: any) => {
+          if (resp?.status === 'success') {
+            // Si es desactivación y hay usuarios afectados, mostrar información
+            if (!nuevoStatus && resp.data && resp.data.usuarios_afectados) {
+              this.mostrarUsuariosAfectados(resp.data);
+              return; // No actualizar el estado ya que no se pudo desactivar
+            }
+
+            // Actualizar el estado local
+            platillo.status = nuevoStatus ? 1 : 0;
+            this.cdr.markForCheck();
+
+            const Toast = Swal.mixin({
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true
+            });
+
+            Toast.fire({
+              icon: 'success',
+              title: resp.message || `Platillo ${nuevoStatus ? 'activado' : 'desactivado'} correctamente`
+            });
+          }
+        },
+        error: (error) => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error?.error?.message || 'Error al actualizar el estado del platillo'
+          });
+        }
+      });
+  }
+
+  private mostrarUsuariosAfectados(data: any): void {
+    const usuariosUnicos = new Map();
+
+    // Filtrar usuarios únicos
+    data.usuarios_afectados?.forEach((usuario: any) => {
+      if (!usuariosUnicos.has(usuario.usuario_id)) {
+        usuariosUnicos.set(usuario.usuario_id, usuario);
+      }
+    });
+
+    const usuariosList = Array.from(usuariosUnicos.values());
+
+    let usuariosHtml = '<div class="text-left">';
+    usuariosHtml += '<p class="mb-3"><strong>Usuarios que tienen asignado este platillo:</strong></p>';
+    usuariosHtml += '<ul class="list-disc pl-5 space-y-1">';
+
+    usuariosList.forEach((usuario: any) => {
+      usuariosHtml += `<li><strong>${usuario.usuario_nombre}</strong><br><small class="text-gray-600">${usuario.usuario_correo}</small></li>`;
+    });
+
+    usuariosHtml += '</ul>';
+    usuariosHtml += `<p class="mt-3 text-sm text-gray-600"><strong>Total de asignaciones:</strong> ${data.total_usuarios}</p>`;
+    usuariosHtml += '</div>';
+
+    Swal.fire({
+      title: 'No se puede desactivar',
+      html: usuariosHtml,
+      icon: 'warning',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#3085d6',
+      width: '600px'
     });
   }
 
@@ -430,6 +887,22 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
     return this.dataSource.data.length;
   }
 
+  get platillosActivos(): number {
+    return this.dataSource.data.filter(p => p.status === 1 || p.status === '1').length;
+  }
+
+  get platillosInactivos(): number {
+    return this.dataSource.data.filter(p => p.status === 0 || p.status === '0').length;
+  }
+
+  get platillosConUsuarios(): number {
+    return this.dataSource.data.filter(p => this.tieneUsuariosAsignados(p)).length;
+  }
+
+  get platillosSinUsuarios(): number {
+    return this.dataSource.data.filter(p => !this.tieneUsuariosAsignados(p)).length;
+  }
+
   get platillosPublicos(): number {
     return this.dataSource.data.filter(p => p.es_publico === 1 || p.es_publico === '1').length;
   }
@@ -448,14 +921,27 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
     return Math.round(promedio);
   }
 
+  isPlatilloActivo(platillo: Platillo): boolean {
+    return platillo.status === 1 || platillo.status === '1';
+  }
+
   isPlatilloPublico(platillo: Platillo): boolean {
     return platillo.es_publico === 1 || platillo.es_publico === '1';
+  }
+
+  tieneUsuariosAsignados(platillo: Platillo): boolean {
+    return !!(platillo.usuarios_asignados && platillo.usuarios_asignados.length > 0);
   }
 
   canEditOrDelete(platillo: Platillo): boolean {
     const currentUserRole = this.userRole.toUpperCase();
     const platilloCreadorId = platillo.creador_id.toString();
     const currentUserId = this.currentUserId.toString();
+
+    // Si el platillo tiene usuarios asignados, solo permitir ver
+    if (this.tieneUsuariosAsignados(platillo)) {
+      return false;
+    }
 
     if (currentUserRole === 'ADMIN') {
       return true;
@@ -472,6 +958,22 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
     }
 
     return false;
+  }
+
+  verDetallesPlatillo(platillo: Platillo): void {
+    const modalRef = this.modalService.open(AltaPlatillos, {
+      backdrop: 'static',
+      size: 'lg',
+      scrollable: true
+    });
+
+    modalRef.componentInstance.platilloData = platillo;
+    modalRef.componentInstance.isEdit = true; // Usar modo edición para cargar datos
+    modalRef.componentInstance.isViewOnly = true; // Modo solo lectura
+
+    modalRef.result.then(() => {
+      // No hacer nada cuando se cierre
+    }).catch(() => { });
   }
 
   openModalAltaPlatillos(item?: any, edit?: boolean): void {

@@ -1,6 +1,6 @@
 <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));">
     <h4 class="modal-title fw-bold text-white d-flex align-items-center">
-        <i class="fas fa-{{ isEdit ? 'edit' : 'utensils' }} me-2"></i>
+        <i class="fas fa-{{ isViewOnly ? 'eye' : (isEdit ? 'edit' : 'utensils') }} me-2"></i>
         {{ modalTitle }}
     </h4>
     <button type="button" class="btn-close btn-close-white" (click)="onCancel()"></button>
@@ -174,10 +174,10 @@
 
                     <!-- Descripción -->
                     <div class="col-12">
-                        <label class="form-label fw-semibold text-gray-700">Descripción *</label>
+                        <label class="form-label fw-semibold text-gray-700">Pasos *</label>
                         <textarea class="form-control" [class.is-invalid]="isFieldInvalid('descripcion')"
                             formControlName="descripcion"
-                            placeholder="Describe el platillo, sus beneficios y características..." rows="3"></textarea>
+                            placeholder="Describe el proceso, sus beneficios y características..." rows="3"></textarea>
                         <div *ngIf="isFieldInvalid('descripcion')" class="invalid-feedback">{{
                             getFieldError('descripcion') }}</div>
                     </div>
@@ -267,7 +267,7 @@
                     Ingredientes ({{ ingredientesArray.length }}/15)
                 </h5>
                 <button type="button" class="btn btn-sm btn-outline-light" (click)="agregarIngrediente()"
-                    [disabled]="ingredientesArray.length >= 15">
+                    [disabled]="ingredientesArray.length >= 15 || isViewOnly">
                     <i class="fas fa-plus me-1"></i>
                     Agregar
                 </button>
@@ -286,7 +286,7 @@
 
                         <!-- Botón eliminar rediseñado -->
                         <button type="button" class="btn btn-danger btn-sm position-absolute eliminate-btn-improved"
-                            [disabled]="ingredientesArray.length <= 1" (click)="eliminarIngrediente(i)"
+                            [disabled]="ingredientesArray.length <= 1 || isViewOnly" (click)="eliminarIngrediente(i)"
                             title="Eliminar ingrediente">
                         </button>
 
@@ -398,20 +398,20 @@
                     </div>
 
                     <!-- Estado vacío mejorado -->
-                    <div *ngIf="ingredientesArray.length === 0" class="empty-state py-5 text-center">
+                    <div *ngIf="ingredientesArray.length === 0 && !isViewOnly" class="empty-state py-5 text-center">
                         <div class="mb-3">
                             <i class="fas fa-carrot text-warning" style="font-size: 3rem;"></i>
                         </div>
                         <h6 class="text-muted mb-2">No hay ingredientes agregados</h6>
                         <p class="text-muted small mb-3">Agrega al menos un ingrediente para continuar</p>
-                        <button type="button" class="btn btn-warning" (click)="agregarIngrediente()">
+                        <button type="button" class="btn btn-warning" (click)="agregarIngrediente()" [disabled]="isViewOnly">
                             <i class="fas fa-plus me-2"></i>
                             Agregar primer ingrediente
                         </button>
                     </div>
 
                     <!-- Botón agregar más ingredientes mejorado -->
-                    <div *ngIf="ingredientesArray.length > 0 && ingredientesArray.length < 15" class="text-center mt-4">
+                    <div *ngIf="ingredientesArray.length > 0 && ingredientesArray.length < 15 && !isViewOnly" class="text-center mt-4">
                         <div
                             class="add-ingredient-section p-4 rounded-3 border-2 border-dashed border-warning bg-warning bg-opacity-10">
                             <div class="mb-3">
@@ -421,7 +421,7 @@
                             <p class="text-muted small mb-3">Puedes agregar hasta {{ 15 - ingredientesArray.length }}
                                 ingredientes más</p>
                             <button type="button" class="btn btn-warning btn-lg px-4 py-2 shadow-sm"
-                                (click)="agregarIngrediente()">
+                                (click)="agregarIngrediente()" [disabled]="isViewOnly">
                                 <i class="fas fa-plus me-2"></i>
                                 Agregar otro ingrediente
                                 <i class="fas fa-arrow-right ms-2"></i>
@@ -527,14 +527,14 @@
                     </div>
 
                     <!-- Estado vacío -->
-                    <div *ngIf="configuracionesArray.length === 0" class="empty-state py-4 text-center">
+                    <div *ngIf="configuracionesArray.length === 0 && !isViewOnly" class="empty-state py-4 text-center">
                         <div class="mb-3">
                             <i class="fas fa-cogs text-info" style="font-size: 3rem;"></i>
                         </div>
                         <h6 class="text-muted mb-2">Configuración nutricional requerida</h6>
                         <p class="text-muted small mb-3">Define el tipo de dieta, comida y objetivo para este platillo
                         </p>
-                        <button type="button" class="btn btn-info" (click)="agregarConfiguracion()">
+                        <button type="button" class="btn btn-info" (click)="agregarConfiguracion()" [disabled]="isViewOnly">
                             <i class="fas fa-plus me-2"></i>
                             Agregar configuración
                         </button>
@@ -562,52 +562,56 @@
                 <div class="row g-4">
                     <!-- Calorías -->
                     <div class="col-6 col-lg-3">
-                        <div class="stat-card h-100 border-0 shadow-sm">
-                            <div class="stat-icon bg-gradient-primary text-white">
-                                <i class="fas fa-fire"></i>
+                        <div class="stat-card h-100 border-0 shadow-sm text-center">
+                            <!-- Círculo de color -->
+                            <div class="d-flex justify-content-center mb-2">
+                                <div class="rounded-circle bg-primary" style="width: 25px; height: 25px;"></div>
                             </div>
                             <div class="stat-content">
                                 <h4 class="stat-value text-primary fw-bold mb-1">{{ platilloForm.get('calorias')?.value || 0 }}</h4>
-                                <p class="stat-label text-muted small mb-0">Calorías</p>
+                                <p class="stat-label text-muted small mb-0 text-uppercase">Calorías</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Proteínas -->
                     <div class="col-6 col-lg-3">
-                        <div class="stat-card h-100 border-0 shadow-sm">
-                            <div class="stat-icon bg-gradient-danger text-white">
-                                <i class="fas fa-dumbbell"></i>
+                        <div class="stat-card h-100 border-0 shadow-sm text-center">
+                            <!-- Círculo de color -->
+                            <div class="d-flex justify-content-center mb-2">
+                                <div class="rounded-circle bg-danger" style="width: 25px; height: 25px;"></div>
                             </div>
                             <div class="stat-content">
                                 <h4 class="stat-value text-danger fw-bold mb-1">{{ platilloForm.get('proteinas')?.value || 0 }}g</h4>
-                                <p class="stat-label text-muted small mb-0">Proteínas</p>
+                                <p class="stat-label text-muted small mb-0 text-uppercase">Proteínas</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Carbohidratos -->
                     <div class="col-6 col-lg-3">
-                        <div class="stat-card h-100 border-0 shadow-sm">
-                            <div class="stat-icon bg-gradient-warning text-white">
-                                <i class="fas fa-bread-slice"></i>
+                        <div class="stat-card h-100 border-0 shadow-sm text-center">
+                            <!-- Círculo de color -->
+                            <div class="d-flex justify-content-center mb-2">
+                                <div class="rounded-circle bg-warning" style="width: 25px; height: 25px;"></div>
                             </div>
                             <div class="stat-content">
                                 <h4 class="stat-value text-warning fw-bold mb-1">{{ platilloForm.get('carbohidratos')?.value || 0 }}g</h4>
-                                <p class="stat-label text-muted small mb-0">Carbohidratos</p>
+                                <p class="stat-label text-muted small mb-0 text-uppercase">Carbohidratos</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Grasas -->
                     <div class="col-6 col-lg-3">
-                        <div class="stat-card h-100 border-0 shadow-sm">
-                            <div class="stat-icon bg-gradient-success text-white">
-                                <i class="fas fa-oil-can"></i>
+                        <div class="stat-card h-100 border-0 shadow-sm text-center">
+                            <!-- Círculo de color -->
+                            <div class="d-flex justify-content-center mb-2">
+                                <div class="rounded-circle bg-success" style="width: 25px; height: 25px;"></div>
                             </div>
                             <div class="stat-content">
                                 <h4 class="stat-value text-success fw-bold mb-1">{{ platilloForm.get('grasas')?.value || 0 }}g</h4>
-                                <p class="stat-label text-muted small mb-0">Grasas</p>
+                                <p class="stat-label text-muted small mb-0 text-uppercase">Grasas</p>
                             </div>
                         </div>
                     </div>
@@ -617,39 +621,41 @@
                 <div class="row g-4 mt-2">
                     <!-- Ingredientes -->
                     <div class="col-6 col-md-3">
-                        <div class="stat-card h-100 border-0 shadow-sm">
-                            <div class="stat-icon bg-gradient-info text-white">
-                                <i class="fas fa-carrot"></i>
+                        <div class="stat-card h-100 border-0 shadow-sm text-center">
+                            <!-- Círculo de color -->
+                            <div class="d-flex justify-content-center mb-2">
+                                <div class="rounded-circle bg-info" style="width: 25px; height: 25px;"></div>
                             </div>
                             <div class="stat-content">
                                 <h4 class="stat-value text-info fw-bold mb-1">{{ ingredientesArray.length }}/15</h4>
-                                <p class="stat-label text-muted small mb-0">Ingredientes</p>
+                                <p class="stat-label text-muted small mb-0 text-uppercase">Ingredientes</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Tiempo -->
                     <div class="col-6 col-md-3">
-                        <div class="stat-card h-100 border-0 shadow-sm">
-                            <div class="stat-icon bg-gradient-secondary text-white">
-                                <i class="fas fa-clock"></i>
+                        <div class="stat-card h-100 border-0 shadow-sm text-center">
+                            <!-- Círculo de color -->
+                            <div class="d-flex justify-content-center mb-2">
+                                <div class="rounded-circle bg-secondary" style="width: 25px; height: 25px;"></div>
                             </div>
                             <div class="stat-content">
                                 <h4 class="stat-value text-secondary fw-bold mb-1">{{
                                     platilloForm.get('tiempo_preparacion')?.value || 0 }}</h4>
-                                <p class="stat-label text-muted small mb-0">Minutos</p>
+                                <p class="stat-label text-muted small mb-0 text-uppercase">Minutos</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Configuración -->
                     <div class="col-6 col-md-3">
-                        <div class="stat-card h-100 border-0 shadow-sm">
-                            <div class="stat-icon text-white"
-                                [class.bg-gradient-warning]="configuracionesArray.length > 0"
-                                [class.bg-secondary]="configuracionesArray.length === 0">
-                                <i
-                                    class="fas fa-{{ configuracionesArray.length > 0 ? 'check-circle' : 'exclamation-circle' }}"></i>
+                        <div class="stat-card h-100 border-0 shadow-sm text-center">
+                            <!-- Círculo de color -->
+                            <div class="d-flex justify-content-center mb-2">
+                                <div class="rounded-circle" style="width: 25px; height: 25px;"
+                                    [class.bg-warning]="configuracionesArray.length > 0"
+                                    [class.bg-secondary]="configuracionesArray.length === 0"></div>
                             </div>
                             <div class="stat-content">
                                 <h4 class="stat-value fw-bold mb-1"
@@ -657,20 +663,21 @@
                                     [class.text-secondary]="configuracionesArray.length === 0">
                                     {{ configuracionesArray.length > 0 ? 'Completo' : 'Pendiente' }}
                                 </h4>
-                                <p class="stat-label text-muted small mb-0">Estado</p>
+                                <p class="stat-label text-muted small mb-0 text-uppercase">Estado</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Progreso -->
                     <div class="col-6 col-md-3">
-                        <div class="stat-card h-100 border-0 shadow-sm">
-                            <div class="stat-icon bg-gradient-primary text-white">
-                                <i class="fas fa-chart-pie"></i>
+                        <div class="stat-card h-100 border-0 shadow-sm text-center">
+                            <!-- Círculo de color -->
+                            <div class="d-flex justify-content-center mb-2">
+                                <div class="rounded-circle bg-primary" style="width: 25px; height: 25px;"></div>
                             </div>
                             <div class="stat-content">
                                 <h4 class="stat-value text-primary fw-bold mb-1">{{ getFormProgress() }}%</h4>
-                                <p class="stat-label text-muted small mb-0">Completado</p>
+                                <p class="stat-label text-muted small mb-0 text-uppercase">Completado</p>
                             </div>
                         </div>
                     </div>
@@ -696,15 +703,26 @@
 
 <div class="modal-footer bg-light p-3">
     <div class="d-flex flex-column flex-md-row gap-2 w-100 w-md-auto">
-        <button type="button" class="btn btn-secondary order-2 order-md-1" (click)="onCancel()" [disabled]="loading">
-            <i class="fas fa-times me-2"></i>
-            Cancelar
-        </button>
-        <button type="button" class="btn btn-{{ isEdit ? 'primary' : 'success' }} order-1 order-md-2"
-            (click)="onSubmit()" [disabled]="loading || platilloForm.invalid">
-            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-            <i *ngIf="!loading" class="fas fa-{{ isEdit ? 'save' : 'utensils' }} me-2"></i>
-            {{ submitButtonText }}
-        </button>
+        <!-- Modo solo lectura: solo botón cerrar -->
+        <div *ngIf="isViewOnly" class="w-100 d-flex justify-content-center">
+            <button type="button" class="btn btn-primary" (click)="onSubmit()">
+                <i class="fas fa-eye me-2"></i>
+                {{ submitButtonText }}
+            </button>
+        </div>
+        
+        <!-- Modo edición/creación: botones cancelar y guardar -->
+        <ng-container *ngIf="!isViewOnly">
+            <button type="button" class="btn btn-secondary order-2 order-md-1" (click)="onCancel()" [disabled]="loading">
+                <i class="fas fa-times me-2"></i>
+                Cancelar
+            </button>
+            <button type="button" class="btn btn-{{ isEdit ? 'primary' : 'success' }} order-1 order-md-2"
+                (click)="onSubmit()" [disabled]="loading || platilloForm.invalid">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                <i *ngIf="!loading" class="fas fa-{{ isEdit ? 'save' : 'utensils' }} me-2"></i>
+                {{ submitButtonText }}
+            </button>
+        </ng-container>
     </div>
 </div>

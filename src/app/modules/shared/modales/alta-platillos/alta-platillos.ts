@@ -88,6 +88,7 @@ export class AltaPlatillos implements OnInit, OnDestroy {
 
   @Input() platilloData: PlatilloData | null = null;
   @Input() isEdit: boolean = false;
+  @Input() isViewOnly: boolean = false;
 
   loading = false;
   isLoadingConfig = false;
@@ -151,6 +152,11 @@ export class AltaPlatillos implements OnInit, OnDestroy {
 
     this.isFormReady = true;
     this.cdr.markForCheck();
+
+    // Deshabilitar formulario si está en modo solo lectura
+    if (this.isViewOnly) {
+      this.platilloForm.disable();
+    }
 
     if (this.isEdit && this.platilloData) {
       this.isLoadingData = true;
@@ -330,6 +336,11 @@ export class AltaPlatillos implements OnInit, OnDestroy {
 
     this.cdr.detectChanges();
 
+    if (this.isViewOnly) {
+      this.ingredientesArray.disable();
+      this.configuracionesArray.disable();
+    }
+
     setTimeout(() => {
       if (this.configuracionesArray.length > 0) {
         const config = this.configuracionesArray.at(0);
@@ -477,6 +488,12 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+    // Si está en modo solo lectura, simplemente cerrar el modal
+    if (this.isViewOnly) {
+      this.activeModal.close();
+      return;
+    }
+
     if (this.platilloForm.invalid) {
       this.markFormGroupTouched();
       this.scrollToFirstError();
@@ -785,10 +802,16 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   }
 
   get modalTitle(): string {
+    if (this.isViewOnly) {
+      return 'Ver Detalles del Platillo';
+    }
     return this.isEdit ? 'Editar Platillo' : 'Crear Nuevo Platillo';
   }
 
   get submitButtonText(): string {
+    if (this.isViewOnly) {
+      return 'Cerrar';
+    }
     return this.isEdit ? 'Actualizar Platillo' : 'Crear Platillo';
   }
 

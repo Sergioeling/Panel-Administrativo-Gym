@@ -40,6 +40,23 @@
   }
 }
 
+// Estados específicos
+.bg-red-50 {
+  background-color: rgba(248, 113, 113, 0.1) !important;
+  border-left: 3px solid #ef4444 !important;
+  
+  // Para las cards móviles
+  &.user-card {
+    border: 1px solid rgba(239, 68, 68, 0.2) !important;
+    box-shadow: 0 4px 6px rgba(239, 68, 68, 0.1), 0 1px 3px rgba(239, 68, 68, 0.08) !important;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 15px rgba(239, 68, 68, 0.15), 0 3px 6px rgba(239, 68, 68, 0.1) !important;
+    }
+  }
+}
+
 // Clases de utilidad
 .fade-in {
   animation: slideInUp 0.3s ease-out;
