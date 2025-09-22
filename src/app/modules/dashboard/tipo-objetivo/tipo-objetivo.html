@@ -1,0 +1,207 @@
+<div class="w-full max-w-screen-2xl mx-auto p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div class="flex items-center gap-3">
+            <div class="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg">
+                <i class="bi bi-bullseye text-white text-lg sm:text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-1">Tipos de Objetivo</h1>
+                <p class="text-sm sm:text-base text-gray-600">Gestiona y consulta los objetivos disponibles</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+            <!-- 🔹 Botón Agregar Tipo de Objetivo -->
+            <button *ngIf="!isMobile" (click)="openModalAltaTipoObjetivo(undefined, false)"
+                class="btn-add-user w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">
+                <i class="bi bi-plus-circle me-2 text-base"></i>
+                <span class="hidden sm:inline">Agregar</span> TipoDeObjetivo
+            </button>
+            
+
+            <!-- 🔹 Botón Agregar Tipo de Objetivo 
+            <button *ngIf="!isMobile" 
+                class="btn-add-user w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">
+                <i class="bi bi-plus-circle me-2 text-base"></i>
+                <span class="hidden sm:inline">Agregar</span> TipoDeObjetivo
+            </button>
+            -->
+            <!-- Buscador -->
+            <div class="relative w-full sm:w-auto">
+                <div class="search-container">
+                    <div class="search-input-wrapper">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" [value]="search" (input)="applyFilter($any($event.target).value)"
+                            placeholder="Buscar objetivo..." class="search-input" autocomplete="off">
+                        <button *ngIf="search" (click)="clearSearch()" class="clear-btn" title="Limpiar búsqueda">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+
+                    <!-- Indicador resultados -->
+                    <div *ngIf="search" class="search-results-indicator">
+                        <span class="results-count">
+                            <i class="bi bi-list-check me-1"></i>
+                            {{ filteredData.length }} resultado{{ filteredData.length !== 1 ? 's' : '' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card estadísticas -->
+    <div *ngIf="!loading && dataSource.data.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
+        <div class="stat-card text-left">
+            <div class="stat-icon bg-indigo-100 mb-2">
+                <i class="bi bi-bullseye text-indigo-600"></i>
+            </div>
+            <p class="stat-number text-2xl font-bold text-gray-800">
+                {{ dataSource.data.length }}
+            </p>
+            <p class="stat-label text-sm text-gray-600">Total de objetivos</p>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-card">
+        <div class="flex items-center justify-center gap-3">
+            <div class="spinner"></div>
+            <span class="text-gray-700">Cargando objetivos...</span>
+        </div>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="!loading && errorMsg" class="error-card">
+        <div class="flex items-center gap-3">
+            <i class="bi bi-exclamation-triangle text-red-500 text-xl"></i>
+            <div>
+                <p class="font-semibold text-red-700">Error al cargar</p>
+                <p class="text-sm text-red-600">{{ errorMsg }}</p>
+            </div>
+            <button (click)="retryLoad()" class="ml-auto btn btn-sm btn-outline-danger">
+                Reintentar
+            </button>
+        </div>
+    </div>
+
+    <!-- Desktop/Tablet Table -->
+    <div class="hidden md:block" *ngIf="!loading && dataSource.data.length > 0">
+        <div class="table-container">
+            <table mat-table [dataSource]="dataSource" matSort class="nutrition-table w-full">
+
+                <!-- ID -->
+                <ng-container matColumnDef="id">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+                    <td mat-cell *matCellDef="let el">{{ el.id }}</td>
+                </ng-container>
+
+                <!-- Nombre -->
+                <ng-container matColumnDef="nombre">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                        <i class="bi bi-card-text me-2"></i>Nombre
+                    </th>
+                    <td mat-cell *matCellDef="let el" class="font-medium text-gray-800">
+                        {{ el.nombre }}
+                    </td>
+                </ng-container>
+
+                <!-- Acciones -->
+                <ng-container matColumnDef="acciones">
+                    <th mat-header-cell *matHeaderCellDef>
+                        <i class="bi bi-gear me-2"></i>Acciones
+                    </th>
+                    <td mat-cell *matCellDef="let el">
+                        <div class="flex items-center justify-center gap-3">
+                            <!-- Toggle -->
+                            <div class="custom-toggle" [class.active]="isObjetivoActivo(el)"
+                                (click)="toggleObjetivoActivo(el, !isObjetivoActivo(el))">
+                                <div class="toggle-thumb"></div>
+                            </div>
+                            <span class="text-xs hidden lg:inline"
+                                [class]="isObjetivoActivo(el) ? 'text-green-600 font-medium' : 'text-red-500 font-medium'">
+                                {{ isObjetivoActivo(el) ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- Headers -->
+                <tr mat-header-row *matHeaderRowDef="displayedColumns" class="table-header"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
+            </table>
+
+            <!-- Paginator -->
+            <mat-paginator [pageSize]="10" [pageSizeOptions]="[5,10,25,50]" class="paginator-custom"
+                showFirstLastButtons>
+            </mat-paginator>
+        </div>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="block md:hidden" *ngIf="!loading">
+        <div class="space-y-3">
+            <div *ngFor="let el of mobilePagedData; trackBy: trackById" class="nutrition-card"
+                [class.objetivo-inactivo]="!isObjetivoActivo(el)">
+
+                <!-- Info + Toggle abajo -->
+                <div class="flex flex-col gap-2">
+                    <div class="min-w-0">
+                        <h3 class="font-semibold text-gray-800 text-base truncate"
+                            [class.text-gray-500]="!isObjetivoActivo(el)">{{ el.nombre }}</h3>
+                        <p class="text-sm text-gray-600 truncate" [class.text-gray-500]="!isObjetivoActivo(el)">
+                            ID: {{ el.id }}
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-2 mt-1">
+                        <div class="custom-toggle-mobile" [class.active]="isObjetivoActivo(el)"
+                            (click)="toggleObjetivoActivo(el, !isObjetivoActivo(el))">
+                            <div class="toggle-thumb-mobile"></div>
+                        </div>
+                        <span class="text-xs font-medium"
+                            [class]="isObjetivoActivo(el) ? 'text-green-600' : 'text-red-500'">
+                            {{ isObjetivoActivo(el) ? 'Activo' : 'Inactivo' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Pagination -->
+        <div *ngIf="mobileTotalPages > 1" class="mobile-pagination mt-6">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm text-gray-600">
+                    Página {{ mobileCurrentPage + 1 }} de {{ mobileTotalPages }}
+                </span>
+            </div>
+
+            <div class="flex items-center justify-center gap-2">
+                <button (click)="previousMobilePage()" [disabled]="mobileCurrentPage === 0" class="pagination-btn"
+                    [class.disabled]="mobileCurrentPage === 0">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+
+                <div class="flex items-center gap-1">
+                    <button *ngFor="let page of getMobilePageNumbers()" (click)="onMobilePageChange(page)"
+                        class="pagination-number" [class.active]="page === mobileCurrentPage">
+                        {{ page + 1 }}
+                    </button>
+                </div>
+
+                <button (click)="nextMobilePage()" [disabled]="mobileCurrentPage >= mobileTotalPages - 1"
+                    class="pagination-btn" [class.disabled]="mobileCurrentPage >= mobileTotalPages - 1">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔹 FAB móvil -->
+    <button *ngIf="isMobile" class="fab" (click)="openModalAltaTipoObjetivo(undefined, false)">
+        <i class="bi bi-plus text-xl"></i>
+    </button>
+    
+</div>

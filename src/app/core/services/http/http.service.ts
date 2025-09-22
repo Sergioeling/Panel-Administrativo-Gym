@@ -93,10 +93,20 @@ export class HttpServices {
   crearAlimento(alimentoData: any): Observable<any> {
     return this.post('alimentos', alimentoData);
   }
-
   actualizarAlimento(AlimentoData: any): Observable<any> {
     return this.put('alimentos', AlimentoData);
   }
+  //-----CREACION DE TIPOS
+  crearTipoObjetivo(tipoObjetivoData: any): Observable<any> {
+    return this.post('tipos-objetivo', tipoObjetivoData);
+  }
+  crearTipoDieta(tipoObjetivoData: any): Observable<any> {
+    return this.post('tipos-dieta', tipoObjetivoData);
+  }
+  crearTipoComida(tipoObjetivoData: any): Observable<any> {
+    return this.post('alimentos', tipoObjetivoData);
+  }
+  
 
   login(credenciales: any): Observable<any> {
     return this.post('login', credenciales);
@@ -117,6 +127,18 @@ export class HttpServices {
   actualizarStatusUsuario(userId: number, statusData: any): Observable<any> {
     return this.put(`usuarios&id=${userId}`, statusData);
   }
+
+  //-------- ACTULIZACION 
+  actualizarStatusObjetivo(userId: number, statusData: any): Observable<any> {
+    return this.put(`tipos-objetivo&id=${userId}`, statusData);
+  }
+  actualizarStatusTipoComida(userId: number, statusData: any): Observable<any> {
+    return this.put(`tipos-comida&id=${userId}`, statusData);
+  }
+  actualizarStatusDieta(userId: number, statusData: any): Observable<any> {
+    return this.put(`tipos-dieta&id=${userId}`, statusData);
+  }
+  //------
 
   getUsuarios(): Observable<any> {
     return this.get('perfil');

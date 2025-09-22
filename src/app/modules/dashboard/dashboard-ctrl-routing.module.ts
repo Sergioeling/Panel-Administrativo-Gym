@@ -6,13 +6,21 @@ import { Perfil } from './perfil/perfil';
 import { ListaUsers } from './lista-users/lista-users';
 import { alimentos } from './alimentos/alimentos';
 import { Platillos } from './platillos/platillos';
+import { TipoComidaComponent } from './tipo-comida/tipo-comida';
 import { authGuard } from '../../core/guards/auth.guard';
 import path from 'path';
+import { Component } from '@angular/compiler';
+import { permission } from 'process';
+import { TipoObjetivoComponent } from './tipo-objetivo/tipo-objetivo';
+import { TipoDietaComponent } from './tipo-dieta/tipo-dieta';
 
 const userRoutes = {
   ADMIN: [
     { path: 'miembros', component: ListaUsers, data: { permission: null } },
     { path: 'alimentos', component: alimentos, data: { permission: null } },
+    { path: 'tipo_comida', component: TipoComidaComponent, data: {permission: null}},
+    { path: 'tipo_objetivo', component: TipoObjetivoComponent, data: {permission: null}},
+    { path: 'tipo_dieta', component: TipoDietaComponent, data: {permission: null}}
   ],
   NUTRICIONISTA: [
     { path: 'inicio', component: Inicio, data: { permission: null } },

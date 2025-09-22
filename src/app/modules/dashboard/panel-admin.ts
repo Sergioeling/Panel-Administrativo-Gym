@@ -154,6 +154,9 @@ export class PanelAdmin implements OnInit {
       {
         title: 'Administración', icon: null, bi: 'bi-gear', id: 'admin', role: 'ADMIN', options: [
           { title: 'Lista de Usuarios', route: 'miembros', role: 'ADMIN', icon: null, bi: 'bi-people' },
+          { title: 'Tipos de comida', route: 'tipo_comida', role: 'ADMIN', icon: null, bi: 'bi-basket'},
+        { title: 'Tipos de dieta', route: 'tipo_dieta', role: 'ADMIN', icon: null, bi: 'bi-cup-hot'},
+          { title: 'Tipos de objetivos', route: 'tipo_objetivo', role: 'ADMIN', icon: null, bi: 'bi-bullseye'}
 
         ]
       },
