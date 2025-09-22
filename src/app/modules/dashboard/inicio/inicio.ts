@@ -116,7 +116,7 @@ export class Inicio implements OnInit, OnDestroy {
         title: 'Mis Alimentos',
         description: 'Ver alimentos que he creado como nutricionista',
         icon: 'bi-egg-fried',
-        route: 'alimento-nuticionista',
+        route: 'platillos-nutricionista',
         color: 'from-green-500 to-green-600',
         permission: ['NUTRICIONISTA']
       },

@@ -144,11 +144,34 @@ export class HttpServices {
   }
 
   crearPlatillo(platilloData: any): Observable<any> {
-    return this.post('platillos', platilloData);
+    const url = `${this.url}platillos`;
+    const headers = new HttpHeaders({
+      'Authorization': AppSettingsService.getHeaders(true)['Authorization']
+    });
+    
+    return this.http.post(url, platilloData, { headers }).pipe(
+      map((resp: any) => resp),
+      catchError((error) => {
+        console.error('Error en POST platillos:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
-  actualizarPlatillo(platilloData: any): Observable<any> {
-    return this.put(`platillos&id=${platilloData.id}`, platilloData);
+  actualizarPlatillo(platilloData: FormData, platilloId?: string | number): Observable<any> {
+    const id = platilloId || platilloData.get('id');
+    const url = `${this.url}platillos&id=${id}`;
+    const headers = new HttpHeaders({
+      'Authorization': AppSettingsService.getHeaders(true)['Authorization']
+    });
+    
+    return this.http.put(url, platilloData, { headers }).pipe(
+      map((resp: any) => resp),
+      catchError((error) => {
+        console.error('Error en PUT platillos:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   eliminarPlatillo(platilloId: number): Observable<any> {

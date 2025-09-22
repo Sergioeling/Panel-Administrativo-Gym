@@ -215,7 +215,7 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
 
   private intentarConfigurarPaginator(intentos: number = 0): void {
     const maxIntentos = 5;
-    
+
     if (this.isMobile) {
       this.updateMobilePagination();
       return;
@@ -293,6 +293,27 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
 
   getMobilePageNumbers(): number[] {
     return Array.from({ length: this.mobileTotalPages }, (_, i) => i);
+  }
+
+  getVisibleMobilePages(): number[] {
+    const maxVisible = 5; // Máximo 5 páginas visibles
+    const totalPages = this.mobileTotalPages;
+    const currentPage = this.mobileCurrentPage;
+    
+    if (totalPages <= maxVisible) {
+      // Si hay 5 o menos páginas, mostrar todas
+      return Array.from({ length: totalPages }, (_, i) => i);
+    }
+    
+    let start = Math.max(0, currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(totalPages - 1, start + maxVisible - 1);
+    
+    // Ajustar si estamos cerca del final
+    if (end - start + 1 < maxVisible) {
+      start = Math.max(0, end - maxVisible + 1);
+    }
+    
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 
   get filteredData(): Platillo[] {
@@ -958,6 +979,17 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
     }
 
     return false;
+  }
+
+  handleImageError(event: any): void {
+    if (event.target) {
+      event.target.style.display = 'none';
+      const placeholder = event.target.nextElementSibling;
+      if (placeholder) {
+        placeholder.style.display = 'flex';
+      }
+      event.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMCAyMkMyMS4xMDQ2IDIyIDIyIDIxLjEwNDYgMjIgMjBDMjIgMTguODk1NCAyMS4xMDQ2IDE4IDIwIDE4QzE4Ljg5NTQgMTggMTggMTguODk1NCAxOCAyMEMxOCAyMS4xMDQ2IDE4Ljg5NTQgMjIgMjAgMjJaIiBmaWxsPSIjOUI5QjlCIi8+CjxwYXRoIGQ9Ik0yNiAyOEgyNFYyNkgyNlYyOFoiIGZpbGw9IiM5QjlCOUIiLz4KPC9zdmc+';
+    }
   }
 
   verDetallesPlatillo(platillo: Platillo): void {

@@ -15,8 +15,8 @@ interface PlatilloData {
   carbohidratos: number | string;
   grasas: number | string;
   tiempo_preparacion: number | string;
-  imagen_url: string;
   es_publico: number | string;
+  imagen_url?: string;
   creador_id?: string;
   creador_nombre?: string;
   tipos_dieta?: string;
@@ -117,6 +117,9 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   alimentoNotFound: boolean[] = [];
   alimentoSelected: boolean[] = [];
 
+  selectedImageFile: File | null = null;
+  selectedImagePreview: string | null = null;
+
   constructor() {
     this.platilloForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3)]],
@@ -126,7 +129,6 @@ export class AltaPlatillos implements OnInit, OnDestroy {
       carbohidratos: [0, [Validators.required, Validators.min(0)]],
       grasas: [0, [Validators.required, Validators.min(0)]],
       tiempo_preparacion: [0, [Validators.required, Validators.min(1)]],
-      imagen_url: [''],
       es_publico: [1, Validators.required],
       ingredientes: this.fb.array([]),
       configuraciones: this.fb.array([])
@@ -283,6 +285,8 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   }
 
   private cargarDatosFormulario(platilloData: PlatilloData): void {
+    console.log('Cargando datos del platillo:', platilloData);
+    
     const platilloFormData: any = {};
     Object.keys(this.platilloForm.controls).forEach(key => {
       if (key !== 'ingredientes' && key !== 'configuraciones') {
@@ -341,6 +345,19 @@ export class AltaPlatillos implements OnInit, OnDestroy {
       this.configuracionesArray.disable();
     }
 
+    // Cargar imagen existente si está disponible
+    if (platilloData.imagen_url && platilloData.imagen_url.trim() !== '') {
+      this.selectedImagePreview = platilloData.imagen_url;
+      console.log('Imagen cargada para edición:', platilloData.imagen_url);
+      console.log('selectedImagePreview establecido a:', this.selectedImagePreview);
+    } else {
+      this.selectedImagePreview = null;
+      console.log('No hay imagen para cargar en edición, imagen_url:', platilloData.imagen_url);
+    }
+
+    // Forzar detección de cambios después de cargar la imagen
+    this.cdr.detectChanges();
+
     setTimeout(() => {
       if (this.configuracionesArray.length > 0) {
         const config = this.configuracionesArray.at(0);
@@ -395,6 +412,49 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     this.alimentoNotFound[index] = false;
     this.alimentoSelected[index] = true;
     this.cdr.markForCheck();
+  }
+
+  onImageSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        this.errorMsg = 'La imagen no puede ser mayor a 5MB';
+        return;
+      }
+
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        this.errorMsg = 'Solo se permiten archivos JPG, PNG y GIF';
+        return;
+      }
+
+      this.selectedImageFile = file;
+      
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.selectedImagePreview = e.target.result;
+        this.cdr.markForCheck();
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  handleImageError(event: any): void {
+    if (event.target) {
+      console.warn('Error al cargar imagen:', event.target.src);
+      // Ocultar la imagen que falló y mostrar un placeholder
+      event.target.style.display = 'none';
+      
+      // Crear un elemento de reemplazo si no existe
+      let placeholder = event.target.nextElementSibling;
+      if (!placeholder || !placeholder.classList.contains('image-error-placeholder')) {
+        placeholder = document.createElement('div');
+        placeholder.className = 'image-error-placeholder mt-2 p-3 border rounded text-center text-muted';
+        placeholder.innerHTML = '<i class="fas fa-image-slash fa-2x mb-2"></i><br><small>Error al cargar la imagen</small>';
+        event.target.parentNode.insertBefore(placeholder, event.target.nextSibling);
+      }
+    }
   }
 
   getAlimentoSearch(index: number): string {
@@ -557,27 +617,43 @@ export class AltaPlatillos implements OnInit, OnDestroy {
       return;
     }
 
-    const formData = {
-      nombre: rawFormData.nombre?.trim(),
-      descripcion: rawFormData.descripcion?.trim(),
-      calorias: Number(rawFormData.calorias) || 0,
-      proteinas: Number(rawFormData.proteinas) || 0,
-      carbohidratos: Number(rawFormData.carbohidratos) || 0,
-      grasas: Number(rawFormData.grasas) || 0,
-      tiempo_preparacion: Number(rawFormData.tiempo_preparacion) || 0,
-      imagen_url: rawFormData.imagen_url?.trim() || '',
-      es_publico: Number(rawFormData.es_publico) || 0,
-      ingredientes: ingredientesValidos.map((ing: any) => ({
-        alimento_id: Number(ing.alimento_id),
-        cantidad: Number(ing.cantidad),
-        unidad_medida: ing.unidad_medida
-      })),
-      configuraciones: configuracionesValidas.map((config: any) => ({
-        tipo_dieta_id: Number(config.tipo_dieta_id),
-        tipo_comida_id: Number(config.tipo_comida_id),
-        tipo_objetivo_id: Number(config.tipo_objetivo_id)
-      }))
-    };
+    const formData = new FormData();
+    
+    // Si estamos en modo edición, agregar el ID
+    if (this.isEdit && this.platilloData?.id) {
+      formData.append('id', this.platilloData.id);
+    }
+    
+    formData.append('nombre', rawFormData.nombre?.trim() || '');
+    formData.append('descripcion', rawFormData.descripcion?.trim() || '');
+    formData.append('calorias', String(Number(rawFormData.calorias) || 0));
+    formData.append('proteinas', String(Number(rawFormData.proteinas) || 0));
+    formData.append('carbohidratos', String(Number(rawFormData.carbohidratos) || 0));
+    formData.append('grasas', String(Number(rawFormData.grasas) || 0));
+    formData.append('tiempo_preparacion', String(Number(rawFormData.tiempo_preparacion) || 0));
+    formData.append('es_publico', String(Number(rawFormData.es_publico) || 0));
+
+    // Agregar imagen solo si se seleccionó una nueva, o preservar la existente en modo edición
+    if (this.selectedImageFile) {
+      formData.append('imagen', this.selectedImageFile);
+    } else if (this.isEdit && this.platilloData?.imagen_url) {
+      // En modo edición, si no hay nueva imagen pero hay URL existente, enviar la URL actual
+      formData.append('imagen_url_actual', this.platilloData.imagen_url);
+    }
+
+    const ingredientesData = ingredientesValidos.map((ing: any) => ({
+      alimento_id: Number(ing.alimento_id),
+      cantidad: Number(ing.cantidad),
+      unidad_medida: ing.unidad_medida
+    }));
+    formData.append('ingredientes', JSON.stringify(ingredientesData));
+
+    const configuracionesData = configuracionesValidas.map((config: any) => ({
+      tipo_dieta_id: Number(config.tipo_dieta_id),
+      tipo_comida_id: Number(config.tipo_comida_id),
+      tipo_objetivo_id: Number(config.tipo_objetivo_id)
+    }));
+    formData.append('configuraciones', JSON.stringify(configuracionesData));
 
     const action = this.isEdit ? 'actualizar' : 'crear';
 
@@ -592,7 +668,7 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     });
 
     const serviceCall = this.isEdit && this.platilloData?.id
-      ? this.http.actualizarPlatillo({ ...formData, id: this.platilloData.id })
+      ? this.http.actualizarPlatillo(formData)
       : this.http.crearPlatillo(formData);
 
     serviceCall
@@ -761,6 +837,11 @@ export class AltaPlatillos implements OnInit, OnDestroy {
       if (field.errors['minlength']) return `Mínimo ${field.errors['minlength'].requiredLength} caracteres`;
       if (field.errors['min']) return `Valor mínimo: ${field.errors['min'].min}`;
     }
+    
+    if (fieldName === 'imagen' && this.errorMsg && this.errorMsg.includes('imagen')) {
+      return this.errorMsg;
+    }
+    
     return '';
   }
 
@@ -833,6 +914,16 @@ export class AltaPlatillos implements OnInit, OnDestroy {
 
   trackByTipoObjetivo(index: number, tipo: TipoObjetivo): number {
     return tipo.id;
+  }
+
+  // Método de debug para verificar el estado de la imagen
+  debugImageState(): void {
+    console.log('=== DEBUG IMAGE STATE ===');
+    console.log('isEdit:', this.isEdit);
+    console.log('platilloData:', this.platilloData);
+    console.log('selectedImagePreview:', this.selectedImagePreview);
+    console.log('selectedImageFile:', this.selectedImageFile);
+    console.log('==========================');
   }
 
   onDietaChange(event: any) {

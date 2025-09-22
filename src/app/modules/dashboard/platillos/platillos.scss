@@ -575,39 +575,146 @@
 
 // Paginación móvil
 .mobile-pagination {
-  @apply bg-white rounded-xl p-4 shadow-md border border-gray-200;
+  @apply bg-white rounded-xl p-4 shadow-md border border-gray-200 mx-2;
   animation: slideInUp 0.4s ease-out;
+  
+  // Información de paginación mejorada
+  .pagination-info {
+    @apply mb-4 text-center;
+    
+    span {
+      @apply text-sm text-gray-600 font-medium;
+      
+      &:first-child {
+        @apply block mb-1;
+      }
+      
+      &:last-child {
+        @apply text-xs text-gray-500;
+      }
+    }
+  }
+  
+  // Contenedor de botones
+  .pagination-controls {
+    @apply flex items-center justify-center gap-3;
+    
+    // En pantallas muy pequeñas, reducir gap
+    @media (max-width: 380px) {
+      gap: 0.5rem;
+    }
+  }
+  
+  // Indicador de progreso
+  .progress-indicator {
+    @apply mt-3;
+    
+    .progress-bar {
+      @apply w-full bg-gray-200 rounded-full h-1 overflow-hidden;
+      
+      .progress-fill {
+        @apply h-1 rounded-full transition-all duration-500 ease-out;
+        background: linear-gradient(90deg, var(--accent-color), #d97706);
+        box-shadow: 0 0 8px rgba(243, 156, 18, 0.4);
+      }
+    }
+  }
 }
 
 .pagination-btn {
-  @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white border-2 border-gray-200 flex items-center justify-center text-gray-600 font-medium transition-all duration-200;
+  @apply w-10 h-10 rounded-lg bg-white border-2 border-gray-200 flex items-center justify-center text-gray-600 font-medium transition-all duration-200 shadow-sm;
+  min-width: 40px;
+  
+  // Mejor experiencia táctil en móvil
+  &:active {
+    transform: scale(0.95);
+    background-color: rgba(243, 156, 18, 0.1);
+  }
   
   &:hover:not(.disabled) {
     border-color: var(--accent-color);
     color: var(--accent-color);
     background-color: rgba(243, 156, 18, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(243, 156, 18, 0.2);
   }
   
   &.disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    color: #94a3b8;
+  }
+  
+  i {
+    font-size: 16px;
+    line-height: 1;
+  }
+  
+  // En pantallas muy pequeñas
+  @media (max-width: 380px) {
+    @apply w-9 h-9;
+    min-width: 36px;
+    
+    i {
+      font-size: 14px;
+    }
   }
 }
 
 .pagination-number {
-  @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 transition-all duration-200;
+  @apply w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 transition-all duration-200 shadow-sm;
+  min-width: 40px;
+  line-height: 1;
   
-  &:hover {
+  // Mejor experiencia táctil
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  &:hover:not(.active) {
     border-color: var(--accent-color);
     color: var(--accent-color);
     background-color: rgba(243, 156, 18, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(243, 156, 18, 0.2);
   }
   
   &.active {
     background: linear-gradient(135deg, var(--accent-color), #d97706);
     color: white;
     border-color: var(--accent-color);
-    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
+    transform: translateY(-1px);
+    font-weight: 700;
+    
+    // Efecto de pulso sutil para la página activa
+    &::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(135deg, var(--accent-color), #d97706);
+      border-radius: 10px;
+      z-index: -1;
+      opacity: 0.3;
+      animation: pulse 2s infinite;
+    }
+  }
+  
+  // En pantallas muy pequeñas
+  @media (max-width: 380px) {
+    @apply w-9 h-9 text-xs;
+    min-width: 36px;
+  }
+  
+  // Pantallas medianas (iPhone SE, etc.)
+  @media (min-width: 381px) and (max-width: 480px) {
+    @apply w-11 h-11 text-base;
+    min-width: 44px;
   }
 }
 
@@ -654,6 +761,42 @@
   
   .role-badge {
     @apply px-2 py-1 text-xs;
+  }
+  
+  // Mejoras específicas para la paginación móvil
+  .mobile-pagination {
+    @apply mx-1 p-3;
+    
+    .pagination-info span:first-child {
+      @apply text-xs;
+    }
+    
+    .pagination-info span:last-child {
+      @apply text-xs;
+    }
+  }
+}
+
+// Pantallas muy pequeñas (iPhone SE y similares)
+@media (max-width: 380px) {
+  .mobile-pagination {
+    @apply p-2;
+    
+    .pagination-info {
+      @apply mb-3;
+      
+      span:first-child {
+        @apply text-xs font-medium;
+      }
+      
+      span:last-child {
+        @apply text-xs;
+      }
+    }
+    
+    .pagination-controls {
+      gap: 0.25rem;
+    }
   }
 }
 
