@@ -1,0 +1,203 @@
+<div class="w-full max-w-screen-2xl mx-auto p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div class="flex items-center gap-3">
+            <div class="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 shadow-lg">
+                <i class="bi bi-list-ul text-white text-lg sm:text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-1">Tipos de Comida</h1>
+                <p class="text-sm sm:text-base text-gray-600">Gestiona y consulta los tipos de comida disponibles</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+            <!-- 🔹 Botón Agregar Tipo de Comida -->
+            <button *ngIf="!isMobile" (click)="openModalAltaTipoComida(undefined, false)"
+                class="btn-add-user w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">
+                <i class="bi bi-plus-circle me-2 text-base"></i>
+                <span class="hidden sm:inline">Agregar</span> TipoDeComida
+            </button>
+
+            <!-- Buscador -->
+            <div class="relative w-full sm:w-auto">
+                <div class="search-container">
+                    <div class="search-input-wrapper">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" [value]="search" (input)="applyFilter($any($event.target).value)"
+                            placeholder="Buscar tipo de comida..." class="search-input" autocomplete="off">
+                        <button *ngIf="search" (click)="clearSearch()" class="clear-btn" title="Limpiar búsqueda">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+
+                    <!-- Indicador resultados -->
+                    <div *ngIf="search" class="search-results-indicator">
+                        <span class="results-count">
+                            <i class="bi bi-list-check me-1"></i>
+                            {{ filteredData.length }} resultado{{ filteredData.length !== 1 ? 's' : '' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔹 Card con total de tipos de comida-->
+    <div *ngIf="!loading && dataSource.data.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
+        <div class="stat-card">
+            <div class="stat-icon bg-green-100">
+                <i class="bi bi-basket text-green-600"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-number">{{ dataSource.data.length }}</p>
+                <p class="stat-label">Total tipos de comida</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estado cargando -->
+    <div *ngIf="loading" class="loading-card">
+        <div class="flex items-center justify-center gap-3">
+            <div class="spinner"></div>
+            <span class="text-gray-700">Cargando tipos de comida...</span>
+        </div>
+    </div>
+
+    <!-- Estado error -->
+    <div *ngIf="!loading && errorMsg" class="error-card">
+        <div class="flex items-center gap-3">
+            <i class="bi bi-exclamation-triangle text-red-500 text-xl"></i>
+            <div>
+                <p class="font-semibold text-red-700">Error al cargar</p>
+                <p class="text-sm text-red-600">{{ errorMsg }}</p>
+            </div>
+            <button (click)="retryLoad()" class="ml-auto btn btn-sm btn-outline-danger">
+                Reintentar
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabla Desktop/Tablet -->
+    <div class="hidden md:block" *ngIf="!loading && dataSource.data.length > 0">
+        <div class="table-container">
+            <table mat-table [dataSource]="dataSource" matSort class="nutrition-table w-full">
+
+                <!-- ID -->
+                <ng-container matColumnDef="id">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+                    <td mat-cell *matCellDef="let el">{{ el.id }}</td>
+                </ng-container>
+
+                <!-- Nombre -->
+                <ng-container matColumnDef="nombre">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                        <i class="bi bi-card-text me-2"></i>Nombre
+                    </th>
+                    <td mat-cell *matCellDef="let el" class="font-medium text-gray-800">
+                        {{ el.nombre }}
+                    </td>
+                </ng-container>
+
+                <!-- Acciones -->
+                <ng-container matColumnDef="acciones">
+                    <th mat-header-cell *matHeaderCellDef>
+                        <i class="bi bi-gear me-2"></i>ACCIONES
+                    </th>
+                    <td mat-cell *matCellDef="let el">
+                        <div class="flex items-center justify-center gap-3">
+                            <div class="flex items-center gap-2">
+                                <!-- Toggle -->
+                                <div class="custom-toggle" [class.active]="isTipoActivo(el)"
+                                    (click)="toggleTipoActivo(el, !isTipoActivo(el))">
+                                    <div class="toggle-thumb"></div>
+                                </div>
+                                <span class="text-xs hidden lg:inline"
+                                    [class]="isTipoActivo(el) ? 'text-green-600 font-medium' : 'text-red-500 font-medium'">
+                                    {{ isTipoActivo(el) ? 'Activo' : 'Inactivo' }}
+                                </span>
+                            </div>
+                            <!--
+                            <button (click)="editarTipo(el)" class="btn-action edit" title="Editar tipo de comida">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        -->
+                        </div>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row-hover"></tr>
+            </table>
+
+            <!-- Paginador -->
+            <mat-paginator [pageSize]="10" [pageSizeOptions]="[5,10,25,50]" class="paginator-custom"
+                showFirstLastButtons>
+            </mat-paginator>
+        </div>
+    </div>
+
+    <!-- Vista móvil -->
+    <div class="block md:hidden" *ngIf="!loading">
+        <div class="space-y-3">
+            <div *ngFor="let el of mobilePagedData; trackBy: trackById" class="nutrition-card">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <h3 class="font-semibold text-gray-800 text-base truncate">{{ el.nombre }}</h3>
+                        <p class="text-sm text-gray-600">ID: {{ el.id }}</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <!-- Toggle en móvil -->
+                    <div class="flex items-center gap-2">
+                        <div class="custom-toggle-mobile" [class.active]="isTipoActivo(el)"
+                            (click)="toggleTipoActivo(el, !isTipoActivo(el))">
+                            <div class="toggle-thumb-mobile"></div>
+                        </div>
+                        <span class="text-xs font-medium"
+                            [class]="isTipoActivo(el) ? 'text-green-600' : 'text-red-500'">
+                            {{ isTipoActivo(el) ? 'Activo' : 'Inactivo' }}
+                        </span>
+                    </div>
+                    <!--
+                    <button (click)="editarTipo(el)" class="btn-action-mobile edit" title="Editar">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Paginación móvil -->
+        <div *ngIf="mobileTotalPages > 1" class="mobile-pagination mt-6">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm text-gray-600">
+                    Página {{ mobileCurrentPage + 1 }} de {{ mobileTotalPages }}
+                </span>
+            </div>
+            <div class="flex items-center justify-center gap-2">
+                <button (click)="previousMobilePage()" [disabled]="mobileCurrentPage === 0" class="pagination-btn">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <div class="flex items-center gap-1">
+                    <button *ngFor="let page of getMobilePageNumbers()" (click)="onMobilePageChange(page)"
+                        class="pagination-number" [class.active]="page === mobileCurrentPage">
+                        {{ page + 1 }}
+                    </button>
+                </div>
+                <button (click)="nextMobilePage()" [disabled]="mobileCurrentPage >= mobileTotalPages - 1"
+                    class="pagination-btn">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAB 
+    <button *ngIf="isMobile" class="fab" (click)="openModalAltaTipoComida(undefined, false)">
+        <i class="bi bi-plus text-xl"></i>
+    </button>
+    -->
+</div>
