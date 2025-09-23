@@ -237,13 +237,13 @@ export class AltaPlatillos implements OnInit, OnDestroy {
             this.alimentos = resp.alimentos.data || [];
           }
           if (resp.tiposDieta?.status === 'success') {
-            this.tiposDieta = resp.tiposDieta.data || [];
+            this.tiposDieta = (resp.tiposDieta.data || []).filter((item: any) => item.status === '1');
           }
           if (resp.tiposComida?.status === 'success') {
-            this.tiposComida = resp.tiposComida.data || [];
+            this.tiposComida = (resp.tiposComida.data || []).filter((item: any) => item.status === '1');
           }
           if (resp.tiposObjetivo?.status === 'success') {
-            this.tiposObjetivo = resp.tiposObjetivo.data || [];
+            this.tiposObjetivo = (resp.tiposObjetivo.data || []).filter((item: any) => item.status === '1');
           }
 
           this.loadingCatalogos = false;
