@@ -39,7 +39,7 @@ export class TipoDietaComponent implements OnInit, AfterViewInit, OnDestroy {
   search = '';
   isMobile = false;
 
-  displayedColumns: string[] = ['id', 'nombre', 'acciones'];
+  displayedColumns: string[] = ['id', 'nombre', 'status', 'acciones'];
   dataSource = new MatTableDataSource<any>([]);
 
   // Mobile
@@ -247,5 +247,22 @@ export class TipoDietaComponent implements OnInit, AfterViewInit, OnDestroy {
         this.obtenerTiposDieta();
       }
     }).catch(() => { this.obtenerTiposDieta(); });
+  }
+
+  // Getters para estadísticas
+  get totalTipos(): number {
+    return this.dataSource.data.length;
+  }
+
+  get tiposActivos(): number {
+    return this.dataSource.data.filter(t => String(t.status) === '1').length;
+  }
+
+  get tiposInactivos(): number {
+    return this.dataSource.data.filter(t => String(t.status) === '0').length;
+  }
+
+  get tiposFiltrados(): number {
+    return this.filteredData.length;
   }
 }

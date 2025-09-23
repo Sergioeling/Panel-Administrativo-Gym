@@ -45,7 +45,7 @@ export class TipoComidaComponent implements OnInit, AfterViewInit, OnDestroy {
   search = '';
   isMobile = false;
 
-  displayedColumns: string[] = ['id', 'nombre', 'acciones'];
+  displayedColumns: string[] = ['id', 'nombre', 'status', 'acciones'];
   dataSource = new MatTableDataSource<TipoComida>([]);
 
   mobilePageSize = 6;
@@ -264,5 +264,22 @@ export class TipoComidaComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       }
     }).catch(() => { });
+  }
+
+  // Getters para estadísticas
+  get totalTipos(): number {
+    return this.dataSource.data.length;
+  }
+
+  get tiposActivos(): number {
+    return this.dataSource.data.filter(t => t.status === '1').length;
+  }
+
+  get tiposInactivos(): number {
+    return this.dataSource.data.filter(t => t.status === '0').length;
+  }
+
+  get tiposFiltrados(): number {
+    return this.filteredData.length;
   }
 }

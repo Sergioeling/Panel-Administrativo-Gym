@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div class="flex items-center gap-3">
-            <div class="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg">
+            <div class="header-icon">
                 <i class="bi bi-bullseye text-white text-lg sm:text-xl"></i>
             </div>
             <div>
@@ -13,21 +13,13 @@
         </div>
 
         <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
-            <!-- 🔹 Botón Agregar Tipo de Objetivo -->
+            <!-- Botón Agregar Tipo de Objetivo -->
             <button *ngIf="!isMobile" (click)="openModalAltaTipoObjetivo(undefined, false)"
                 class="btn-add-user w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">
                 <i class="bi bi-plus-circle me-2 text-base"></i>
-                <span class="hidden sm:inline">Agregar</span> TipoDeObjetivo
+                <span class="hidden sm:inline">Agregar</span> Objetivo
             </button>
-            
 
-            <!-- 🔹 Botón Agregar Tipo de Objetivo 
-            <button *ngIf="!isMobile" 
-                class="btn-add-user w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">
-                <i class="bi bi-plus-circle me-2 text-base"></i>
-                <span class="hidden sm:inline">Agregar</span> TipoDeObjetivo
-            </button>
-            -->
             <!-- Buscador -->
             <div class="relative w-full sm:w-auto">
                 <div class="search-container">
@@ -55,13 +47,51 @@
     <!-- Card estadísticas -->
     <div *ngIf="!loading && dataSource.data.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
         <div class="stat-card text-left">
-            <div class="stat-icon bg-indigo-100 mb-2">
-                <i class="bi bi-bullseye text-indigo-600"></i>
+            <div class="stat-content">
+                <div class="stat-icon bg-red-100 mb-2">
+                    <i class="bi bi-bullseye text-red-600"></i>
+                </div>
+                <p class="stat-number text-2xl font-bold text-gray-800">
+                    {{ totalTipos }}
+                </p>
+                <p class="stat-label text-sm text-gray-600">Total de objetivos</p>
             </div>
-            <p class="stat-number text-2xl font-bold text-gray-800">
-                {{ dataSource.data.length }}
-            </p>
-            <p class="stat-label text-sm text-gray-600">Total de objetivos</p>
+        </div>
+
+        <div class="stat-card text-left">
+            <div class="stat-content">
+                <div class="stat-icon bg-green-100 mb-2">
+                    <i class="bi bi-check-circle text-green-600"></i>
+                </div>
+                <p class="stat-number text-2xl font-bold text-green-600">
+                    {{ tiposActivos }}
+                </p>
+                <p class="stat-label text-sm text-gray-600">Objetivos activos</p>
+            </div>
+        </div>
+
+        <div class="stat-card text-left">
+            <div class="stat-content">
+                <div class="stat-icon bg-red-100 mb-2">
+                    <i class="bi bi-x-circle text-red-600"></i>
+                </div>
+                <p class="stat-number text-2xl font-bold text-red-600">
+                    {{ tiposInactivos }}
+                </p>
+                <p class="stat-label text-sm text-gray-600">Objetivos inactivos</p>
+            </div>
+        </div>
+
+        <div class="stat-card text-left">
+            <div class="stat-content">
+                <div class="stat-icon bg-blue-100 mb-2">
+                    <i class="bi bi-funnel text-blue-600"></i>
+                </div>
+                <p class="stat-number text-2xl font-bold text-blue-600">
+                    {{ tiposFiltrados }}
+                </p>
+                <p class="stat-label text-sm text-gray-600">Resultados filtrados</p>
+            </div>
         </div>
     </div>
 
@@ -92,10 +122,18 @@
         <div class="table-container">
             <table mat-table [dataSource]="dataSource" matSort class="nutrition-table w-full">
 
-                <!-- ID -->
-                <ng-container matColumnDef="id">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-                    <td mat-cell *matCellDef="let el">{{ el.id }}</td>
+                <!-- Avatar -->
+                <ng-container matColumnDef="avatar">
+                    <th mat-header-cell *matHeaderCellDef>
+                        <i class="bi bi-person-circle me-2"></i>Avatar
+                    </th>
+                    <td mat-cell *matCellDef="let el">
+                        <div class="flex items-center justify-center">
+                            <div class="tipo-avatar bg-gradient-to-br from-red-500 to-red-600">
+                                <i class="bi bi-bullseye text-white"></i>
+                            </div>
+                        </div>
+                    </td>
                 </ng-container>
 
                 <!-- Nombre -->
@@ -105,6 +143,19 @@
                     </th>
                     <td mat-cell *matCellDef="let el" class="font-medium text-gray-800">
                         {{ el.nombre }}
+                    </td>
+                </ng-container>
+
+                <!-- Status -->
+                <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                        <i class="bi bi-toggle-on me-2"></i>Estado
+                    </th>
+                    <td mat-cell *matCellDef="let el">
+                        <span class="status-badge" [class]="isObjetivoActivo(el) ? 'status-active' : 'status-inactive'">
+                            <i class="bi" [class]="isObjetivoActivo(el) ? 'bi-check-circle' : 'bi-x-circle'"></i>
+                            {{ isObjetivoActivo(el) ? 'Activo' : 'Inactivo' }}
+                        </span>
                     </td>
                 </ng-container>
 
@@ -130,7 +181,7 @@
 
                 <!-- Headers -->
                 <tr mat-header-row *matHeaderRowDef="displayedColumns" class="table-header"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row-hover"></tr>
             </table>
 
             <!-- Paginator -->
@@ -143,28 +194,46 @@
     <!-- Mobile Card View -->
     <div class="block md:hidden" *ngIf="!loading">
         <div class="space-y-3">
-            <div *ngFor="let el of mobilePagedData; trackBy: trackById" class="nutrition-card"
-                [class.objetivo-inactivo]="!isObjetivoActivo(el)">
+            <div *ngFor="let el of mobilePagedData; let i = index; trackBy: trackById" 
+                class="user-card" 
+                [class.objetivo-inactivo]="!isObjetivoActivo(el)"
+                [style.--index]="i">
 
-                <!-- Info + Toggle abajo -->
-                <div class="flex flex-col gap-2">
-                    <div class="min-w-0">
-                        <h3 class="font-semibold text-gray-800 text-base truncate"
-                            [class.text-gray-500]="!isObjetivoActivo(el)">{{ el.nombre }}</h3>
-                        <p class="text-sm text-gray-600 truncate" [class.text-gray-500]="!isObjetivoActivo(el)">
-                            ID: {{ el.id }}
-                        </p>
+                <div class="flex items-start gap-3">
+                    <!-- Avatar -->
+                    <div class="user-avatar-mobile bg-gradient-to-br from-red-500 to-red-600">
+                        <i class="bi bi-bullseye text-white"></i>
                     </div>
 
-                    <div class="flex items-center gap-2 mt-1">
-                        <div class="custom-toggle-mobile" [class.active]="isObjetivoActivo(el)"
-                            (click)="toggleObjetivoActivo(el, !isObjetivoActivo(el))">
-                            <div class="toggle-thumb-mobile"></div>
+                    <!-- Info + Toggle -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            <div class="min-w-0 flex-1">
+                                <h3 class="font-semibold text-gray-800 text-base truncate"
+                                    [class.text-gray-500]="!isObjetivoActivo(el)">
+                                    {{ el.nombre }}
+                                </h3>
+                                <p class="text-sm text-gray-600 truncate" [class.text-gray-500]="!isObjetivoActivo(el)">
+                                    ID: {{ el.id }}
+                                </p>
+                            </div>
+
+                            <!-- Toggle -->
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                                <div class="custom-toggle-mobile" [class.active]="isObjetivoActivo(el)"
+                                    (click)="toggleObjetivoActivo(el, !isObjetivoActivo(el))">
+                                    <div class="toggle-thumb-mobile"></div>
+                                </div>
+                            </div>
                         </div>
-                        <span class="text-xs font-medium"
-                            [class]="isObjetivoActivo(el) ? 'text-green-600' : 'text-red-500'">
-                            {{ isObjetivoActivo(el) ? 'Activo' : 'Inactivo' }}
-                        </span>
+
+                        <!-- Status Badge -->
+                        <div class="flex items-center gap-2">
+                            <span class="status-badge-mobile" [class]="isObjetivoActivo(el) ? 'status-active' : 'status-inactive'">
+                                <i class="bi" [class]="isObjetivoActivo(el) ? 'bi-check-circle' : 'bi-x-circle'"></i>
+                                {{ isObjetivoActivo(el) ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -172,13 +241,27 @@
 
         <!-- Mobile Pagination -->
         <div *ngIf="mobileTotalPages > 1" class="mobile-pagination mt-6">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-sm text-gray-600">
-                    Página {{ mobileCurrentPage + 1 }} de {{ mobileTotalPages }}
-                </span>
+            <div class="pagination-info">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-sm text-gray-600 font-medium">
+                        Página {{ mobileCurrentPage + 1 }} de {{ mobileTotalPages }}
+                    </span>
+                    <span class="text-xs text-gray-500">
+                        {{ mobilePagedData.length }} de {{ filteredData.length }} objetivos
+                    </span>
+                </div>
+
+                <!-- Progress indicator -->
+                <div class="progress-indicator">
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                        <div class="bg-green-500 h-1.5 rounded-full transition-all duration-300"
+                            [style.width.%]="((mobileCurrentPage + 1) / mobileTotalPages) * 100">
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="flex items-center justify-center gap-2">
+            <div class="pagination-controls">
                 <button (click)="previousMobilePage()" [disabled]="mobileCurrentPage === 0" class="pagination-btn"
                     [class.disabled]="mobileCurrentPage === 0">
                     <i class="bi bi-chevron-left"></i>
@@ -199,7 +282,34 @@
         </div>
     </div>
 
-    <!-- 🔹 FAB móvil -->
+    <!-- Estado vacío -->
+    <div *ngIf="!loading && dataSource.data.length === 0" class="empty-state">
+        <div class="empty-icon">
+            <i class="bi bi-bullseye text-6xl text-gray-300 mb-4"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">No hay tipos de objetivo</h3>
+        <p class="text-gray-500 mb-6">No se encontraron tipos de objetivo para mostrar.</p>
+        <button (click)="openModalAltaTipoObjetivo(undefined, false)" 
+            class="clear-search-btn bg-red-500 hover:bg-red-600">
+            <i class="bi bi-plus-circle me-2"></i>
+            Crear primer objetivo
+        </button>
+    </div>
+
+    <!-- Estado vacío por filtro -->
+    <div *ngIf="!loading && dataSource.data.length > 0 && filteredData.length === 0" class="empty-state">
+        <div class="empty-icon">
+            <i class="bi bi-search text-6xl text-gray-300 mb-4"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">Sin resultados</h3>
+        <p class="text-gray-500 mb-6">No se encontraron objetivos que coincidan con "{{ search }}"</p>
+        <button (click)="clearSearch()" class="clear-search-btn bg-green-500 hover:bg-green-600">
+            <i class="bi bi-x-circle me-2"></i>
+            Limpiar filtro
+        </button>
+    </div>
+
+    <!-- FAB móvil -->
     <button *ngIf="isMobile" class="fab" (click)="openModalAltaTipoObjetivo(undefined, false)">
         <i class="bi bi-plus text-xl"></i>
     </button>

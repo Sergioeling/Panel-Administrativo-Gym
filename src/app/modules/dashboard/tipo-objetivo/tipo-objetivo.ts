@@ -40,8 +40,25 @@ export class TipoObjetivoComponent implements OnInit, AfterViewInit, OnDestroy {
   search = '';
   isMobile = false;
 
-  displayedColumns: string[] = ['id', 'nombre', 'acciones'];
+  displayedColumns: string[] = ['avatar', 'nombre', 'status', 'acciones'];
   dataSource = new MatTableDataSource<any>([]);
+
+  // Getters estadísticos
+  get totalTipos(): number {
+    return this.dataSource.data.length;
+  }
+
+  get tiposActivos(): number {
+    return this.dataSource.data.filter(tipo => String(tipo.status) === '1').length;
+  }
+
+  get tiposInactivos(): number {
+    return this.dataSource.data.filter(tipo => String(tipo.status) !== '1').length;
+  }
+
+  get tiposFiltrados(): number {
+    return this.filteredData.length;
+  }
 
   // Mobile
   mobilePageSize = 6;

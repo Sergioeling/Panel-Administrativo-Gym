@@ -1,41 +1,40 @@
 <div class="w-full max-w-screen-2xl mx-auto p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-
-    <!-- Header -->
+    <!-- Header Section -->
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div class="flex items-center gap-3">
-            <div class="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 shadow-lg">
-                <i class="bi bi-list-ul text-white text-lg sm:text-xl"></i>
+            <div class="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg">
+                <i class="bi bi-clock text-white text-lg sm:text-xl"></i>
             </div>
             <div>
-                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-1">Tipos de Comida</h1>
-                <p class="text-sm sm:text-base text-gray-600">Gestiona y consulta los tipos de comida disponibles</p>
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-1">Gestión de Tipos de Comida</h1>
+                <p class="text-sm sm:text-base text-gray-600">Administra los tipos de comida del sistema</p>
             </div>
         </div>
 
         <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
-            <!-- 🔹 Botón Agregar Tipo de Comida 
             <button *ngIf="!isMobile" (click)="openModalAltaTipoComida(undefined, false)"
                 class="btn-add-user w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">
                 <i class="bi bi-plus-circle me-2 text-base"></i>
-                <span class="hidden sm:inline">Agregar</span> TipoDeComida
+                <span class="hidden sm:inline">Agregar</span> Tipo de Comida
             </button>
-            -->
-            <!-- Buscador -->
+
             <div class="relative w-full sm:w-auto">
+                <!-- Buscador HTML puro mejorado -->
                 <div class="search-container">
                     <div class="search-input-wrapper">
                         <i class="bi bi-search search-icon"></i>
-                        <input type="text" [value]="search" (input)="applyFilter($any($event.target).value)"
-                            placeholder="Buscar tipo de comida..." class="search-input" autocomplete="off">
-                        <button *ngIf="search" (click)="clearSearch()" class="clear-btn" title="Limpiar búsqueda">
-                            <i class="bi bi-x-circle"></i>
+                        <input type="text" class="search-input" placeholder="Buscar tipos de comida..." [(ngModel)]="search"
+                            (input)="applyFilter(search)" autocomplete="off">
+                        <button *ngIf="search.length > 0" type="button" class="clear-btn" (click)="clearSearch()"
+                            title="Limpiar búsqueda">
+                            <i class="bi bi-x"></i>
                         </button>
                     </div>
 
-                    <!-- Indicador resultados -->
+                    <!-- Indicador de resultados -->
                     <div *ngIf="search" class="search-results-indicator">
                         <span class="results-count">
-                            <i class="bi bi-list-check me-1"></i>
+                            <i class="bi bi-check-circle me-1"></i>
                             {{ filteredData.length }} resultado{{ filteredData.length !== 1 ? 's' : '' }}
                         </span>
                     </div>
@@ -44,15 +43,45 @@
         </div>
     </div>
 
-    <!-- 🔹 Card con total de tipos de comida-->
+    <!-- Statistics Cards -->
     <div *ngIf="!loading && dataSource.data.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
         <div class="stat-card">
-            <div class="stat-icon bg-green-100">
-                <i class="bi bi-basket text-green-600"></i>
+            <div class="stat-icon bg-orange-100">
+                <i class="bi bi-clock text-orange-600"></i>
             </div>
             <div class="stat-content">
-                <p class="stat-number">{{ dataSource.data.length }}</p>
-                <p class="stat-label">Total tipos de comida</p>
+                <p class="stat-number">{{ totalTipos }}</p>
+                <p class="stat-label">Total Tipos</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-green-100">
+                <i class="bi bi-check-circle text-green-600"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-number">{{ tiposActivos }}</p>
+                <p class="stat-label">Activos</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-red-100">
+                <i class="bi bi-x-circle text-red-600"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-number">{{ tiposInactivos }}</p>
+                <p class="stat-label">Inactivos</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-blue-100">
+                <i class="bi bi-grid text-blue-600"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-number">{{ tiposFiltrados }}</p>
+                <p class="stat-label">Filtrados</p>
             </div>
         </div>
     </div>
@@ -73,56 +102,74 @@
                 <p class="font-semibold text-red-700">Error al cargar</p>
                 <p class="text-sm text-red-600">{{ errorMsg }}</p>
             </div>
-            <button (click)="retryLoad()" class="ml-auto btn btn-sm btn-outline-danger">
+            <button (click)="retryLoad()" class="ml-auto px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                <i class="bi bi-arrow-clockwise me-2"></i>
                 Reintentar
             </button>
         </div>
     </div>
 
-    <!-- Tabla Desktop/Tablet -->
-    <div class="hidden md:block" *ngIf="!loading && dataSource.data.length > 0">
+    <!-- Desktop/Tablet Table View -->
+    <div class="hidden md:block" *ngIf="!loading">
         <div class="table-container">
-            <table mat-table [dataSource]="dataSource" matSort class="nutrition-table w-full">
+            <table mat-table [dataSource]="dataSource" matSort class="users-table w-full">
 
-                <!-- ID -->
+                <!-- ID Column -->
                 <ng-container matColumnDef="id">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-                    <td mat-cell *matCellDef="let el">{{ el.id }}</td>
-                </ng-container>
-
-                <!-- Nombre -->
-                <ng-container matColumnDef="nombre">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                        <i class="bi bi-card-text me-2"></i>Nombre
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-header">
+                        <i class="bi bi-hash me-2"></i>ID
                     </th>
-                    <td mat-cell *matCellDef="let el" class="font-medium text-gray-800">
-                        {{ el.nombre }}
+                    <td mat-cell *matCellDef="let el" class="text-gray-700 font-medium">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            #{{ el.id }}
+                        </span>
                     </td>
                 </ng-container>
 
-                <!-- Acciones -->
+                <!-- Nombre Column -->
+                <ng-container matColumnDef="nombre">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-header">
+                        <i class="bi bi-card-text me-2"></i>NOMBRE
+                    </th>
+                    <td mat-cell *matCellDef="let el">
+                        <div class="flex items-center gap-3">
+                            <div class="tipo-avatar">
+                                <i class="bi bi-clock"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800 truncate-text">{{ el.nombre }}</p>
+                                <p class="text-sm text-gray-500">Tipo de comida</p>
+                            </div>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- Status Column -->
+                <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-header">
+                        <i class="bi bi-toggle-on me-2"></i>ESTADO
+                    </th>
+                    <td mat-cell *matCellDef="let el">
+                        <div class="flex items-center justify-center">
+                            <div class="custom-toggle" [class.active]="isTipoActivo(el)"
+                                (click)="toggleTipoActivo(el, !isTipoActivo(el))">
+                                <div class="toggle-thumb"></div>
+                            </div>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- Acciones Column -->
                 <ng-container matColumnDef="acciones">
-                    <th mat-header-cell *matHeaderCellDef>
+                    <th mat-header-cell *matHeaderCellDef class="table-header">
                         <i class="bi bi-gear me-2"></i>ACCIONES
                     </th>
                     <td mat-cell *matCellDef="let el">
-                        <div class="flex items-center justify-center gap-3">
-                            <div class="flex items-center gap-2">
-                                <!-- Toggle -->
-                                <div class="custom-toggle" [class.active]="isTipoActivo(el)"
-                                    (click)="toggleTipoActivo(el, !isTipoActivo(el))">
-                                    <div class="toggle-thumb"></div>
-                                </div>
-                                <span class="text-xs hidden lg:inline"
-                                    [class]="isTipoActivo(el) ? 'text-green-600 font-medium' : 'text-red-500 font-medium'">
-                                    {{ isTipoActivo(el) ? 'Activo' : 'Inactivo' }}
-                                </span>
-                            </div>
-                            <!--
-                            <button (click)="editarTipo(el)" class="btn-action edit" title="Editar tipo de comida">
+                        <div class="flex items-center justify-center gap-2">
+                            <button (click)="editarTipo(el)" class="btn-action edit" 
+                                title="Editar tipo de comida">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                        -->
                         </div>
                     </td>
                 </ng-container>
@@ -138,14 +185,25 @@
         </div>
     </div>
 
-    <!-- Vista móvil -->
+    <!-- Mobile View -->
     <div class="block md:hidden" *ngIf="!loading">
         <div class="space-y-3">
-            <div *ngFor="let el of mobilePagedData; trackBy: trackById" class="nutrition-card">
+            <div *ngFor="let el of mobilePagedData; trackBy: trackById" class="user-card"
+                [class.bg-red-50]="!isTipoActivo(el)">
                 <div class="flex items-start justify-between mb-3">
-                    <div>
-                        <h3 class="font-semibold text-gray-800 text-base truncate">{{ el.nombre }}</h3>
-                        <p class="text-sm text-gray-600">ID: {{ el.id }}</p>
+                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <div class="user-avatar-mobile">
+                            <i class="bi bi-clock"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-semibold text-gray-800 text-base truncate">{{ el.nombre }}</h3>
+                            <p class="text-sm text-gray-600">ID: #{{ el.id }}</p>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-1"
+                                [class]="isTipoActivo(el) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                                <i class="bi bi-circle-fill me-1 text-xs"></i>
+                                {{ isTipoActivo(el) ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -156,39 +214,71 @@
                             (click)="toggleTipoActivo(el, !isTipoActivo(el))">
                             <div class="toggle-thumb-mobile"></div>
                         </div>
-                        <span class="text-xs font-medium"
-                            [class]="isTipoActivo(el) ? 'text-green-600' : 'text-red-500'">
-                            {{ isTipoActivo(el) ? 'Activo' : 'Inactivo' }}
+                        <span class="text-sm font-medium text-gray-600">
+                            {{ isTipoActivo(el) ? 'Activar/Desactivar' : 'Activar/Desactivar' }}
                         </span>
                     </div>
 
                     <button (click)="editarTipo(el)" class="btn-action-mobile edit" title="Editar">
                         <i class="bi bi-pencil"></i>
                     </button>
-
                 </div>
             </div>
         </div>
 
-        <!-- Paginación móvil -->
-        <div *ngIf="mobileTotalPages > 1" class="mobile-pagination mt-6">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-sm text-gray-600">
-                    Página {{ mobileCurrentPage + 1 }} de {{ mobileTotalPages }}
-                </span>
+        <!-- Empty State -->
+        <div *ngIf="mobilePagedData.length === 0 && !loading" class="empty-state">
+            <div class="empty-icon">
+                <i class="bi bi-clock text-4xl sm:text-5xl text-gray-400"></i>
             </div>
-            <div class="flex items-center justify-center gap-2">
-                <button (click)="previousMobilePage()" [disabled]="mobileCurrentPage === 0" class="pagination-btn">
+            <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-2">
+                {{ search ? 'Sin resultados' : 'No hay tipos de comida' }}
+            </h3>
+            <p class="text-gray-500 mb-4">
+                {{ search ? 'No se encontraron tipos que coincidan con tu búsqueda' : 'Aún no hay tipos de comida registrados' }}
+            </p>
+            <button *ngIf="search" (click)="clearSearch()" class="clear-search-btn">
+                <i class="bi bi-x-circle me-2"></i>
+                Limpiar búsqueda
+            </button>
+        </div>
+
+        <!-- Mobile Pagination -->
+        <div *ngIf="mobileTotalPages > 1" class="mobile-pagination">
+            <div class="pagination-info">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-sm text-gray-600 font-medium">
+                        Página {{ mobileCurrentPage + 1 }} de {{ mobileTotalPages }}
+                    </span>
+                    <span class="text-xs text-gray-500">
+                        {{ mobilePagedData.length }} de {{ filteredData.length }} elementos
+                    </span>
+                </div>
+                
+                <div class="progress-indicator">
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                        <div class="bg-orange-500 h-1.5 rounded-full transition-all duration-300"
+                            [style.width.%]="((mobileCurrentPage + 1) / mobileTotalPages) * 100">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pagination-controls">
+                <button (click)="previousMobilePage()" [disabled]="mobileCurrentPage === 0" 
+                    class="pagination-btn" [class.disabled]="mobileCurrentPage === 0">
                     <i class="bi bi-chevron-left"></i>
                 </button>
-                <div class="flex items-center gap-1">
+
+                <div class="flex items-center gap-1 overflow-x-auto">
                     <button *ngFor="let page of getMobilePageNumbers()" (click)="onMobilePageChange(page)"
                         class="pagination-number" [class.active]="page === mobileCurrentPage">
                         {{ page + 1 }}
                     </button>
                 </div>
+
                 <button (click)="nextMobilePage()" [disabled]="mobileCurrentPage >= mobileTotalPages - 1"
-                    class="pagination-btn">
+                    class="pagination-btn" [class.disabled]="mobileCurrentPage >= mobileTotalPages - 1">
                     <i class="bi bi-chevron-right"></i>
                 </button>
             </div>
