@@ -13,13 +13,13 @@
         </div>
 
         <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
-            <!-- 🔹 Botón Agregar Tipo de Comida -->
+            <!-- 🔹 Botón Agregar Tipo de Comida 
             <button *ngIf="!isMobile" (click)="openModalAltaTipoComida(undefined, false)"
                 class="btn-add-user w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">
                 <i class="bi bi-plus-circle me-2 text-base"></i>
                 <span class="hidden sm:inline">Agregar</span> TipoDeComida
             </button>
-
+            -->
             <!-- Buscador -->
             <div class="relative w-full sm:w-auto">
                 <div class="search-container">
@@ -161,11 +161,11 @@
                             {{ isTipoActivo(el) ? 'Activo' : 'Inactivo' }}
                         </span>
                     </div>
-                    <!--
+
                     <button (click)="editarTipo(el)" class="btn-action-mobile edit" title="Editar">
                         <i class="bi bi-pencil"></i>
                     </button>
-                    -->
+
                 </div>
             </div>
         </div>
@@ -195,9 +195,9 @@
         </div>
     </div>
 
-    <!-- FAB 
+    <!-- FAB  -->
     <button *ngIf="isMobile" class="fab" (click)="openModalAltaTipoComida(undefined, false)">
         <i class="bi bi-plus text-xl"></i>
     </button>
-    -->
+
 </div>
