@@ -246,6 +246,6 @@ export class TipoDietaComponent implements OnInit, AfterViewInit, OnDestroy {
         console.log('Datos guardados:', result.data);
         this.obtenerTiposDieta();
       }
-    }).catch(() => { });
+    }).catch(() => { this.obtenerTiposDieta(); });
   }
 }

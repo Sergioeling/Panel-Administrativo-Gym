@@ -104,7 +104,7 @@ export class HttpServices {
     return this.post('tipos-dieta', tipoObjetivoData);
   }
   crearTipoComida(tipoObjetivoData: any): Observable<any> {
-    return this.post('alimentos', tipoObjetivoData);
+    return this.post('tipos-comida', tipoObjetivoData);
   }
   
 

@@ -189,6 +189,10 @@ export class TipoComidaComponent implements OnInit, AfterViewInit, OnDestroy {
     return el.status === '1';
   }
 
+   editarTipo(usuario: TipoComida): void {
+
+  }
+
   toggleTipoActivo(el: TipoComida, activo: boolean): void {
     const nuevoStatus = activo ? '1' : '0';
     const statusData = { status: parseInt(nuevoStatus) };
