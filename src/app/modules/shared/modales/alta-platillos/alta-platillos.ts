@@ -285,7 +285,7 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   }
 
   private cargarDatosFormulario(platilloData: PlatilloData): void {
-    console.log('Cargando datos del platillo:', platilloData);
+   
     
     const platilloFormData: any = {};
     Object.keys(this.platilloForm.controls).forEach(key => {
@@ -348,11 +348,8 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     // Cargar imagen existente si está disponible
     if (platilloData.imagen_url && platilloData.imagen_url.trim() !== '') {
       this.selectedImagePreview = platilloData.imagen_url;
-      console.log('Imagen cargada para edición:', platilloData.imagen_url);
-      console.log('selectedImagePreview establecido a:', this.selectedImagePreview);
     } else {
       this.selectedImagePreview = null;
-      console.log('No hay imagen para cargar en edición, imagen_url:', platilloData.imagen_url);
     }
 
     // Forzar detección de cambios después de cargar la imagen
@@ -914,16 +911,6 @@ export class AltaPlatillos implements OnInit, OnDestroy {
 
   trackByTipoObjetivo(index: number, tipo: TipoObjetivo): number {
     return tipo.id;
-  }
-
-  // Método de debug para verificar el estado de la imagen
-  debugImageState(): void {
-    console.log('=== DEBUG IMAGE STATE ===');
-    console.log('isEdit:', this.isEdit);
-    console.log('platilloData:', this.platilloData);
-    console.log('selectedImagePreview:', this.selectedImagePreview);
-    console.log('selectedImageFile:', this.selectedImageFile);
-    console.log('==========================');
   }
 
   onDietaChange(event: any) {

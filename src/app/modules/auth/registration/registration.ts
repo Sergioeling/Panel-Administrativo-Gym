@@ -66,7 +66,6 @@ export class RegistrationComponent {
 
       this.http.crearUsuario(data).subscribe({
         next: (res) => {
-          console.log('Usuario creado:', res);
 
           Swal.fire({
             title: 'Registro exitoso',

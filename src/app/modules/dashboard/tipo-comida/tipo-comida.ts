@@ -252,7 +252,6 @@ export class TipoComidaComponent implements OnInit, AfterViewInit, OnDestroy {
 
     modalRef.result.then((result: any) => {
       if (result?.success) {
-        console.log('Datos guardados:', result.data);
 
         Swal.fire({
           icon: 'success',

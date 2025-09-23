@@ -308,7 +308,6 @@ export class TipoObjetivoComponent implements OnInit, AfterViewInit, OnDestroy {
     modalRef.result.then((result: any) => {
       if (result?.success) {
         // Guardar en backend
-        console.log('Datos guardados:', result.data);
         this.obtenerTiposObjetivos();
       }
     }).catch(() => { });

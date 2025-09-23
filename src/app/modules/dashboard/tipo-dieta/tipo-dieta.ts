@@ -243,7 +243,6 @@ export class TipoDietaComponent implements OnInit, AfterViewInit, OnDestroy {
 
     modalRef.result.then((result: any) => {
       if (result?.success) {
-        console.log('Datos guardados:', result.data);
         this.obtenerTiposDieta();
       }
     }).catch(() => { this.obtenerTiposDieta(); });
