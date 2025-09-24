@@ -1,7 +1,5 @@
-# Nombre del flujo de trabajo
 name: Build and Deploy Angular App
 
-# Se ejecuta al hacer "push" a la rama "Dev-Sergio"
 on:
   push:
     branches:
@@ -11,34 +9,28 @@ jobs:
   build-and-deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest
-    
     steps:
-    # 1. Clona tu repositorio
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    # 2. Configura Node.js para poder usar npm
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-    # 3. Instala las dependencias de tu proyecto Angular
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-    # 4. Compila la aplicación para producción (ng build)
-    - name: Build application
-      run: npm run build -- --configuration production
+      - name: Build application
+        run: npm run build -- --configuration production
 
-    # 5. Sube los archivos compilados a tu servidor SFTP
-    - name: Deploy to Server
-      uses: SamKirkland/FTP-Deploy-Action@4.3.3
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        port: 22
-        local-path: ./dist/Panel-Administrativo-Gym/browser/
-        remote-path: /var/www/dtinutricion.arvispace.com/
-        dangerous-clean-slate: false
+      - name: Deploy to Server
+        uses: SamKirkland/FTP-Deploy-Action@4.3.3
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 22
+          local-path: ./dist/Panel-Administrativo-Gym/browser/
+          remote-path: /var/www/dtinutricion.arvispace.com/
+          dangerous-clean-slate: false
