@@ -147,25 +147,34 @@
                 <!-- Status Column -->
                 <ng-container matColumnDef="status">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-header">
-                        <i class="bi bi-toggle-on me-2"></i>ESTADO
+                        <i class="bi bi-toggle-on me-2"></i>Estado
                     </th>
                     <td mat-cell *matCellDef="let el">
-                        <div class="flex items-center justify-center">
-                            <div class="custom-toggle" [class.active]="isTipoActivo(el)"
-                                (click)="toggleTipoActivo(el, !isTipoActivo(el))">
-                                <div class="toggle-thumb"></div>
-                            </div>
-                        </div>
+                        <span class="status-badge" [class]="isTipoActivo(el) ? 'status-active' : 'status-inactive'">
+                            <i class="bi" [class]="isTipoActivo(el) ? 'bi-check-circle' : 'bi-x-circle'"></i>
+                            {{ isTipoActivo(el) ? 'Activo' : 'Inactivo' }}
+                        </span>
                     </td>
                 </ng-container>
 
                 <!-- Acciones Column -->
                 <ng-container matColumnDef="acciones">
                     <th mat-header-cell *matHeaderCellDef class="table-header">
-                        <i class="bi bi-gear me-2"></i>ACCIONES
+                        <i class="bi bi-gear me-2"></i>Acciones
                     </th>
                     <td mat-cell *matCellDef="let el">
-                        <div class="flex items-center justify-center gap-2">
+                        <div class="flex items-center justify-center gap-3">
+                            <!-- Toggle -->
+                            <div class="custom-toggle" [class.active]="isTipoActivo(el)"
+                                (click)="toggleTipoActivo(el, !isTipoActivo(el))">
+                                <div class="toggle-thumb"></div>
+                            </div>
+                            <span class="text-xs hidden lg:inline"
+                                [class]="isTipoActivo(el) ? 'text-green-600 font-medium' : 'text-red-500 font-medium'">
+                                {{ isTipoActivo(el) ? 'Activo' : 'Inactivo' }}
+                            </span>
+
+                            <!-- Botón de editar -->
                             <button (click)="editarTipo(el)" class="btn-action edit" 
                                 title="Editar tipo de comida">
                                 <i class="bi bi-pencil"></i>
