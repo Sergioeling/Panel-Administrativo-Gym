@@ -3,6 +3,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -14,6 +15,7 @@
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -21,13 +23,25 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeInScale {
@@ -35,6 +49,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -45,12 +60,12 @@
 .bg-red-50 {
   background-color: rgba(248, 113, 113, 0.1) !important;
   border-left: 3px solid #ef4444 !important;
-  
+
   // Para las cards móviles
   &.user-card {
     box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1), 0 2px 4px -1px rgba(239, 68, 68, 0.06) !important;
     border: 1px solid rgba(239, 68, 68, 0.2) !important;
-    
+
     .user-avatar-mobile {
       background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15)) !important;
     }
@@ -94,13 +109,13 @@
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
   color: white;
   border: none;
-  
+
   &:hover {
     background: linear-gradient(135deg, var(--primary-dark), #b91c1c);
     transform: translateY(-1px);
     box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
   }
-  
+
   &:active {
     transform: translateY(0);
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
@@ -266,7 +281,7 @@
   @apply w-10 h-10 rounded-lg flex items-center justify-center;
   background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.1));
   transition: all 0.3s ease;
-  
+
   i {
     @apply text-orange-600 text-lg;
   }
@@ -276,7 +291,7 @@
   @apply w-12 h-12 rounded-lg flex items-center justify-center;
   background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.1));
   transition: all 0.3s ease;
-  
+
   i {
     @apply text-orange-600 text-xl;
   }
@@ -285,7 +300,7 @@
 // Botones de acción
 .btn-action {
   @apply bg-transparent border-none p-2 rounded-lg cursor-pointer transition-all duration-300;
-  
+
   &.edit {
     &:hover {
       background: rgba(59, 130, 246, 0.1);
@@ -293,13 +308,13 @@
       transform: translateY(-1px);
       box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
     }
-    
+
     &:active {
       transform: translateY(0);
       box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
     }
   }
-  
+
   i {
     @apply text-gray-600 text-base;
   }
@@ -307,18 +322,18 @@
 
 .btn-action-mobile {
   @apply bg-transparent border-none p-2 rounded-lg cursor-pointer transition-all duration-300;
-  
+
   &.edit {
     &:hover {
       background: rgba(59, 130, 246, 0.1);
       color: var(--primary-color);
     }
-    
+
     &:active {
       transform: scale(0.95);
     }
   }
-  
+
   i {
     @apply text-gray-600 text-lg;
   }
@@ -327,7 +342,7 @@
 // Buscador HTML puro mejorado
 .search-container {
   width: 100%;
-  
+
   @screen sm {
     width: 320px;
   }
@@ -343,12 +358,12 @@
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   box-shadow: 0 4px 12px rgba(44, 62, 80, 0.08);
   overflow: hidden;
-  
+
   &:hover {
     border-color: #d1d5db;
     box-shadow: 0 6px 16px rgba(44, 62, 80, 0.12);
   }
-  
+
   &:focus-within {
     border-color: var(--accent-color);
     box-shadow: 0 6px 20px rgba(243, 156, 18, 0.15);
@@ -373,12 +388,12 @@
   font-weight: 500;
   color: var(--text-primary);
   background: transparent;
-  
+
   &::placeholder {
     color: var(--text-secondary);
     font-weight: 400;
   }
-  
+
   &:focus {
     color: var(--text-primary);
   }
@@ -396,16 +411,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   &:hover {
     background: rgba(239, 68, 68, 0.1);
     color: #ef4444;
   }
-  
+
   &:active {
     transform: scale(0.95);
   }
-  
+
   i {
     font-size: 14px;
   }
@@ -418,7 +433,7 @@
   right: 0;
   margin-top: 8px;
   z-index: 10;
-  
+
   .results-count {
     background: white;
     color: var(--text-secondary);
@@ -435,11 +450,11 @@
 .search-input-wrapper:has(.search-input:not(:placeholder-shown)) {
   border-color: var(--accent-color);
   background: rgba(243, 156, 18, 0.03);
-  
+
   .search-icon {
     color: var(--accent-color);
   }
-  
+
   &:hover {
     border-color: var(--accent-color);
   }
@@ -451,7 +466,7 @@
     padding: 12px 6px 12px 0;
     font-size: 14px;
   }
-  
+
   .search-icon {
     margin-left: 12px;
     margin-right: 8px;
@@ -549,7 +564,7 @@
 .mobile-pagination {
   @apply bg-white rounded-xl p-4 shadow-md border border-gray-200 mx-2;
   animation: slideInUp 0.4s ease-out;
-  
+
   // Información de paginación mejorada
   .pagination-info {
     .progress-indicator {
@@ -559,7 +574,7 @@
       }
     }
   }
-  
+
   // Contenedor de botones
   .pagination-controls {
     display: flex;
@@ -568,11 +583,11 @@
     gap: 12px;
     margin-top: 16px;
   }
-  
+
   // Indicador de progreso
   .progress-indicator {
     margin-top: 8px;
-    
+
     .bg-gray-200 {
       background-color: #f3f4f6 !important;
     }
@@ -582,13 +597,13 @@
 .pagination-btn {
   @apply w-10 h-10 rounded-lg bg-white border-2 border-gray-200 flex items-center justify-center text-gray-600 font-medium transition-all duration-200 shadow-sm;
   min-width: 40px;
-  
+
   // Mejor experiencia táctil en móvil
   &:active {
     transform: scale(0.95);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
-  
+
   &:hover:not(.disabled) {
     border-color: var(--primary-color);
     background: rgba(239, 68, 68, 0.05);
@@ -596,31 +611,31 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
   }
-  
+
   &.disabled {
     opacity: 0.5;
     cursor: not-allowed;
     background: #f9fafb;
     border-color: #e5e7eb;
     color: #9ca3af;
-    
+
     &:hover {
       transform: none;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
   }
-  
+
   i {
     font-size: 14px;
     font-weight: 600;
   }
-  
+
   // En pantallas muy pequeñas
   @media (max-width: 380px) {
     width: 36px;
     height: 36px;
     min-width: 36px;
-    
+
     i {
       font-size: 12px;
     }
@@ -631,12 +646,12 @@
   @apply w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 transition-all duration-200 shadow-sm;
   min-width: 40px;
   line-height: 1;
-  
+
   // Mejor experiencia táctil
   &:active {
     transform: scale(0.95);
   }
-  
+
   &:hover:not(.active) {
     border-color: var(--primary-color);
     background: rgba(239, 68, 68, 0.05);
@@ -644,7 +659,7 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
   }
-  
+
   &.active {
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     border-color: var(--primary-color);
@@ -652,26 +667,26 @@
     font-weight: 700;
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(239, 68, 68, 0.25);
-    
+
     &:hover {
       background: linear-gradient(135deg, var(--primary-dark), #b91c1c);
       box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
       transform: translateY(-2px);
     }
-    
+
     &:active {
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
     }
   }
-  
+
   // En pantallas muy pequeñas
   @media (max-width: 380px) {
     width: 36px;
     height: 36px;
     min-width: 36px;
   }
-  
+
   // Pantallas medianas (iPhone SE, etc.)
   @media (min-width: 381px) and (max-width: 480px) {
     width: 38px;
@@ -684,11 +699,11 @@
 .empty-state {
   @apply text-center py-12 px-4;
   animation: slideInUp 0.5s ease-out;
-  
+
   .empty-icon {
     @apply mb-4;
   }
-  
+
   .clear-search-btn {
     @apply inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors;
   }
@@ -698,12 +713,12 @@
 .fab {
   @apply fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white transition-all duration-300 z-50;
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  
+
   &:hover {
     transform: translateY(-2px) scale(1.05);
     box-shadow: 0 12px 24px rgba(239, 68, 68, 0.3);
   }
-  
+
   &:active {
     transform: translateY(-1px) scale(1.02);
   }
@@ -717,12 +732,12 @@
 
   .stat-card {
     @apply p-3 rounded-lg;
-    
+
     .stat-content {
       .stat-number {
         @apply text-lg font-bold;
       }
-      
+
       .stat-label {
         @apply text-xs;
       }
@@ -734,10 +749,10 @@
 @media (max-width: 380px) {
   .user-card {
     @apply p-3;
-    
+
     .user-avatar-mobile {
       @apply w-10 h-10;
-      
+
       i {
         @apply text-lg;
       }
@@ -773,19 +788,179 @@
     font-size: 11px !important;
     padding: 12px 16px !important;
   }
-  
+
   :host ::ng-deep .table-row-hover {
     td.mat-mdc-cell {
       padding: 12px 16px !important;
       font-size: 14px;
     }
   }
-  
+
   .tipo-avatar {
     @apply w-8 h-8;
-    
+
     i {
       @apply text-base;
     }
+  }
+}
+
+//----PAGINADOR--
+:host ::ng-deep .paginator-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  /* 🔹 mueve todo a la derecha */
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+  border-radius: 0 0 12px 12px;
+}
+
+/* 🔹 Contenedor de numeración */
+.paginator-numbers {
+  display: flex;
+  gap: 6px;
+}
+
+/* 🔹 Cada número */
+.paginator-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #374151;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    border-color: var(--primary-color);
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+  }
+
+  &.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  }
+}
+
+/* 🎨 Selector estilo pill */
+:host ::ng-deep .mat-mdc-select-trigger {
+  min-width: 70px !important;
+  padding: 6px 14px !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  /* redondeado total */
+  background: linear-gradient(135deg, #f97316, #ea580c) !important;
+  /* degradado naranja */
+  color: #fff !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+  /* sombra naranja */
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* 🎨 Hover */
+:host ::ng-deep .mat-mdc-select-trigger:hover {
+  background: linear-gradient(135deg, #ea580c, #c2410c) !important;
+  box-shadow: 0 6px 14px rgba(234, 88, 12, 0.4);
+  transform: translateY(-1px);
+}
+
+/* 🎨 Flecha */
+:host ::ng-deep .mat-mdc-select-arrow {
+  color: #fff !important;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Quitamos labels y bordes innecesarios */
+:host ::ng-deep .mat-mdc-paginator-page-size-label,
+:host ::ng-deep .mat-mdc-paginator-range-label {
+  display: none !important;
+}
+
+/* 🔹 Quitar borde negro del select del paginador */
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline,
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline__leading,
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline__notch,
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline__trailing {
+  border: none !important;
+}
+
+//--
+/* Ocultar flechas del paginador MDC (nueva versión) */
+::ng-deep .mat-mdc-paginator-navigation-first,
+::ng-deep .mat-mdc-paginator-navigation-previous,
+::ng-deep .mat-mdc-paginator-navigation-next,
+::ng-deep .mat-mdc-paginator-navigation-last {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+//-------
+/* 🎨 Estilos para botones de paginador custom */
+.paginator-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  button {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    border: none;
+    background: #1e293b;
+    /* Azul oscuro de tu diseño */
+    color: #fff;
+    font-size: 18px;
+    /* Tamaño de ícono */
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease-in-out;
+
+    &:hover:not(:disabled) {
+      background: #0f172a;
+      /* Un tono más oscuro */
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    &:disabled {
+      background: #cbd5e1;
+      /* Gris clarito */
+      color: #64748b;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  span {
+    font-weight: 600;
+    color: #374151;
+    font-size: 16px;
+    min-width: 50px;
+    text-align: center;
   }
 }

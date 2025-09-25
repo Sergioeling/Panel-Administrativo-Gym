@@ -3,6 +3,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -10,10 +11,11 @@
 }
 
 @keyframes slideInLeft {
-  from { 
+  from {
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -21,13 +23,25 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeInScale {
@@ -35,6 +49,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -57,12 +72,12 @@
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   border: 1px solid #d1d5db;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-  
+
   &:hover {
     filter: brightness(1.05);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(239, 68, 68, 0.1);
   }
-  
+
   .toggle-thumb {
     width: 20px;
     height: 20px;
@@ -75,18 +90,18 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     border: 1px solid #e5e7eb;
   }
-  
+
   &.active {
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     border-color: var(--primary-color);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(239, 68, 68, 0.3);
-    
+
     .toggle-thumb {
       transform: translateX(24px);
       border-color: var(--primary-color);
       box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
     }
-    
+
     &:hover {
       background: linear-gradient(135deg, var(--primary-dark), #b91c1c);
       box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15), 0 0 12px rgba(239, 68, 68, 0.4);
@@ -105,12 +120,12 @@
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   border: 1px solid #d1d5db;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-  
+
   &:hover {
     filter: brightness(1.05);
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(239, 68, 68, 0.1);
   }
-  
+
   .toggle-thumb-mobile {
     width: 18px;
     height: 18px;
@@ -123,18 +138,18 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     border: 1px solid #e5e7eb;
   }
-  
+
   &.active {
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     border-color: var(--primary-color);
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 6px rgba(239, 68, 68, 0.3);
-    
+
     .toggle-thumb-mobile {
       transform: translateX(20px);
       border-color: var(--primary-color);
       box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
     }
-    
+
     &:hover {
       background: linear-gradient(135deg, var(--primary-dark), #b91c1c);
       box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 0 8px rgba(239, 68, 68, 0.4);
@@ -143,11 +158,12 @@
 }
 
 // Animaciones adicionales para el toggle personalizado
-.custom-toggle, .custom-toggle-mobile {
+.custom-toggle,
+.custom-toggle-mobile {
   &:active {
     transform: scale(0.98);
   }
-  
+
   &:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
@@ -164,38 +180,41 @@
   background-color: rgba(239, 68, 68, 0.08) !important;
   border-left: 4px solid rgba(239, 68, 68, 0.6);
   transition: all 0.3s ease;
-  
-  .font-semibold, h3 {
+
+  .font-semibold,
+  h3 {
     color: rgba(75, 85, 99, 0.7) !important;
   }
-  
-  .text-gray-600, .text-gray-700 {
+
+  .text-gray-600,
+  .text-gray-700 {
     color: rgba(107, 114, 128, 0.6) !important;
   }
-  
+
   .text-gray-500 {
     color: rgba(156, 163, 175, 0.7) !important;
   }
-  
-  .user-avatar, .user-avatar-mobile {
+
+  .user-avatar,
+  .user-avatar-mobile {
     background: rgba(239, 68, 68, 0.2) !important;
     border: 1px solid rgba(239, 68, 68, 0.3);
-    
+
     i {
       color: rgba(239, 68, 68, 0.8) !important;
     }
   }
-  
+
   &.user-card {
     border: 1px solid rgba(239, 68, 68, 0.3) !important;
     box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
-    
+
     &:hover {
       background-color: rgba(239, 68, 68, 0.12) !important;
       box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
     }
   }
-  
+
   // Solo las filas inactivas de la tabla
   &:hover {
     background-color: rgba(239, 68, 68, 0.12) !important;
@@ -216,7 +235,7 @@
   border-top: 2px solid var(--primary-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  
+
   @screen sm {
     width: 24px;
     height: 24px;
@@ -233,7 +252,7 @@
 .stat-card {
   @apply bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-md border border-gray-200 transition-all duration-300;
   animation: slideInUp 0.5s ease-out;
-  
+
   &:hover {
     @apply -translate-y-1 shadow-lg;
   }
@@ -241,7 +260,7 @@
 
 .stat-icon {
   @apply w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mb-2 sm:mb-3;
-  
+
   i {
     @apply text-lg sm:text-xl;
   }
@@ -251,7 +270,7 @@
   .stat-number {
     @apply text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 leading-none;
   }
-  
+
   .stat-label {
     @apply text-xs sm:text-sm text-gray-600 mt-1;
   }
@@ -260,7 +279,7 @@
 // Buscador HTML puro mejorado
 .search-container {
   width: 100%;
-  
+
   @screen sm {
     width: 320px;
   }
@@ -276,12 +295,12 @@
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   box-shadow: 0 4px 12px rgba(44, 62, 80, 0.08);
   overflow: hidden;
-  
+
   &:hover {
     border-color: var(--primary-color);
     box-shadow: 0 6px 20px rgba(44, 62, 80, 0.15);
   }
-  
+
   &:focus-within {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 4px rgba(44, 62, 80, 0.1);
@@ -307,16 +326,16 @@
   font-weight: 500;
   color: var(--text-primary);
   background: transparent;
-  
+
   &::placeholder {
     color: var(--text-secondary);
     opacity: 0.7;
   }
-  
+
   &:focus {
     color: var(--primary-color);
-    
-    ~ .search-icon {
+
+    ~.search-icon {
       color: var(--primary-color);
     }
   }
@@ -334,17 +353,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   &:hover {
     background: rgba(239, 68, 68, 0.1);
     color: #ef4444;
     transform: scale(1.1);
   }
-  
+
   &:active {
     transform: scale(0.95);
   }
-  
+
   i {
     font-size: 14px;
   }
@@ -357,7 +376,7 @@
   right: 0;
   margin-top: 8px;
   z-index: 10;
-  
+
   .results-count {
     display: inline-flex;
     align-items: center;
@@ -369,7 +388,7 @@
     font-weight: 600;
     box-shadow: 0 4px 12px rgba(44, 62, 80, 0.2);
     animation: slideInUp 0.3s ease-out;
-    
+
     i {
       opacity: 0.9;
     }
@@ -380,12 +399,12 @@
 .search-input-wrapper:has(.search-input:not(:placeholder-shown)) {
   border-color: var(--accent-color);
   background: rgba(243, 156, 18, 0.03);
-  
+
   .search-icon {
     color: var(--accent-color);
     animation: pulse 2s infinite;
   }
-  
+
   &:hover {
     box-shadow: 0 8px 25px rgba(243, 156, 18, 0.2);
   }
@@ -397,7 +416,7 @@
     font-size: 16px; // Evita zoom en iOS
     padding: 12px 8px 12px 0;
   }
-  
+
   .search-icon {
     margin-left: 12px;
     margin-right: 8px;
@@ -415,7 +434,8 @@
 }
 
 // Estilos de tabla responsive
-:host ::ng-deep .table-header th.mat-mdc-header-cell {
+:host ::ng-deep .table-header th.mat-mdc-header-cell,
+:host ::ng-deep th.mat-mdc-header-cell {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
   color: #fff !important;
   font-weight: 700 !important;
@@ -425,11 +445,11 @@
   border-bottom: none !important;
   position: relative;
   height: 56px !important;
-  
+
   @screen lg {
     font-size: 12px !important;
   }
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -437,9 +457,9 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   }
-  
+
   i {
     opacity: 0.9;
   }
@@ -448,19 +468,19 @@
 :host ::ng-deep .table-row-hover {
   transition: var(--transition);
   height: 72px !important;
-  
+
   &:hover {
     background: linear-gradient(135deg, rgba(231, 76, 60, 0.02), rgba(231, 76, 60, 0.05)) !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(231, 76, 60, 0.08);
   }
-  
+
   td.mat-mdc-cell {
-    border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
     vertical-align: middle;
     border-bottom: 1px solid #e5e7eb;
     vertical-align: middle;
-    
+
     @screen sm {
       padding: 16px 20px !important;
     }
@@ -472,15 +492,15 @@
   @apply w-10 h-10 rounded-lg flex items-center justify-center;
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
   transition: all 0.3s ease;
-  
+
   i {
     @apply text-red-600;
   }
-  
+
   &.user-avatar-inactive {
     background: rgba(239, 68, 68, 0.2) !important;
     border: 1px solid rgba(239, 68, 68, 0.3);
-    
+
     i {
       color: rgba(239, 68, 68, 0.8) !important;
     }
@@ -491,15 +511,15 @@
   @apply w-12 h-12 rounded-lg flex items-center justify-center;
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
   transition: all 0.3s ease;
-  
+
   i {
     @apply text-red-600;
   }
-  
+
   &.user-avatar-inactive {
     background: rgba(239, 68, 68, 0.2) !important;
     border: 1px solid rgba(239, 68, 68, 0.3);
-    
+
     i {
       color: rgba(239, 68, 68, 0.8) !important;
     }
@@ -509,23 +529,23 @@
 // Badges de roles
 .role-badge {
   @apply inline-flex items-center px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium text-white shadow-sm;
-  
+
   &.admin {
     background: linear-gradient(135deg, #dc3545, #c82333);
   }
-  
+
   &.nutricionista {
     background: linear-gradient(135deg, #28a745, #20c997);
   }
-  
+
   &.recepcionista {
     background: linear-gradient(135deg, #17a2b8, #138496);
   }
-  
+
   &.usuario {
     background: linear-gradient(135deg, #6c757d, #5a6268);
   }
-  
+
   &.default {
     background: linear-gradient(135deg, #6f42c1, #5a32a3);
   }
@@ -534,15 +554,15 @@
 // Botones de acción
 .btn-action {
   @apply bg-transparent border-none p-2 rounded-lg cursor-pointer transition-all duration-300;
-  
+
   &.edit {
     @apply text-blue-600 hover:bg-blue-50;
-    
+
     &:hover {
       box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
     }
   }
-  
+
   i {
     @apply text-base;
   }
@@ -550,11 +570,11 @@
 
 .btn-action-mobile {
   @apply bg-transparent border-none p-2 rounded-lg cursor-pointer transition-all duration-300;
-  
+
   &.edit {
     @apply text-blue-600 hover:bg-blue-50;
   }
-  
+
   i {
     @apply text-sm;
   }
@@ -564,14 +584,14 @@
 :host ::ng-deep .paginator-custom {
   background: white !important;
   border-top: 1px solid #e5e7eb;
-  
+
   .mat-mdc-paginator-range-label {
     color: var(--text-primary) !important;
   }
-  
+
   .mat-mdc-icon-button {
     color: var(--primary-color) !important;
-    
+
     &:hover {
       background-color: rgba(239, 68, 68, 0.1) !important;
     }
@@ -582,12 +602,12 @@
 .user-card {
   @apply bg-white rounded-lg sm:rounded-xl p-4 shadow-md border border-gray-200 transition-all duration-300;
   animation: slideInUp 0.4s ease-out both;
-  
+
   &:hover {
     @apply -translate-y-1 shadow-lg;
     box-shadow: 0 8px 25px rgba(231, 76, 60, 0.12);
   }
-  
+
   &:active {
     @apply translate-y-0;
   }
@@ -601,11 +621,11 @@
 
 .pagination-btn {
   @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white border-2 border-gray-200 flex items-center justify-center text-gray-600 font-medium transition-all duration-200;
-  
+
   &:hover:not(.disabled) {
     @apply border-red-300 text-red-600 bg-red-50;
   }
-  
+
   &.disabled {
     @apply opacity-50 cursor-not-allowed;
   }
@@ -613,11 +633,11 @@
 
 .pagination-number {
   @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 transition-all duration-200;
-  
+
   &:hover {
     @apply border-red-300 text-red-600 bg-red-50;
   }
-  
+
   &.active {
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
     @apply text-white border-red-500;
@@ -628,15 +648,15 @@
 .empty-state {
   @apply text-center py-12 px-4;
   animation: slideInUp 0.5s ease-out;
-  
+
   .empty-icon {
     @apply mb-4;
   }
-  
+
   .clear-search-btn {
     @apply inline-flex items-center px-4 py-2 rounded-lg font-medium text-white transition-all duration-200;
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    
+
     &:hover {
       @apply -translate-y-1 shadow-lg;
     }
@@ -648,7 +668,7 @@
   @apply fixed bottom-20 left-4 right-4 z-50 rounded-xl p-3 shadow-lg;
   background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
   animation: slideInUp 0.4s ease-out;
-  
+
   @screen sm {
     @apply left-6 right-6;
   }
@@ -658,11 +678,11 @@
 .fab {
   @apply fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white transition-all duration-300 z-50;
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  
+
   &:hover {
     @apply -translate-y-2 shadow-xl;
   }
-  
+
   &:active {
     @apply scale-95;
   }
@@ -673,11 +693,11 @@
   .user-card {
     @apply p-3;
   }
-  
+
   .stat-card {
     @apply p-2;
   }
-  
+
   .role-badge {
     @apply text-xs px-2 py-1;
   }
@@ -710,56 +730,56 @@
   .swal-toast-success {
     border-left: 4px solid #10b981 !important;
     box-shadow: 0 8px 32px rgba(16, 185, 129, 0.2) !important;
-    
+
     .swal2-title {
       font-size: 16px !important;
       font-weight: 600 !important;
       color: #065f46 !important;
     }
-    
+
     .swal2-html-container {
       font-size: 14px !important;
       color: #374151 !important;
     }
   }
-  
+
   .swal-toast-error {
     border-left: 4px solid #ef4444 !important;
     box-shadow: 0 8px 32px rgba(239, 68, 68, 0.2) !important;
-    
+
     .swal2-title {
       font-size: 16px !important;
       font-weight: 600 !important;
       color: #991b1b !important;
     }
-    
+
     .swal2-html-container {
       font-size: 14px !important;
       color: #374151 !important;
     }
   }
-  
+
   .swal-toast-warning {
     border-left: 4px solid #f59e0b !important;
     box-shadow: 0 8px 32px rgba(245, 158, 11, 0.2) !important;
-    
+
     .swal2-title {
       font-size: 16px !important;
       font-weight: 600 !important;
       color: #92400e !important;
     }
-    
+
     .swal2-html-container {
       font-size: 14px !important;
       color: #374151 !important;
     }
   }
-  
+
   // Animación mejorada para los toasts
   .swal2-toast.swal2-show {
     animation: slideInRight 0.3s ease-out !important;
   }
-  
+
   .swal2-toast.swal2-hide {
     animation: slideOutRight 0.2s ease-in !important;
   }
@@ -770,6 +790,7 @@
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -781,6 +802,7 @@
     transform: translateX(0);
     opacity: 1;
   }
+
   to {
     transform: translateX(100%);
     opacity: 0;
@@ -789,12 +811,13 @@
 
 // Estilos para impresión
 @media print {
+
   .fab,
   .mobile-stats-float,
   .mobile-pagination {
     display: none !important;
   }
-  
+
   .user-card {
     @apply shadow-none border;
     break-inside: avoid;
@@ -807,17 +830,17 @@
     .stat-number {
       @apply text-lg font-bold;
     }
-    
+
     .stat-label {
       @apply text-xs;
     }
   }
-  
+
   .user-card {
     h3 {
       @apply text-sm font-semibold;
     }
-    
+
     p {
       @apply text-xs;
     }
@@ -830,13 +853,172 @@
     font-size: 10px !important;
     padding: 12px 8px !important;
   }
-  
+
   :host ::ng-deep .table-row-hover td.mat-mdc-cell {
     padding: 12px 8px !important;
   }
-  
+
   .user-avatar {
     @apply w-8 h-8;
   }
 }
 
+//----PAGINADOR--
+:host ::ng-deep .paginator-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  /* 🔹 mueve todo a la derecha */
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+  border-radius: 0 0 12px 12px;
+}
+
+/* 🔹 Contenedor de numeración */
+.paginator-numbers {
+  display: flex;
+  gap: 6px;
+}
+
+/* 🔹 Cada número */
+.paginator-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #374151;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    border-color: var(--primary-color);
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+  }
+
+  &.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  }
+}
+
+/* 🎨 Selector estilo pill */
+:host ::ng-deep .mat-mdc-select-trigger {
+  min-width: 70px !important;
+  padding: 6px 14px !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  /* redondeado total */
+  background: linear-gradient(135deg, #f97316, #ea580c) !important;
+  /* degradado naranja */
+  color: #fff !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+  /* sombra naranja */
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* 🎨 Hover */
+:host ::ng-deep .mat-mdc-select-trigger:hover {
+  background: linear-gradient(135deg, #ea580c, #c2410c) !important;
+  box-shadow: 0 6px 14px rgba(234, 88, 12, 0.4);
+  transform: translateY(-1px);
+}
+
+/* 🎨 Flecha */
+:host ::ng-deep .mat-mdc-select-arrow {
+  color: #fff !important;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Quitamos labels y bordes innecesarios */
+:host ::ng-deep .mat-mdc-paginator-page-size-label,
+:host ::ng-deep .mat-mdc-paginator-range-label {
+  display: none !important;
+}
+
+/* 🔹 Quitar borde negro del select del paginador */
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline,
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline__leading,
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline__notch,
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline__trailing {
+  border: none !important;
+}
+
+//--
+/* Ocultar flechas del paginador MDC (nueva versión) */
+::ng-deep .mat-mdc-paginator-navigation-first,
+::ng-deep .mat-mdc-paginator-navigation-previous,
+::ng-deep .mat-mdc-paginator-navigation-next,
+::ng-deep .mat-mdc-paginator-navigation-last {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+//-------
+/* 🎨 Estilos para botones de paginador custom */
+.paginator-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  button {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    border: none;
+    background: #1e293b;
+    /* Azul oscuro de tu diseño */
+    color: #fff;
+    font-size: 18px;
+    /* Tamaño de ícono */
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease-in-out;
+
+    &:hover:not(:disabled) {
+      background: #0f172a;
+      /* Un tono más oscuro */
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    &:disabled {
+      background: #cbd5e1;
+      /* Gris clarito */
+      color: #64748b;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  span {
+    font-weight: 600;
+    color: #374151;
+    font-size: 16px;
+    min-width: 50px;
+    text-align: center;
+  }
+}

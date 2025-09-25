@@ -3,6 +3,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -10,10 +11,11 @@
 }
 
 @keyframes slideInLeft {
-  from { 
+  from {
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -21,13 +23,25 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeInScale {
@@ -35,6 +49,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -59,7 +74,7 @@
   border-top: 2px solid var(--primary-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  
+
   @screen sm {
     width: 24px;
     height: 24px;
@@ -76,7 +91,7 @@
 .stat-card {
   @apply bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-md border border-gray-200 transition-all duration-300;
   animation: slideInUp 0.5s ease-out;
-  
+
   &:hover {
     @apply -translate-y-1 shadow-lg;
   }
@@ -84,7 +99,7 @@
 
 .stat-icon {
   @apply w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mb-2 sm:mb-3;
-  
+
   i {
     @apply text-lg sm:text-xl;
   }
@@ -94,7 +109,7 @@
   .stat-number {
     @apply text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 leading-none;
   }
-  
+
   .stat-label {
     @apply text-xs sm:text-sm text-gray-600 mt-1;
   }
@@ -123,12 +138,12 @@
   border-bottom: none !important;
   position: relative;
   padding: 12px 16px !important;
-  
+
   @screen sm {
     font-size: 14px !important;
     padding: 16px 20px !important;
   }
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -136,9 +151,9 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   }
-  
+
   i {
     opacity: 0.9;
   }
@@ -146,17 +161,17 @@
 
 :host ::ng-deep .table-row {
   transition: var(--transition);
-  
+
   &:hover {
     background-color: #f8fafc !important;
     transform: scale(1.002);
   }
-  
+
   td.mat-mdc-cell {
     padding: 12px 16px !important;
     border-bottom: 1px solid #e5e7eb;
     vertical-align: middle;
-    
+
     @screen sm {
       padding: 16px 20px !important;
     }
@@ -184,15 +199,15 @@
 
 .macro-value {
   @apply font-semibold text-xs sm:text-sm px-2 py-1 rounded;
-  
+
   &.protein {
     @apply bg-green-100 text-green-700;
   }
-  
+
   &.carbs {
     @apply bg-yellow-100 text-yellow-700;
   }
-  
+
   &.fats {
     @apply bg-blue-100 text-blue-700;
   }
@@ -202,20 +217,20 @@
 :host ::ng-deep .paginator-custom {
   background: white !important;
   border-top: 1px solid #e5e7eb;
-  
+
   .mat-mdc-paginator-range-label {
     color: var(--text-primary) !important;
     font-weight: 500;
     font-size: 14px;
-    
+
     @screen sm {
       font-size: 16px;
     }
   }
-  
+
   .mat-mdc-icon-button {
     color: var(--primary-color) !important;
-    
+
     &:hover {
       background: rgba(239, 68, 68, 0.1) !important;
     }
@@ -226,11 +241,11 @@
 .nutrition-card {
   @apply bg-white rounded-lg sm:rounded-xl p-4 shadow-md border border-gray-200 transition-all duration-300 cursor-pointer;
   animation: slideInUp 0.4s ease-out both;
-  
+
   &:hover {
     @apply -translate-y-1 shadow-lg;
   }
-  
+
   &:active {
     @apply scale-95;
   }
@@ -239,15 +254,16 @@
 .food-avatar {
   @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center;
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
-  
+
   i {
     @apply text-base sm:text-lg;
   }
 }
 
-.category-tag, .portion-tag {
+.category-tag,
+.portion-tag {
   @apply inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-600;
-  
+
   @screen sm {
     @apply text-xs;
   }
@@ -255,7 +271,7 @@
 
 .calorie-highlight {
   @apply text-right;
-  
+
   .calorie-number {
     @apply block text-lg sm:text-xl font-bold;
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
@@ -263,7 +279,7 @@
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-  
+
   .calorie-unit {
     @apply text-xs font-medium text-gray-500;
   }
@@ -275,19 +291,19 @@
 
 .macro-simple {
   @apply flex flex-col items-center gap-1 text-sm;
-  
+
   @screen sm {
     @apply flex-row gap-2;
   }
-  
+
   i {
     @apply text-sm sm:text-base;
   }
-  
+
   span {
     @apply font-semibold text-gray-800 text-xs sm:text-sm;
   }
-  
+
   small {
     @apply text-gray-500;
   }
@@ -301,11 +317,11 @@
 
 .pagination-btn {
   @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white border-2 border-gray-200 flex items-center justify-center text-gray-600 font-medium transition-all duration-200;
-  
+
   &:hover:not(.disabled) {
     @apply border-red-300 text-red-600 bg-red-50;
   }
-  
+
   &.disabled {
     @apply opacity-40 cursor-not-allowed;
   }
@@ -313,11 +329,11 @@
 
 .pagination-number {
   @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 transition-all duration-200;
-  
+
   &:hover {
     @apply border-red-300 text-red-600 bg-red-50;
   }
-  
+
   &.active {
     @apply bg-red-500 border-red-500 text-white shadow-md;
   }
@@ -325,11 +341,11 @@
 
 .pagination-quick {
   @apply px-3 py-1 rounded-md bg-gray-100 border border-gray-200 text-xs font-medium text-gray-600 transition-all duration-200;
-  
+
   &:hover:not(:disabled) {
     @apply bg-red-100 border-red-200 text-red-700;
   }
-  
+
   &:disabled {
     @apply opacity-40 cursor-not-allowed;
   }
@@ -339,15 +355,15 @@
 .empty-state {
   @apply text-center py-12 px-4;
   animation: slideInUp 0.5s ease-out;
-  
+
   .empty-icon {
     @apply mb-4;
   }
-  
+
   .clear-search-btn {
     @apply inline-flex items-center px-4 py-2 rounded-lg font-medium text-sm text-white transition-all duration-200 border-none cursor-pointer;
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    
+
     &:hover {
       @apply -translate-y-1 shadow-md;
     }
@@ -359,7 +375,7 @@
   @apply fixed bottom-20 left-4 right-4 z-50 rounded-xl p-3 shadow-lg;
   background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
   animation: slideInUp 0.4s ease-out;
-  
+
   @screen sm {
     @apply bottom-6 left-6 right-6;
   }
@@ -369,11 +385,11 @@
 .fab {
   @apply fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white transition-all duration-300 z-50;
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  
+
   &:hover {
     @apply -translate-y-1 shadow-xl scale-110;
   }
-  
+
   &:active {
     @apply scale-95;
   }
@@ -384,20 +400,21 @@
   .nutrition-card {
     @apply p-3 rounded-lg;
   }
-  
+
   .stat-card {
     @apply p-3 rounded-lg;
   }
-  
+
   .macro-simple {
     @apply text-xs;
-    
+
     span {
       @apply text-xs;
     }
   }
-  
-  .category-tag, .portion-tag {
+
+  .category-tag,
+  .portion-tag {
     @apply px-1.5 py-0.5 text-xs;
   }
 }
@@ -435,14 +452,175 @@
 
 // Estilos para impresión
 @media print {
+
   .fab,
   .mobile-stats-float,
   .mobile-pagination {
     display: none !important;
   }
-  
+
   .nutrition-card {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+}
+
+//----PAGINADOR--
+:host ::ng-deep .paginator-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  /* 🔹 mueve todo a la derecha */
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+  border-radius: 0 0 12px 12px;
+}
+
+/* 🔹 Contenedor de numeración */
+.paginator-numbers {
+  display: flex;
+  gap: 6px;
+}
+
+/* 🔹 Cada número */
+.paginator-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #374151;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    border-color: var(--primary-color);
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+  }
+
+  &.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  }
+}
+
+/* 🎨 Selector estilo pill */
+:host ::ng-deep .mat-mdc-select-trigger {
+  min-width: 70px !important;
+  padding: 6px 14px !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  /* redondeado total */
+  background: linear-gradient(135deg, #f97316, #ea580c) !important;
+  /* degradado naranja */
+  color: #fff !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+  /* sombra naranja */
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* 🎨 Hover */
+:host ::ng-deep .mat-mdc-select-trigger:hover {
+  background: linear-gradient(135deg, #ea580c, #c2410c) !important;
+  box-shadow: 0 6px 14px rgba(234, 88, 12, 0.4);
+  transform: translateY(-1px);
+}
+
+/* 🎨 Flecha */
+:host ::ng-deep .mat-mdc-select-arrow {
+  color: #fff !important;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Quitamos labels y bordes innecesarios */
+:host ::ng-deep .mat-mdc-paginator-page-size-label,
+:host ::ng-deep .mat-mdc-paginator-range-label {
+  display: none !important;
+}
+
+/* 🔹 Quitar borde negro del select del paginador */
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline,
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline__leading,
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline__notch,
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline__trailing {
+  border: none !important;
+}
+
+//--
+/* Ocultar flechas del paginador MDC (nueva versión) */
+::ng-deep .mat-mdc-paginator-navigation-first,
+::ng-deep .mat-mdc-paginator-navigation-previous,
+::ng-deep .mat-mdc-paginator-navigation-next,
+::ng-deep .mat-mdc-paginator-navigation-last {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+//-------
+/* 🎨 Estilos para botones de paginador custom */
+.paginator-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  button {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    border: none;
+    background: #1e293b;
+    /* Azul oscuro de tu diseño */
+    color: #fff;
+    font-size: 18px;
+    /* Tamaño de ícono */
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease-in-out;
+
+    &:hover:not(:disabled) {
+      background: #0f172a;
+      /* Un tono más oscuro */
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    &:disabled {
+      background: #cbd5e1;
+      /* Gris clarito */
+      color: #64748b;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  span {
+    font-weight: 600;
+    color: #374151;
+    font-size: 16px;
+    min-width: 50px;
+    text-align: center;
   }
 }

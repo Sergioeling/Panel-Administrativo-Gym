@@ -23,22 +23,13 @@
         <div class="search-container">
           <div class="search-input-wrapper">
             <i class="bi bi-search search-icon"></i>
-            <input 
-              type="text" 
-              [value]="search" 
-              (input)="applyFilter($any($event.target).value)"
-              placeholder="Buscar alimento, categoría..."
-              class="search-input"
-              autocomplete="off">
-            <button 
-              *ngIf="search" 
-              (click)="clearSearch()" 
-              class="clear-btn"
-              title="Limpiar búsqueda">
+            <input type="text" [value]="search" (input)="applyFilter($any($event.target).value)"
+              placeholder="Buscar alimento, categoría..." class="search-input" autocomplete="off">
+            <button *ngIf="search" (click)="clearSearch()" class="clear-btn" title="Limpiar búsqueda">
               <i class="bi bi-x-circle"></i>
             </button>
           </div>
-          
+
           <!-- Indicador de resultados -->
           <div *ngIf="search" class="search-results-indicator">
             <span class="results-count">
@@ -126,7 +117,7 @@
   <!-- Desktop/Tablet Table View -->
   <div class="hidden md:block">
     <div class="table-container">
-      <table mat-table [dataSource]="dataSource" matSort class="nutrition-table w-full">
+      <table mat-table [dataSource]="pagedData" matSort class="nutrition-table w-full">
 
         <!-- Nombre Column -->
         <ng-container matColumnDef="nombre">
@@ -210,9 +201,19 @@
           class="table-row cursor-pointer hover:bg-gray-50" (click)="openModalAlimentos(row, true)"></tr>
       </table>
 
-      <!-- Desktop Paginator -->
-      <mat-paginator [pageSize]="10" [pageSizeOptions]="[5,10,25,50]" class="paginator-custom" showFirstLastButtons>
-      </mat-paginator>
+      <!-- Paginador-->
+      <div class="paginator-wrapper">
+        <mat-paginator [pageSize]="5" [pageSizeOptions]="[5,10,25,50]" class="paginator-custom">
+        </mat-paginator>
+        <!-- 🔹 Tus botones -->
+        <div class="paginator-controls" *ngIf="paginator">
+          <button (click)="goToFirstPage()" [disabled]="currentPage === 1">«</button>
+          <button (click)="goToPreviousPage()" [disabled]="currentPage === 1">‹</button>
+          <span>{{ currentPage }} / {{ totalPages }}</span>
+          <button (click)="goToNextPage()" [disabled]="currentPage === totalPages">›</button>
+          <button (click)="goToLastPage()" [disabled]="currentPage === totalPages">»</button>
+        </div>
+      </div>
     </div>
   </div>
 

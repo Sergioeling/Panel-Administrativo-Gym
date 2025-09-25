@@ -23,22 +23,13 @@
         <div class="search-container">
           <div class="search-input-wrapper">
             <i class="bi bi-search search-icon"></i>
-            <input 
-              type="text" 
-              [value]="search" 
-              (input)="applyFilter($any($event.target).value)"
-              placeholder="Buscar usuarios, email, rol..."
-              class="search-input"
-              autocomplete="off">
-            <button 
-              *ngIf="search" 
-              (click)="clearSearch()" 
-              class="clear-btn"
-              title="Limpiar búsqueda">
+            <input type="text" [value]="search" (input)="applyFilter($any($event.target).value)"
+              placeholder="Buscar usuarios, email, rol..." class="search-input" autocomplete="off">
+            <button *ngIf="search" (click)="clearSearch()" class="clear-btn" title="Limpiar búsqueda">
               <i class="bi bi-x-circle"></i>
             </button>
           </div>
-          
+
           <!-- Indicador de resultados -->
           <div *ngIf="search" class="search-results-indicator">
             <span class="results-count">
@@ -99,11 +90,11 @@
   <!-- Desktop/Tablet Table View -->
   <div class="hidden md:block" *ngIf="!loading">
     <div class="table-container">
-      <table mat-table [dataSource]="dataSource" matSort class="users-table w-full">
+      <table mat-table [dataSource]="pagedData" matSort class="users-table w-full">
 
         <!-- Nombre Column - ARREGLADA -->
         <ng-container matColumnDef="nombre">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-header">
             <i class="bi bi-person me-2"></i>NOMBRE
           </th>
           <td mat-cell *matCellDef="let usuario">
@@ -194,9 +185,20 @@
           [class.usuario-inactivo]="!isUsuarioActivo(row)"></tr>
       </table>
 
-      <!-- Paginator -->
-      <mat-paginator [pageSize]="10" [pageSizeOptions]="[5,10,25,50]" class="paginator-custom" showFirstLastButtons>
-      </mat-paginator>
+      <!-- Paginador-->
+      <div class="paginator-wrapper">
+        <mat-paginator [pageSize]="5" [pageSizeOptions]="[5,10,25,50]" class="paginator-custom">
+        </mat-paginator>
+        <!-- 🔹 Tus botones -->
+        <div class="paginator-controls" *ngIf="paginator">
+          <button (click)="goToFirstPage()" [disabled]="currentPage === 1">«</button>
+          <button (click)="goToPreviousPage()" [disabled]="currentPage === 1">‹</button>
+          <span>{{ currentPage }} / {{ totalPages }}</span>
+          <button (click)="goToNextPage()" [disabled]="currentPage === totalPages">›</button>
+          <button (click)="goToLastPage()" [disabled]="currentPage === totalPages">»</button>
+        </div>
+      </div>
+
     </div>
   </div>
 

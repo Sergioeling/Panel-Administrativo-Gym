@@ -106,7 +106,7 @@ export class AltaTipoObjetivo implements OnInit, OnDestroy {
     });
 
     const serviceCall = this.isEdit
-      ? this.http.put('tipos-objetivo', formData)
+      ? this.http.actualizarTipoObjetivo(formData)
       : this.http.crearTipoObjetivo(formData);
 
     serviceCall
@@ -126,7 +126,10 @@ export class AltaTipoObjetivo implements OnInit, OnDestroy {
             position: 'top-end'
           });
 
-          this.activeModal.close(response);
+          this.activeModal.close({
+            success: true,
+            data: response.data   
+          });
         },
         error: (error) => {
           this.loading = false;

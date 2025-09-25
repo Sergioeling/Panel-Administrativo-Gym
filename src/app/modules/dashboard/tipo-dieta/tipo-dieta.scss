@@ -1,8 +1,10 @@
+// Animaciones
 @keyframes slideInUp {
   from {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -14,6 +16,7 @@
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -21,13 +24,25 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeInScale {
@@ -35,25 +50,37 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
   }
 }
 
-// Estados específicos
-.bg-red-50 {
-  background-color: rgba(248, 113, 113, 0.1) !important;
-  border-left: 3px solid #ef4444 !important;
-  
-  // Para las cards móviles
-  &.user-card {
-    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1), 0 2px 4px -1px rgba(239, 68, 68, 0.06) !important;
-    border: 1px solid rgba(239, 68, 68, 0.2) !important;
-    
-    .user-avatar-mobile {
-      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15)) !important;
-    }
+@keyframes bounce {
+
+  0%,
+  20%,
+  53%,
+  80%,
+  100% {
+    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+    transform: translate3d(0, 0, 0);
+  }
+
+  40%,
+  43% {
+    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+    transform: translate3d(0, -8px, 0);
+  }
+
+  70% {
+    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+    transform: translate3d(0, -4px, 0);
+  }
+
+  90% {
+    transform: translate3d(0, -2px, 0);
   }
 }
 
@@ -62,133 +89,231 @@
   animation: slideInUp 0.3s ease-out;
 }
 
-// Clases para truncar texto
-.truncate-text {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+.bounce-in {
+  animation: bounce 0.6s ease-out;
 }
 
-.line-clamp-1 {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-  line-clamp: 1;
-  overflow: hidden;
-  line-height: 1.2em;
-  max-height: 1.2em;
+// Header icon con tema naranja
+.header-icon {
+  @apply p-2 sm:p-3 rounded-xl shadow-lg;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  animation: bounce 0.6s ease-out;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(249, 115, 22, 0.3);
+  }
 }
 
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
-  line-height: 1.2em;
-  max-height: 2.4em;
-}
-
-// Botón de agregar (heredado de lista-users)
+// Botón agregar usuario con tema naranja
 .btn-add-user {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
   color: white;
-  border: none;
-  
+  border: 1px solid var(--primary-color);
+
   &:hover {
-    background: linear-gradient(135deg, var(--primary-dark), #b91c1c);
+    background: linear-gradient(135deg, var(--primary-dark), #c2410c);
     transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 8px 25px rgba(249, 115, 22, 0.3);
   }
-  
+
   &:active {
     transform: translateY(0);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.2);
   }
 }
 
-// Estados de carga y error
+// Componente de búsqueda
+.search-container {
+  @apply relative;
+
+  .search-input-wrapper {
+    @apply relative flex items-center;
+
+    .search-icon {
+      @apply absolute left-3 text-gray-400 z-10;
+      font-size: 16px;
+    }
+
+    .search-input {
+      @apply w-full sm:w-80 pl-10 pr-10 py-2.5 rounded-lg border border-gray-200 bg-white shadow-sm;
+      @apply focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none;
+      @apply transition-all duration-300 text-sm font-medium;
+
+      &::placeholder {
+        @apply text-gray-400;
+      }
+
+      &:focus {
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05);
+        transform: translateY(-1px);
+      }
+    }
+
+    .clear-btn {
+      @apply absolute right-3 text-gray-400 hover:text-red-500 transition-colors z-10;
+      @apply w-5 h-5 flex items-center justify-center rounded-full;
+
+      &:hover {
+        background: rgba(239, 68, 68, 0.1);
+      }
+    }
+  }
+
+  .search-results-indicator {
+    @apply absolute top-full left-0 right-0 mt-1 z-20;
+
+    .results-count {
+      @apply inline-flex items-center px-3 py-1.5 bg-orange-50 text-orange-700 text-xs font-medium;
+      @apply rounded-lg border border-orange-200 shadow-sm;
+      animation: slideInUp 0.3s ease-out;
+    }
+  }
+}
+
+// Loading y error
 .loading-card {
-    @apply bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-200;
-    animation: slideInUp 0.4s ease-out;
+  @apply bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-200;
+  animation: slideInUp 0.4s ease-out;
 }
 
 .spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid var(--primary-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 
-    @screen sm {
-        width: 24px;
-        height: 24px;
-        border-width: 3px;
-    }
+  @screen sm {
+    width: 24px;
+    height: 24px;
+    border-width: 3px;
+  }
 }
 
 .error-card {
-    @apply bg-red-50 rounded-xl p-4 sm:p-6 shadow-lg border border-red-200;
-    animation: slideInUp 0.4s ease-out;
+  @apply bg-red-50 rounded-xl p-4 sm:p-6 shadow-lg border border-red-200;
+  animation: slideInUp 0.4s ease-out;
 }
 
 // Cards de estadísticas
 .stat-card {
-    @apply bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-md border border-gray-200 transition-all duration-300;
-    animation: slideInUp 0.5s ease-out;
+  @apply bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-md border border-gray-200 transition-all duration-300;
+  animation: slideInUp 0.5s ease-out;
 
-    &:hover {
-        @apply -translate-y-1 shadow-lg;
-    }
+  &:hover {
+    @apply -translate-y-1 shadow-lg;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .stat-icon {
-    @apply w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mb-2 sm:mb-3;
+  @apply w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mb-2 sm:mb-3;
 
-    i {
-        @apply text-lg sm:text-xl;
-    }
+  i {
+    @apply text-lg sm:text-xl;
+  }
 }
 
 .stat-content {
-    .stat-number {
-        @apply text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 leading-none;
-    }
+  .stat-number {
+    @apply text-lg sm:text-xl lg:text-2xl font-bold leading-none;
+  }
 
-    .stat-label {
-        @apply text-xs sm:text-sm text-gray-600 mt-1;
-    }
+  .stat-label {
+    @apply text-xs sm:text-sm text-gray-600 mt-1;
+  }
 }
 
-
-
-// Contenedor de tabla
+// Tabla
 .table-container {
   @apply bg-white rounded-lg sm:rounded-xl shadow-lg border border-gray-200 overflow-hidden;
   animation: slideInUp 0.6s ease-out;
 }
 
-.users-table {
+.nutrition-table {
   @apply min-w-full;
 }
 
-// Estilos de tabla responsive
-:host ::ng-deep .table-header th.mat-mdc-header-cell {
+// Avatar para objetivos con tema naranja
+.tipo-avatar {
+  @apply w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-md;
+  animation: bounce 0.6s ease-out;
+
+  i {
+    @apply text-base sm:text-lg font-bold;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+  }
+}
+
+// Status badges
+.status-badge {
+  @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold;
+  transition: var(--transition);
+
+  &.status-active {
+    @apply bg-green-100 text-green-700 border border-green-200;
+
+    i {
+      @apply text-green-600;
+    }
+  }
+
+  &.status-inactive {
+    @apply bg-red-100 text-red-700 border border-red-200;
+
+    i {
+      @apply text-red-600;
+    }
+  }
+}
+
+.status-badge-mobile {
+  @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium;
+  transition: var(--transition);
+
+  &.status-active {
+    @apply bg-green-100 text-green-700;
+
+    i {
+      @apply text-green-600;
+      font-size: 10px;
+    }
+  }
+
+  &.status-inactive {
+    @apply bg-red-100 text-red-700;
+
+    i {
+      @apply text-red-600;
+      font-size: 10px;
+    }
+  }
+}
+
+// Encabezado tabla con tema verde
+:host ::ng-deep .table-header th.mat-mdc-header-cell,
+:host ::ng-deep th.mat-mdc-header-cell {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
   color: #fff !important;
   font-weight: 700 !important;
-  font-size: 11px !important;
+  font-size: 12px !important;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.5px;
   border-bottom: none !important;
   position: relative;
-  height: 56px !important;
-  
-  @screen lg {
-    font-size: 12px !important;
+  padding: 12px 16px !important;
+
+  @screen sm {
+    font-size: 14px !important;
+    padding: 16px 20px !important;
   }
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -198,639 +323,71 @@
     height: 2px;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   }
-  
+
   i {
     opacity: 0.9;
-    margin-right: 6px;
   }
 }
 
 :host ::ng-deep .table-row-hover {
   transition: var(--transition);
-  height: 72px !important;
-  
+
   &:hover {
-    background-color: #f8fafc !important;
+    background-color: #f0fdf4 !important;
     transform: scale(1.002);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
-  
+
   td.mat-mdc-cell {
-    padding: 16px 20px !important;
+    padding: 12px 16px !important;
     border-bottom: 1px solid #e5e7eb;
     vertical-align: middle;
+
+    @screen sm {
+      padding: 16px 20px !important;
+    }
   }
 }
 
-// Elementos específicos de tipos
-.tipo-avatar {
-  @apply w-10 h-10 rounded-lg flex items-center justify-center;
-  background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(126, 34, 206, 0.1));
-  transition: all 0.3s ease;
-  
-  i {
-    @apply text-purple-600 text-lg;
-  }
-}
-
-.user-avatar-mobile {
-  @apply w-12 h-12 rounded-lg flex items-center justify-center;
-  background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(126, 34, 206, 0.1));
-  transition: all 0.3s ease;
-  
-  i {
-    @apply text-purple-600 text-xl;
-  }
-}
-
-// Cards móviles
+// Cards móviles mejoradas
 .user-card {
   @apply bg-white rounded-lg sm:rounded-xl p-4 shadow-md border border-gray-200 transition-all duration-300;
   animation: slideInUp 0.4s ease-out both;
+  animation-delay: calc(var(--index, 0) * 0.1s);
 
   &:hover {
     @apply -translate-y-1 shadow-lg;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   }
 
   &:active {
     @apply scale-95;
   }
-}
 
-// Botones de acción
-.btn-action {
-  @apply bg-transparent border-none p-2 rounded-lg cursor-pointer transition-all duration-300;
-  
-  &.edit {
+  &.objetivo-inactivo {
+    @apply border-gray-200 bg-gray-50;
+    opacity: 0.7;
+
     &:hover {
-      background: rgba(59, 130, 246, 0.1);
-      color: var(--primary-color);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
-    }
-    
-    &:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+      opacity: 0.85;
     }
   }
-  
+}
+
+.user-avatar-mobile {
+  @apply w-12 h-12 rounded-full flex items-center justify-center shadow-md flex-shrink-0;
+  animation: bounce 0.6s ease-out;
+
   i {
-    @apply text-gray-600 text-base;
+    @apply text-lg font-bold;
   }
-}
 
-.btn-action-mobile {
-  @apply bg-transparent border-none p-2 rounded-lg cursor-pointer transition-all duration-300;
-  
-  &.edit {
-    &:hover {
-      background: rgba(59, 130, 246, 0.1);
-      color: var(--primary-color);
-    }
-    
-    &:active {
-      transform: scale(0.95);
-    }
-  }
-  
-  i {
-    @apply text-gray-600 text-lg;
-  }
-}
-
-// Buscador HTML puro mejorado
-.search-container {
-  width: 100%;
-  
-  @screen sm {
-    width: 320px;
-  }
-}
-
-.search-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(44, 62, 80, 0.08);
-  overflow: hidden;
-  
   &:hover {
-    border-color: #d1d5db;
-    box-shadow: 0 6px 16px rgba(44, 62, 80, 0.12);
-  }
-  
-  &:focus-within {
-    border-color: var(--accent-color);
-    box-shadow: 0 6px 20px rgba(243, 156, 18, 0.15);
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
   }
 }
 
-.search-icon {
-  color: var(--text-secondary);
-  font-size: 16px;
-  margin-left: 14px;
-  margin-right: 10px;
-  transition: color 0.3s ease;
-  flex-shrink: 0;
-}
-
-.search-input {
-  flex: 1;
-  border: none;
-  outline: none;
-  padding: 14px 8px 14px 0;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-  background: transparent;
-  
-  &::placeholder {
-    color: var(--text-secondary);
-    font-weight: 400;
-  }
-  
-  &:focus {
-    color: var(--text-primary);
-  }
-}
-
-.clear-btn {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 6px;
-  margin-right: 8px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &:hover {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
-  
-  i {
-    font-size: 14px;
-  }
-}
-
-.search-results-indicator {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  margin-top: 8px;
-  z-index: 10;
-  
-  .results-count {
-    background: white;
-    color: var(--text-secondary);
-    font-size: 12px;
-    font-weight: 500;
-    padding: 6px 12px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e7eb;
-  }
-}
-
-// Estados cuando hay búsqueda activa
-.search-input-wrapper:has(.search-input:not(:placeholder-shown)) {
-  border-color: var(--accent-color);
-  background: rgba(243, 156, 18, 0.03);
-  
-  .search-icon {
-    color: var(--accent-color);
-  }
-  
-  &:hover {
-    border-color: var(--accent-color);
-  }
-}
-
-// Responsive ajustes
-@media (max-width: 640px) {
-  .search-input {
-    padding: 12px 6px 12px 0;
-    font-size: 14px;
-  }
-  
-  .search-icon {
-    margin-left: 12px;
-    margin-right: 8px;
-    font-size: 15px;
-  }
-}
-
-// Elementos de tabla
-.food-icon {
-    @apply w-2 h-2 flex items-center justify-center;
-}
-
-.category-badge {
-    @apply inline-flex items-center px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium text-white shadow-sm;
-    background: linear-gradient(135deg, var(--accent-color), #f59e0b);
-}
-
-.portion-text {
-    @apply font-semibold text-gray-800 text-xs sm:text-sm;
-}
-
-.calorie-badge {
-    @apply inline-flex items-center px-2 py-1 sm:px-3 sm:py-1 rounded-full font-bold text-xs sm:text-sm text-white shadow-sm;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-}
-
-.macro-value {
-    @apply font-semibold text-xs sm:text-sm px-2 py-1 rounded;
-
-    &.protein {
-        @apply bg-green-100 text-green-700;
-    }
-
-    &.carbs {
-        @apply bg-yellow-100 text-yellow-700;
-    }
-
-    &.fats {
-        @apply bg-blue-100 text-blue-700;
-    }
-}
-
-// Paginador personalizado
-:host ::ng-deep .paginator-custom {
-    background: white !important;
-    border-top: 1px solid #e5e7eb;
-
-    .mat-mdc-paginator-range-label {
-        color: var(--text-primary) !important;
-        font-weight: 500;
-        font-size: 14px;
-
-        @screen sm {
-            font-size: 16px;
-        }
-    }
-
-    .mat-mdc-icon-button {
-        color: var(--primary-color) !important;
-
-        &:hover {
-            background: rgba(239, 68, 68, 0.1) !important;
-        }
-    }
-}
-
-// Cards móviles
-.nutrition-card {
-    @apply bg-white rounded-lg sm:rounded-xl p-4 shadow-md border border-gray-200 transition-all duration-300 cursor-pointer;
-    animation: slideInUp 0.4s ease-out both;
-
-    &:hover {
-        @apply -translate-y-1 shadow-lg;
-    }
-
-    &:active {
-        @apply scale-95;
-    }
-}
-
-.food-avatar {
-    @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center;
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
-
-    i {
-        @apply text-base sm:text-lg;
-    }
-}
-
-.category-tag,
-.portion-tag {
-    @apply inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-600;
-
-    @screen sm {
-        @apply text-xs;
-    }
-}
-
-.calorie-highlight {
-    @apply text-right;
-
-    .calorie-number {
-        @apply block text-lg sm:text-xl font-bold;
-        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .calorie-unit {
-        @apply text-xs font-medium text-gray-500;
-    }
-}
-
-.macro-grid-simple {
-    @apply flex items-center justify-between pt-3 border-t border-gray-100;
-}
-
-.macro-simple {
-    @apply flex flex-col items-center gap-1 text-sm;
-
-    @screen sm {
-        @apply flex-row gap-2;
-    }
-
-    i {
-        @apply text-sm sm:text-base;
-    }
-
-    span {
-        @apply font-semibold text-gray-800 text-xs sm:text-sm;
-    }
-
-    small {
-        @apply text-gray-500;
-    }
-}
-
-// Paginación móvil
-.mobile-pagination {
-    @apply bg-white rounded-xl p-4 shadow-md border border-gray-200;
-    animation: slideInUp 0.4s ease-out;
-}
-
-.pagination-btn {
-    @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white border-2 border-gray-200 flex items-center justify-center text-gray-600 font-medium transition-all duration-200;
-
-    &:hover:not(.disabled) {
-        @apply border-red-300 text-red-600 bg-red-50;
-    }
-
-    &.disabled {
-        @apply opacity-40 cursor-not-allowed;
-    }
-}
-
-.pagination-number {
-    @apply w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 transition-all duration-200;
-
-    &:hover {
-        @apply border-red-300 text-red-600 bg-red-50;
-    }
-
-    &.active {
-        @apply bg-red-500 border-red-500 text-white shadow-md;
-    }
-}
-
-.pagination-quick {
-    @apply px-3 py-1 rounded-md bg-gray-100 border border-gray-200 text-xs font-medium text-gray-600 transition-all duration-200;
-
-    &:hover:not(:disabled) {
-        @apply bg-red-100 border-red-200 text-red-700;
-    }
-
-    &:disabled {
-        @apply opacity-40 cursor-not-allowed;
-    }
-}
-
-// Estado vacío
-.empty-state {
-    @apply text-center py-12 px-4;
-    animation: slideInUp 0.5s ease-out;
-
-    .empty-icon {
-        @apply mb-4;
-    }
-
-    .clear-search-btn {
-        @apply inline-flex items-center px-4 py-2 rounded-lg font-medium text-sm text-white transition-all duration-200 border-none cursor-pointer;
-        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-
-        &:hover {
-            @apply -translate-y-1 shadow-md;
-        }
-    }
-}
-
-// Flotante móvil para resultados de búsqueda
-.mobile-stats-float {
-    @apply fixed bottom-20 left-4 right-4 z-50 rounded-xl p-3 shadow-lg;
-    background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
-    animation: slideInUp 0.4s ease-out;
-
-    @screen sm {
-        @apply bottom-6 left-6 right-6;
-    }
-}
-
-// Floating Action Button
-.fab {
-    @apply fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white transition-all duration-300 z-50;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-
-    &:hover {
-        @apply -translate-y-1 shadow-xl scale-110;
-    }
-
-    &:active {
-        @apply scale-95;
-    }
-}
-
-// Toggle personalizado - Desktop
-.custom-toggle {
-    width: 48px;
-    height: 24px;
-    background: linear-gradient(135deg, #e5e7eb, #d1d5db);
-    border-radius: 12px;
-    position: relative;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-    border: 1px solid #d1d5db;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-
-    &:hover {
-        filter: brightness(1.05);
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(239, 68, 68, 0.1);
-    }
-
-    .toggle-thumb {
-        width: 20px;
-        height: 20px;
-        background: white;
-        border-radius: 50%;
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-        border: 1px solid #e5e7eb;
-    }
-
-    &.active {
-        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-        border-color: var(--primary-color);
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(239, 68, 68, 0.3);
-
-        .toggle-thumb {
-            transform: translateX(24px);
-            border-color: var(--primary-color);
-            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
-        }
-
-        &:hover {
-            background: linear-gradient(135deg, var(--primary-dark), #b91c1c);
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15), 0 0 12px rgba(239, 68, 68, 0.4);
-        }
-    }
-}
-
-// Toggle personalizado - Mobile
-.custom-toggle-mobile {
-    width: 42px;
-    height: 22px;
-    background: linear-gradient(135deg, #e5e7eb, #d1d5db);
-    border-radius: 11px;
-    position: relative;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-    border: 1px solid #d1d5db;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-
-    &:hover {
-        filter: brightness(1.05);
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(239, 68, 68, 0.1);
-    }
-
-    .toggle-thumb-mobile {
-        width: 18px;
-        height: 18px;
-        background: white;
-        border-radius: 50%;
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        border: 1px solid #e5e7eb;
-    }
-
-    &.active {
-        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-        border-color: var(--primary-color);
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 6px rgba(239, 68, 68, 0.3);
-
-        .toggle-thumb-mobile {
-            transform: translateX(20px);
-            border-color: var(--primary-color);
-            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
-        }
-
-        &:hover {
-            background: linear-gradient(135deg, var(--primary-dark), #b91c1c);
-            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 0 8px rgba(239, 68, 68, 0.4);
-        }
-    }
-}
-
-// Animaciones adicionales para el toggle personalizado
-.custom-toggle,
-.custom-toggle-mobile {
-    &:active {
-        transform: scale(0.98);
-    }
-
-    &:focus {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
-    }
-}
-
-// Mejoras responsive específicas
-@media (max-width: 640px) {
-    .nutrition-card {
-        @apply p-3 rounded-lg;
-    }
-
-    .stat-card {
-        @apply p-3 rounded-lg;
-    }
-
-    .macro-simple {
-        @apply text-xs;
-
-        span {
-            @apply text-xs;
-        }
-    }
-
-    .category-tag,
-    .portion-tag {
-        @apply px-1.5 py-0.5 text-xs;
-    }
-}
-
-@media (min-width: 641px) and (max-width: 768px) {
-    .nutrition-card {
-        @apply p-4 rounded-xl;
-    }
-}
-
-// Animaciones específicas por breakpoint
-@media (max-width: 768px) {
-    .nutrition-card {
-        animation-delay: calc(var(--index, 0) * 0.1s);
-    }
-}
-
-// Mejoras de accesibilidad
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-// Modo oscuro (opcional)
-@media (prefers-color-scheme: dark) {
-    :host {
-        --background: #111827;
-        --text-primary: #f9fafb;
-        --text-secondary: #d1d5db;
-    }
-}
-
-// Estilos para impresión
-@media print {
-
-    .fab,
-    .mobile-stats-float,
-    .mobile-pagination {
-        display: none !important;
-    }
-
-    .nutrition-card {
-        break-inside: avoid;
-        page-break-inside: avoid;
-    }
-}
-
-// Toggle personalizado - Desktop
+// Toggle personalizado - Desktop con tema naranja
 .custom-toggle {
   width: 48px;
   height: 24px;
@@ -841,12 +398,12 @@
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   border: 1px solid #d1d5db;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-  
+
   &:hover {
     filter: brightness(1.05);
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(239, 68, 68, 0.1);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(249, 115, 22, 0.1);
   }
-  
+
   .toggle-thumb {
     width: 20px;
     height: 20px;
@@ -859,26 +416,26 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     border: 1px solid #e5e7eb;
   }
-  
+
   &.active {
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     border-color: var(--primary-color);
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(239, 68, 68, 0.3);
-    
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(249, 115, 22, 0.3);
+
     .toggle-thumb {
       transform: translateX(24px);
       border-color: var(--primary-color);
-      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+      box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
     }
-    
+
     &:hover {
-      background: linear-gradient(135deg, var(--primary-dark), #b91c1c);
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15), 0 0 12px rgba(239, 68, 68, 0.4);
+      background: linear-gradient(135deg, var(--primary-dark), #c2410c);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15), 0 0 12px rgba(249, 115, 22, 0.4);
     }
   }
 }
 
-// Toggle personalizado - Mobile
+// Toggle personalizado - Mobile con tema naranja
 .custom-toggle-mobile {
   width: 42px;
   height: 22px;
@@ -889,12 +446,12 @@
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   border: 1px solid #d1d5db;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-  
+
   &:hover {
     filter: brightness(1.05);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(239, 68, 68, 0.1);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(249, 115, 22, 0.1);
   }
-  
+
   .toggle-thumb-mobile {
     width: 18px;
     height: 18px;
@@ -907,34 +464,35 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     border: 1px solid #e5e7eb;
   }
-  
+
   &.active {
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     border-color: var(--primary-color);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 6px rgba(239, 68, 68, 0.3);
-    
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 6px rgba(249, 115, 22, 0.3);
+
     .toggle-thumb-mobile {
       transform: translateX(20px);
       border-color: var(--primary-color);
-      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+      box-shadow: 0 2px 6px rgba(249, 115, 22, 0.4);
     }
-    
+
     &:hover {
-      background: linear-gradient(135deg, var(--primary-dark), #b91c1c);
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 0 8px rgba(239, 68, 68, 0.4);
+      background: linear-gradient(135deg, var(--primary-dark), #c2410c);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 0 8px rgba(249, 115, 22, 0.4);
     }
   }
 }
 
 // Animaciones adicionales para el toggle personalizado
-.custom-toggle, .custom-toggle-mobile {
+.custom-toggle,
+.custom-toggle-mobile {
   &:active {
     transform: scale(0.98);
   }
-  
+
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
   }
 }
 
@@ -942,17 +500,17 @@
 .mobile-pagination {
   @apply bg-white rounded-xl p-4 shadow-md border border-gray-200 mx-2;
   animation: slideInUp 0.4s ease-out;
-  
+
   // Información de paginación mejorada
   .pagination-info {
     .progress-indicator {
-      .bg-purple-500 {
-        background: linear-gradient(90deg, #9333ea, #7c3aed) !important;
-        box-shadow: 0 2px 8px rgba(147, 51, 234, 0.3);
+      .bg-orange-500 {
+        background: linear-gradient(90deg, #f97316, #ea580c) !important;
+        box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
       }
     }
   }
-  
+
   // Contenedor de botones
   .pagination-controls {
     display: flex;
@@ -961,11 +519,11 @@
     gap: 12px;
     margin-top: 16px;
   }
-  
+
   // Indicador de progreso
   .progress-indicator {
     margin-top: 8px;
-    
+
     .bg-gray-200 {
       background-color: #f3f4f6 !important;
     }
@@ -975,45 +533,45 @@
 .pagination-btn {
   @apply w-10 h-10 rounded-lg bg-white border-2 border-gray-200 flex items-center justify-center text-gray-600 font-medium transition-all duration-200 shadow-sm;
   min-width: 40px;
-  
+
   // Mejor experiencia táctil en móvil
   &:active {
     transform: scale(0.95);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
-  
+
   &:hover:not(.disabled) {
     border-color: var(--primary-color);
-    background: rgba(239, 68, 68, 0.05);
+    background: rgba(249, 115, 22, 0.05);
     color: var(--primary-color);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15);
   }
-  
+
   &.disabled {
     opacity: 0.5;
     cursor: not-allowed;
     background: #f9fafb;
     border-color: #e5e7eb;
     color: #9ca3af;
-    
+
     &:hover {
       transform: none;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
   }
-  
+
   i {
     font-size: 14px;
     font-weight: 600;
   }
-  
+
   // En pantallas muy pequeñas
   @media (max-width: 380px) {
     width: 36px;
     height: 36px;
     min-width: 36px;
-    
+
     i {
       font-size: 12px;
     }
@@ -1024,47 +582,47 @@
   @apply w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 transition-all duration-200 shadow-sm;
   min-width: 40px;
   line-height: 1;
-  
+
   // Mejor experiencia táctil
   &:active {
     transform: scale(0.95);
   }
-  
+
   &:hover:not(.active) {
     border-color: var(--primary-color);
-    background: rgba(239, 68, 68, 0.05);
+    background: rgba(249, 115, 22, 0.05);
     color: var(--primary-color);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15);
   }
-  
+
   &.active {
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     border-color: var(--primary-color);
     color: white;
     font-weight: 700;
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.25);
-    
+    box-shadow: 0 6px 16px rgba(249, 115, 22, 0.25);
+
     &:hover {
-      background: linear-gradient(135deg, var(--primary-dark), #b91c1c);
-      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+      background: linear-gradient(135deg, var(--primary-dark), #c2410c);
+      box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
       transform: translateY(-2px);
     }
-    
+
     &:active {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
     }
   }
-  
+
   // En pantallas muy pequeñas
   @media (max-width: 380px) {
     width: 36px;
     height: 36px;
     min-width: 36px;
   }
-  
+
   // Pantallas medianas (iPhone SE, etc.)
   @media (min-width: 381px) and (max-width: 480px) {
     width: 38px;
@@ -1077,26 +635,31 @@
 .empty-state {
   @apply text-center py-12 px-4;
   animation: slideInUp 0.5s ease-out;
-  
+
   .empty-icon {
     @apply mb-4;
   }
-  
+
   .clear-search-btn {
-    @apply inline-flex items-center px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors;
+    @apply inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+
+    &:hover {
+      background: linear-gradient(135deg, var(--primary-dark), #c2410c);
+    }
   }
 }
 
-// Floating Action Button
+// Floating Action Button con tema verde
 .fab {
   @apply fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white transition-all duration-300 z-50;
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  
+
   &:hover {
     transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 12px 24px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 12px 24px rgba(34, 197, 94, 0.3);
   }
-  
+
   &:active {
     transform: translateY(-1px) scale(1.02);
   }
@@ -1106,22 +669,22 @@
 :host ::ng-deep .paginator-custom {
   background: white !important;
   border-top: 1px solid #e5e7eb;
-  
+
   .mat-mdc-paginator-range-label {
     color: var(--text-primary) !important;
     font-weight: 500;
     font-size: 14px;
-    
+
     @screen sm {
       font-size: 16px;
     }
   }
-  
+
   .mat-mdc-icon-button {
     color: var(--primary-color) !important;
-    
+
     &:hover {
-      background: rgba(239, 68, 68, 0.1) !important;
+      background: rgba(34, 197, 94, 0.1) !important;
     }
   }
 }
@@ -1134,12 +697,12 @@
 
   .stat-card {
     @apply p-3 rounded-lg;
-    
+
     .stat-content {
       .stat-number {
         @apply text-lg font-bold;
       }
-      
+
       .stat-label {
         @apply text-xs;
       }
@@ -1151,10 +714,10 @@
 @media (max-width: 380px) {
   .user-card {
     @apply p-3;
-    
+
     .user-avatar-mobile {
       @apply w-10 h-10;
-      
+
       i {
         @apply text-lg;
       }
@@ -1190,19 +753,179 @@
     font-size: 11px !important;
     padding: 12px 16px !important;
   }
-  
+
   :host ::ng-deep .table-row-hover {
     td.mat-mdc-cell {
       padding: 12px 16px !important;
       font-size: 14px;
     }
   }
-  
+
   .tipo-avatar {
     @apply w-8 h-8;
-    
+
     i {
       @apply text-base;
     }
+  }
+}
+
+//----PAGINADOR--
+:host ::ng-deep .paginator-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  /* 🔹 mueve todo a la derecha */
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+  border-radius: 0 0 12px 12px;
+}
+
+/* 🔹 Contenedor de numeración */
+.paginator-numbers {
+  display: flex;
+  gap: 6px;
+}
+
+/* 🔹 Cada número */
+.paginator-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #374151;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    border-color: var(--primary-color);
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+  }
+
+  &.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  }
+}
+
+/* 🎨 Selector estilo pill */
+:host ::ng-deep .mat-mdc-select-trigger {
+  min-width: 70px !important;
+  padding: 6px 14px !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  /* redondeado total */
+  background: linear-gradient(135deg, #f97316, #ea580c) !important;
+  /* degradado naranja */
+  color: #fff !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+  /* sombra naranja */
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* 🎨 Hover */
+:host ::ng-deep .mat-mdc-select-trigger:hover {
+  background: linear-gradient(135deg, #ea580c, #c2410c) !important;
+  box-shadow: 0 6px 14px rgba(234, 88, 12, 0.4);
+  transform: translateY(-1px);
+}
+
+/* 🎨 Flecha */
+:host ::ng-deep .mat-mdc-select-arrow {
+  color: #fff !important;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Quitamos labels y bordes innecesarios */
+:host ::ng-deep .mat-mdc-paginator-page-size-label,
+:host ::ng-deep .mat-mdc-paginator-range-label {
+  display: none !important;
+}
+
+/* 🔹 Quitar borde negro del select del paginador */
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline,
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline__leading,
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline__notch,
+:host ::ng-deep .mat-mdc-paginator .mdc-notched-outline__trailing {
+  border: none !important;
+}
+
+//--
+/* Ocultar flechas del paginador MDC (nueva versión) */
+::ng-deep .mat-mdc-paginator-navigation-first,
+::ng-deep .mat-mdc-paginator-navigation-previous,
+::ng-deep .mat-mdc-paginator-navigation-next,
+::ng-deep .mat-mdc-paginator-navigation-last {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+//-------
+/* 🎨 Estilos para botones de paginador custom */
+.paginator-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  button {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    border: none;
+    background: #1e293b;
+    /* Azul oscuro de tu diseño */
+    color: #fff;
+    font-size: 18px;
+    /* Tamaño de ícono */
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease-in-out;
+
+    &:hover:not(:disabled) {
+      background: #0f172a;
+      /* Un tono más oscuro */
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    &:disabled {
+      background: #cbd5e1;
+      /* Gris clarito */
+      color: #64748b;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  span {
+    font-weight: 600;
+    color: #374151;
+    font-size: 16px;
+    min-width: 50px;
+    text-align: center;
   }
 }

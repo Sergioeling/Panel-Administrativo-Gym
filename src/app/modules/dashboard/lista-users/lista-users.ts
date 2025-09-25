@@ -467,5 +467,67 @@ export class ListaUsers implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  
+  //---Paginador----
+  get pagedData(): any[] {
+    const data = this.dataSource.filteredData.length
+      ? this.dataSource.filteredData
+      : this.dataSource.data;
+
+    if (!this.paginator) return data;
+
+    const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
+    return data.slice(startIndex, startIndex + this.paginator.pageSize);
+  }
+
+  get currentPage(): number {
+    return this.paginator ? this.paginator.pageIndex + 1 : 1;
+  }
+
+  get totalPages(): number {
+    return this.paginator
+      ? Math.ceil(this.dataSource.filteredData.length / this.paginator.pageSize)
+      : 1;
+  }
+
+  // Ir a la primera página
+  goToFirstPage(): void {
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+      this.emitirCambioPagina();
+    }
+  }
+
+  // Ir a la página anterior
+  goToPreviousPage(): void {
+    if (this.paginator && this.paginator.pageIndex > 0) {
+      this.paginator.pageIndex--;
+      this.emitirCambioPagina();
+    }
+  }
+
+  // Ir a la página siguiente
+  goToNextPage(): void {
+    if (this.paginator && this.paginator.pageIndex < this.totalPages - 1) {
+      this.paginator.pageIndex++;
+      this.emitirCambioPagina();
+    }
+  }
+
+  // Ir a la última página
+  goToLastPage(): void {
+    if (this.paginator) {
+      this.paginator.pageIndex = this.totalPages - 1;
+      this.emitirCambioPagina();
+    }
+  }
+
+  // 🔹 Método auxiliar para forzar el refresh del paginador
+  private emitirCambioPagina(): void {
+    this.paginator.page.next({
+      pageIndex: this.paginator.pageIndex,
+      pageSize: this.paginator.pageSize,
+      length: this.dataSource.filteredData.length
+    });
+    this.cdr.markForCheck();
+  }
 }

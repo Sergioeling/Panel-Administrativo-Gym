@@ -1,4 +1,14 @@
-import { AfterViewInit, Component, ViewChild, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, TrackByFunction, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ViewChild,
+  OnInit,
+  OnDestroy,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  TrackByFunction,
+  inject
+} from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -10,7 +20,6 @@ import Swal from 'sweetalert2';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AltaTipoObjetivo } from '../../shared/modales/alta-tipo-objetivo/alta-tipo-objetivo';
-
 
 @Component({
   selector: 'app-tipo-objetivo',
@@ -40,27 +49,11 @@ export class TipoObjetivoComponent implements OnInit, AfterViewInit, OnDestroy {
   search = '';
   isMobile = false;
 
-  displayedColumns: string[] = ['avatar', 'nombre', 'status', 'acciones'];
+  // columnas para tabla desktop
+  displayedColumns: string[] = ['id', 'nombre', 'editar', 'acciones'];
   dataSource = new MatTableDataSource<any>([]);
 
-  // Getters estadísticos
-  get totalTipos(): number {
-    return this.dataSource.data.length;
-  }
-
-  get tiposActivos(): number {
-    return this.dataSource.data.filter(tipo => String(tipo.status) === '1').length;
-  }
-
-  get tiposInactivos(): number {
-    return this.dataSource.data.filter(tipo => String(tipo.status) !== '1').length;
-  }
-
-  get tiposFiltrados(): number {
-    return this.filteredData.length;
-  }
-
-  // Mobile
+  // paginación móvil
   mobilePageSize = 6;
   mobileCurrentPage = 0;
   mobileTotalPages = 0;
@@ -69,6 +62,7 @@ export class TipoObjetivoComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
+
   ngOnInit(): void {
     this.setupResponsive();
     this.obtenerTiposObjetivos();
@@ -76,7 +70,8 @@ export class TipoObjetivoComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   setupResponsive(): void {
-    this.breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small])
+    this.breakpointObserver
+      .observe([Breakpoints.XSmall, Breakpoints.Small])
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.isMobile = this.breakpointObserver.isMatched(['(max-width: 767px)']);
@@ -103,13 +98,13 @@ export class TipoObjetivoComponent implements OnInit, AfterViewInit, OnDestroy {
 
   obtenerTiposObjetivos(): void {
     this.loading = true;
-    this.http.obtenerTiposObjetivos()
+    this.http
+      .obtenerTiposObjetivos()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (resp: any) => {
           const payload = resp?.data ?? resp;
-          let data: any[] = Array.isArray(payload) ? payload : (payload ? [payload] : []);
-
+          let data: any[] = Array.isArray(payload) ? payload : payload ? [payload] : [];
           data = data.sort((a, b) => Number(a.id) - Number(b.id));
 
           this.dataSource.data = data.map(o => ({
@@ -132,9 +127,7 @@ export class TipoObjetivoComponent implements OnInit, AfterViewInit, OnDestroy {
   applyFilter(value: string): void {
     this.search = value ?? '';
     this.dataSource.filter = this.search.trim().toLowerCase();
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
     this.updateMobilePagination();
     this.cdr.markForCheck();
   }
@@ -142,27 +135,121 @@ export class TipoObjetivoComponent implements OnInit, AfterViewInit, OnDestroy {
   clearSearch(): void {
     this.search = '';
     this.dataSource.filter = '';
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
     this.updateMobilePagination();
     this.cdr.markForCheck();
   }
 
-  // 🔹 Paginación móvil
+  get filteredData(): any[] {
+    return this.dataSource.filteredData.length
+      ? this.dataSource.filteredData
+      : this.dataSource.data;
+  }
+
+  retryLoad(): void {
+    this.obtenerTiposObjetivos();
+  }
+
+  toggleObjetivoActivo(objetivo: any, activo: boolean): void {
+    const nuevoStatus = activo ? 1 : 0;
+    const statusData = { status: nuevoStatus };
+
+    this.http
+      .actualizarStatusObjetivo(parseInt(objetivo.id), statusData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          const index = this.dataSource.data.findIndex(o => o.id === objetivo.id);
+          if (index !== -1) {
+            this.dataSource.data[index].status = nuevoStatus.toString();
+          }
+          this.updateMobilePagination();
+          this.cdr.markForCheck();
+
+          Swal.fire({
+            title: '¡Éxito!',
+            text: `Objetivo "${objetivo.nombre}" fue ${activo ? 'activado' : 'desactivado'} correctamente`,
+            icon: 'success',
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            toast: true,
+            background: '#fff',
+            color: '#374151',
+            iconColor: activo ? '#10b981' : '#ef4444',
+            customClass: { popup: 'swal-toast-success' }
+          });
+        },
+        error: () => {
+          this.obtenerTiposObjetivos();
+          Swal.fire({
+            title: 'Error',
+            text: `No se pudo ${activo ? 'activar' : 'desactivar'} el objetivo "${objetivo.nombre}"`,
+            icon: 'error',
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 4000,
+            toast: true,
+            background: '#fff',
+            color: '#374151',
+            iconColor: '#ef4444',
+            customClass: { popup: 'swal-toast-error' }
+          });
+        }
+      });
+  }
+
+  isObjetivoActivo(objetivo: any): boolean {
+    return String(objetivo.status) === '1';
+  }
+
+  openModalAltaTipoObjetivo(item?: any, edit?: boolean): void {
+    const modalRef = this.modalService.open(AltaTipoObjetivo, {
+      backdrop: 'static',
+      size: 'md',
+      scrollable: true
+    });
+
+    modalRef.componentInstance.tipoObjetivoData = item;
+    modalRef.componentInstance.isEdit = edit ?? false;
+
+    modalRef.result
+      .then((result: any) => {
+        if (result?.success && result?.data) {
+          if (edit) {
+            const index = this.dataSource.data.findIndex(o => o.id === result.data.id);
+            if (index !== -1) {
+              this.dataSource.data[index] = {
+                ...this.dataSource.data[index],
+                ...result.data
+              };
+            }
+          } else {
+            this.dataSource.data = [
+              ...this.dataSource.data,
+              { ...result.data, status: '1' }
+
+            ];
+          }
+          this.dataSource._updateChangeSubscription();
+          this.cdr.detectChanges();
+        }
+      })
+      .catch(() => { });
+  }
+
+  // 📌 TrackBy para *ngFor móvil
+  trackById: TrackByFunction<any> = (index: number, item: any): string =>
+    (item?.id ?? index).toString();
+
+  // 📌 Paginación móvil
   updateMobilePagination(): void {
     const filteredData = this.dataSource.filteredData.length
       ? this.dataSource.filteredData
       : this.dataSource.data;
-
     this.mobileTotalPages = Math.ceil(filteredData.length / this.mobilePageSize);
     const startIndex = this.mobileCurrentPage * this.mobilePageSize;
     this.mobilePagedData = filteredData.slice(startIndex, startIndex + this.mobilePageSize);
-  }
-
-  onMobilePageChange(page: number): void {
-    this.mobileCurrentPage = page;
-    this.updateMobilePagination();
   }
 
   previousMobilePage(): void {
@@ -177,6 +264,11 @@ export class TipoObjetivoComponent implements OnInit, AfterViewInit, OnDestroy {
       this.mobileCurrentPage++;
       this.updateMobilePagination();
     }
+  }
+
+  onMobilePageChange(page: number): void {
+    this.mobileCurrentPage = page;
+    this.updateMobilePagination();
   }
 
   getMobilePageNumbers(): number[] {
@@ -194,124 +286,81 @@ export class TipoObjetivoComponent implements OnInit, AfterViewInit, OnDestroy {
     return pages;
   }
 
-  get filteredData(): any[] {
-    return this.dataSource.filteredData.length
+  // 📌 Getters estadísticos
+  get totalTipos(): number {
+    return this.dataSource.data.length;
+  }
+  get tiposActivos(): number {
+    return this.dataSource.data.filter(t => String(t.status) === '1').length;
+  }
+  get tiposInactivos(): number {
+    return this.dataSource.data.filter(t => String(t.status) === '0').length;
+  }
+  get tiposFiltrados(): number {
+    return this.filteredData.length;
+  }
+
+  //---Paginador----
+  get pagedData(): any[] {
+    const data = this.dataSource.filteredData.length
       ? this.dataSource.filteredData
       : this.dataSource.data;
+
+    if (!this.paginator) return data;
+
+    const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
+    return data.slice(startIndex, startIndex + this.paginator.pageSize);
   }
 
-  trackById: TrackByFunction<any> = (index: number, item: any): string => {
-    const id = (item?.id ?? index);
-    return id.toString();
-  };
-
-  retryLoad(): void {
-    this.obtenerTiposObjetivos();
+  get currentPage(): number {
+    return this.paginator ? this.paginator.pageIndex + 1 : 1;
   }
 
-  toggleObjetivoActivo(objetivo: any, activo: boolean): void {
-    const nuevoStatus = activo ? 1 : 0;
-    const statusData = { status: nuevoStatus };
-
-    this.http.actualizarStatusObjetivo(parseInt(objetivo.id), statusData)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          const index = this.dataSource.data.findIndex(o => o.id === objetivo.id);
-          if (index !== -1) {
-            this.dataSource.data[index].status = nuevoStatus.toString();
-          }
-          this.cdr.markForCheck();
-
-          Swal.fire({
-            title: '¡Éxito!',
-            text: `Objetivo ${objetivo.nombre} ${activo ? 'activado' : 'desactivado'} correctamente`,
-            icon: 'success',
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            toast: true,
-            background: '#ffffff',
-            color: '#374151',
-            iconColor: activo ? '#10b981' : '#ef4444',
-            customClass: { popup: 'swal-toast-success' }
-          });
-        },
-        error: () => {
-          this.obtenerTiposObjetivos();
-          Swal.fire({
-            title: 'Error',
-            text: `No se pudo ${activo ? 'activar' : 'desactivar'} el objetivo ${objetivo.nombre}`,
-            icon: 'error',
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 4000,
-            toast: true,
-            background: '#ffffff',
-            color: '#374151',
-            iconColor: '#ef4444',
-            customClass: { popup: 'swal-toast-error' }
-          });
-        }
-      });
+  get totalPages(): number {
+    return this.paginator
+      ? Math.ceil(this.dataSource.filteredData.length / this.paginator.pageSize)
+      : 1;
   }
 
-  isObjetivoActivo(objetivo: any): boolean {
-    return String(objetivo.status) === '1';
-  }
-  /*
-    // 🔹 Modal Alta Tipo Objetivo
-    openModalAltaTipoObjetivo(item?: any, edit?: boolean): void {
-      const modalRef = this.modalService.open(AltaTipoObjetivo, {
-        backdrop: 'static',
-        size: 'lg',
-        scrollable: true
-      });
-  
-      if (item && edit) {
-        modalRef.componentInstance.tipoObjetivoData = item;
-        modalRef.componentInstance.isEdit = true;
-      } else {
-        modalRef.componentInstance.tipoObjetivoData = null;
-        modalRef.componentInstance.isEdit = false;
-      }
-  
-      modalRef.result.then(
-        (result: any) => {
-          if (result?.success) {
-            const action = result.isEdit ? 'actualizado' : 'creado';
-            Swal.fire({
-              icon: 'success',
-              title: `Tipo de objetivo ${action}`,
-              text: 'Se guardó correctamente.',
-              confirmButtonText: 'Aceptar'
-            }).then(() => {
-              this.obtenerTiposObjetivos();
-            });
-          }
-        },
-        () => { }
-      );
+  // Ir a la primera página
+  goToFirstPage(): void {
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+      this.emitirCambioPagina();
     }
-      */
-
-  openModalAltaTipoObjetivo(item?: any, edit?: boolean): void {
-    const modalRef = this.modalService.open(AltaTipoObjetivo, {
-      backdrop: 'static',
-      size: 'md',
-      scrollable: true
-    });
-
-    modalRef.componentInstance.tipoObjetivoData = item;
-    modalRef.componentInstance.isEdit = edit ?? false;
-
-    modalRef.result.then((result: any) => {
-      if (result?.success) {
-        // Guardar en backend
-        console.log('Datos guardados:', result.data);
-        this.obtenerTiposObjetivos();
-      }
-    }).catch(() => { });
   }
 
+  // Ir a la página anterior
+  goToPreviousPage(): void {
+    if (this.paginator && this.paginator.pageIndex > 0) {
+      this.paginator.pageIndex--;
+      this.emitirCambioPagina();
+    }
+  }
+
+  // Ir a la página siguiente
+  goToNextPage(): void {
+    if (this.paginator && this.paginator.pageIndex < this.totalPages - 1) {
+      this.paginator.pageIndex++;
+      this.emitirCambioPagina();
+    }
+  }
+
+  // Ir a la última página
+  goToLastPage(): void {
+    if (this.paginator) {
+      this.paginator.pageIndex = this.totalPages - 1;
+      this.emitirCambioPagina();
+    }
+  }
+
+  // 🔹 Método auxiliar para forzar el refresh del paginador
+  private emitirCambioPagina(): void {
+    this.paginator.page.next({
+      pageIndex: this.paginator.pageIndex,
+      pageSize: this.paginator.pageSize,
+      length: this.dataSource.filteredData.length
+    });
+    this.cdr.markForCheck();
+  }
 }

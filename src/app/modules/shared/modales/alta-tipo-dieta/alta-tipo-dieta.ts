@@ -106,8 +106,8 @@ export class AltaTipoDieta implements OnInit, OnDestroy {
     });
 
     const serviceCall = this.isEdit
-      ? this.http.put('tipos-dieta', formData)
-      : this.http.crearTipoDieta(formData); // 👈 debes tener este método en tu servicio
+      ? this.http.actualizarTipoDieta(formData)
+      : this.http.crearTipoDieta(formData); 
 
     serviceCall
       .pipe(takeUntil(this.destroy$))
@@ -126,7 +126,10 @@ export class AltaTipoDieta implements OnInit, OnDestroy {
             position: 'top-end'
           });
 
-          this.activeModal.close(response);
+          this.activeModal.close({
+            success: true,
+            data: response.data
+          });
         },
         error: (error) => {
           this.loading = false;
@@ -149,7 +152,6 @@ export class AltaTipoDieta implements OnInit, OnDestroy {
             confirmButtonText: 'Entendido',
             confirmButtonColor: '#E74C3C'
           });
-
           this.cdr.detectChanges();
         }
       });

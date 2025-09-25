@@ -106,7 +106,15 @@ export class HttpServices {
   crearTipoComida(tipoObjetivoData: any): Observable<any> {
     return this.post('tipos-comida', tipoObjetivoData);
   }
-  
+
+  //------ACTUALIZA DE TIPOS NOMBRE
+  actualizarTipoObjetivo(tipoObjetivoData: any): Observable<any> {
+    return this.put(`actualizar-tipos-objetivo&id=${tipoObjetivoData.id}`, tipoObjetivoData);
+  }
+  actualizarTipoDieta(tipoDietaData: any): Observable<any> {
+    return this.put(`actualizar-tipos-dieta&id=${tipoDietaData.id}`, tipoDietaData);
+  }
+
 
   login(credenciales: any): Observable<any> {
     return this.post('login', credenciales);
@@ -170,7 +178,7 @@ export class HttpServices {
     const headers = new HttpHeaders({
       'Authorization': AppSettingsService.getHeaders(true)['Authorization']
     });
-    
+
     return this.http.post(url, platilloData, { headers }).pipe(
       map((resp: any) => resp),
       catchError((error) => {
@@ -186,7 +194,7 @@ export class HttpServices {
     const headers = new HttpHeaders({
       'Authorization': AppSettingsService.getHeaders(true)['Authorization']
     });
-    
+
     return this.http.put(url, platilloData, { headers }).pipe(
       map((resp: any) => resp),
       catchError((error) => {
