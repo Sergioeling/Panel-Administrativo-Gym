@@ -56,6 +56,33 @@
   }
 }
 
+@keyframes bounce {
+
+  0%,
+  20%,
+  53%,
+  80%,
+  100% {
+    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+    transform: translate3d(0, 0, 0);
+  }
+
+  40%,
+  43% {
+    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+    transform: translate3d(0, -8px, 0);
+  }
+
+  70% {
+    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+    transform: translate3d(0, -4px, 0);
+  }
+
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
 // Estados específicos
 .bg-red-50 {
   background-color: rgba(248, 113, 113, 0.1) !important;
@@ -296,14 +323,18 @@
   }
 }
 
-// Elementos específicos de tipos
+// Avatar para objetivos con tema naranja
 .tipo-avatar {
-  @apply w-10 h-10 rounded-lg flex items-center justify-center;
-  background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.1));
-  transition: all 0.3s ease;
+  @apply w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-md;
+  animation: bounce 0.6s ease-out;
 
   i {
-    @apply text-orange-600 text-lg;
+    @apply text-base sm:text-lg font-bold;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
   }
 }
 
