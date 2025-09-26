@@ -262,6 +262,26 @@
   }
 }
 
+//---
+:host ::ng-deep .table-row-hover {
+  transition: var(--transition);
+
+  &:hover {
+    background-color: #f0fdf4 !important;
+    transform: scale(1.002);
+  }
+
+  td.mat-mdc-cell {
+    padding: 12px 16px !important;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: middle;
+
+    @screen sm {
+      padding: 16px 20px !important;
+    }
+  }
+}
+
 /* Cards móviles */
 .user-card {
   @apply bg-white rounded-lg sm:rounded-xl p-4 shadow-md border border-gray-200 transition-all duration-300;

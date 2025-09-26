@@ -212,6 +212,34 @@ body {
   }
 }
 
+//--
+/* 🎨 Forzar fondo sólido del panel desplegable del paginador */
+.mat-mdc-select-panel {
+  background: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 12px !important;
+  backdrop-filter: none !important;
+}
+
+.mat-mdc-option {
+  background: transparent !important;
+  color: #374151 !important;
+  font-weight: 500;
+
+  &:hover:not(.mat-mdc-option-disabled) {
+    background: rgba(249, 115, 22, 0.08) !important;
+    /* hover naranja */
+    color: #c2410c !important;
+  }
+}
+
+.mat-mdc-option.mdc-list-item--selected {
+  background: rgba(249, 115, 22, 0.15) !important;
+  color: #c2410c !important;
+}
+
+//--
+
 // Responsive ajustes
 @media (max-width: 640px) {
   .search-input {
@@ -224,4 +252,3 @@ body {
     margin-right: 8px;
   }
 }
-

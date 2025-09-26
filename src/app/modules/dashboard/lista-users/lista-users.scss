@@ -470,9 +470,8 @@
   height: 72px !important;
 
   &:hover {
-    background: linear-gradient(135deg, rgba(231, 76, 60, 0.02), rgba(231, 76, 60, 0.05)) !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.08);
+    background-color: #f0fdf4 !important;
+    transform: scale(1.002);
   }
 
   td.mat-mdc-cell {
