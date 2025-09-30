@@ -13,14 +13,16 @@ import { Component } from '@angular/compiler';
 import { permission } from 'process';
 import { TipoObjetivoComponent } from './tipo-objetivo/tipo-objetivo';
 import { TipoDietaComponent } from './tipo-dieta/tipo-dieta';
+import { Reportes } from './reportes/reportes';
 
 const userRoutes = {
   ADMIN: [
     { path: 'miembros', component: ListaUsers, data: { permission: null } },
     { path: 'alimentos', component: alimentos, data: { permission: null } },
-    { path: 'tipo_comida', component: TipoComidaComponent, data: {permission: null}},
-    { path: 'tipo_objetivo', component: TipoObjetivoComponent, data: {permission: null}},
-    { path: 'tipo_dieta', component: TipoDietaComponent, data: {permission: null}}
+    { path: 'tipo_comida', component: TipoComidaComponent, data: { permission: null } },
+    { path: 'tipo_objetivo', component: TipoObjetivoComponent, data: { permission: null } },
+    { path: 'tipo_dieta', component: TipoDietaComponent, data: { permission: null } },
+    { path: 'reportes-admin', component: Reportes, data: { permission: null } },
   ],
   NUTRICIONISTA: [
     { path: 'inicio', component: Inicio, data: { permission: null } },

@@ -152,21 +152,26 @@ export class PanelAdmin implements OnInit {
         ]
       },
       {
-        title: 'Administración', icon: null, bi: 'bi-gear', id: 'admin', role: 'ADMIN', options: [
-          { title: 'Lista de Usuarios', route: 'miembros', role: 'ADMIN', icon: null, bi: 'bi-people' },
-          { title: 'Tipos de comida', route: 'tipo_comida', role: 'ADMIN', icon: null, bi: 'bi-basket'},
-        { title: 'Tipos de dieta', route: 'tipo_dieta', role: 'ADMIN', icon: null, bi: 'bi-cup-hot'},
-          { title: 'Tipos de objetivos', route: 'tipo_objetivo', role: 'ADMIN', icon: null, bi: 'bi-bullseye'}
-
-        ]
-      },
-      {
         title: 'Gestión de Alimentos', icon: null, bi: 'bi-egg-fried', id: 'dietas', role: 'ADMIN,NUTRICIONISTA,USUARIO', options: [
           { title: 'Alimentos', route: 'alimentos', role: 'ADMIN', icon: null, bi: 'bi-egg-fried' },
           { title: 'Platillos', route: 'platillos-nutricionista', role: 'NUTRICIONISTA', icon: null, bi: 'bi-cup-hot' },
         ]
       },
 
+      {
+        title: 'Administración', icon: null, bi: 'bi-gear', id: 'admin', role: 'ADMIN', options: [
+          { title: 'Lista de Usuarios', route: 'miembros', role: 'ADMIN', icon: null, bi: 'bi-people' },
+          { title: 'Tipos de comida', route: 'tipo_comida', role: 'ADMIN', icon: null, bi: 'bi-basket' },
+          { title: 'Tipos de dieta', route: 'tipo_dieta', role: 'ADMIN', icon: null, bi: 'bi-cup-hot' },
+          { title: 'Tipos de objetivos', route: 'tipo_objetivo', role: 'ADMIN', icon: null, bi: 'bi-bullseye' }
+
+        ]
+      },
+      {
+        title: 'Reportes', icon: null, bi: 'bi-file-earmark-text', id: 'reportes', role: 'ADMIN', options: [
+          { title: 'Reportes usuarios', route: 'reportes-admin', role: 'ADMIN', icon: null, bi: 'bi-file-earmark-text' },
+        ]
+      },
     ];
   }
 
