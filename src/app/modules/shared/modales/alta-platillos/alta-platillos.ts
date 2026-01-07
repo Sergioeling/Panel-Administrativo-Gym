@@ -237,13 +237,13 @@ export class AltaPlatillos implements OnInit, OnDestroy {
             this.alimentos = resp.alimentos.data || [];
           }
           if (resp.tiposDieta?.status === 'success') {
-            this.tiposDieta = (resp.tiposDieta.data || []).filter((item: any) => item.status === '1');
+            this.tiposDieta = (resp.tiposDieta.data || []).filter((item: any) => item.status == '1');
           }
           if (resp.tiposComida?.status === 'success') {
-            this.tiposComida = (resp.tiposComida.data || []).filter((item: any) => item.status === '1');
+            this.tiposComida = (resp.tiposComida.data || []).filter((item: any) => item.status == '1');
           }
           if (resp.tiposObjetivo?.status === 'success') {
-            this.tiposObjetivo = (resp.tiposObjetivo.data || []).filter((item: any) => item.status === '1');
+            this.tiposObjetivo = (resp.tiposObjetivo.data || []).filter((item: any) => item.status == '1');
           }
 
           this.loadingCatalogos = false;
@@ -545,6 +545,9 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+
+    console.log("HOLA");
+    
     // Si está en modo solo lectura, simplemente cerrar el modal
     if (this.isViewOnly) {
       this.activeModal.close();
@@ -561,6 +564,7 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     this.errorMsg = null;
 
     const rawFormData = this.platilloForm.value;
+    
 
     const ingredientesValidos = rawFormData.ingredientes?.filter((ing: any, index: number) => {
       const isAlimentoSelected = this.isAlimentoSelected(index);
@@ -603,6 +607,9 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     const configuracionesValidas = rawFormData.configuraciones?.filter((config: any) =>
       config.tipo_dieta_id && config.tipo_comida_id && config.tipo_objetivo_id
     ) || [];
+
+    console.log(configuracionesValidas.tipo_dieta_id);
+    
 
     if (configuracionesValidas.length === 0) {
       this.loading = false;
@@ -776,7 +783,7 @@ export class AltaPlatillos implements OnInit, OnDestroy {
       this.configuracionesArray.removeAt(0);
     }
 
-    let dietaId = configuracion?.tipo_dieta_id || '';
+    let dietaId = Number(configuracion?.tipo_dieta_id || '');
     let comidaId = configuracion?.tipo_comida_id || '';
     let objetivoId = configuracion?.tipo_objetivo_id || '';
 
@@ -787,6 +794,8 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     });
 
     this.configuracionesArray.push(configForm);
+                console.log("seleccionada: ", configForm.controls);
+
 
     setTimeout(() => {
       this.cdr.detectChanges();
@@ -914,6 +923,8 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   }
 
   onDietaChange(event: any) {
+    console.log("hola");
+    
     const value = event.target.value;
     this.selectedDietaId = value ? Number(value) : null;
 
@@ -922,6 +933,9 @@ export class AltaPlatillos implements OnInit, OnDestroy {
         tipo_dieta_id: this.selectedDietaId
       });
     }
+
+    console.log("TIPO DIETA: ", this.configuracionesArray);
+    
   }
 
   onComidaChange(event: any) {
