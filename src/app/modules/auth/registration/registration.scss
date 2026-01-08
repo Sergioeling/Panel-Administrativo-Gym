@@ -38,34 +38,61 @@
 
   /* Formulario */
   .modal-right {
+    box-sizing: border-box;
     position: absolute;
     top: 50px;
     right: 50px;
     width: 50%;
-    height: 80%;
+    max-height: calc(100% - 100px); /* ✅ Cambiado de height: 80% */
     background: linear-gradient(to right,
         var(--text-primary),
         var(--primary-color));
     padding: 30px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     box-shadow: -4px 0 15px rgba(255, 255, 255, 0.4);
     border-radius: 8px;
-    gap: 20px;
-    flex-direction: column;
     overflow-y: auto;
-    /* ✅ agrega scroll si crece */
-
+    scroll-behavior: smooth; /* ✅ Scroll suave */
+    
+    /* ✅ Personalización del scrollbar */
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.5);
+      }
+    }
+    
+    /* ✅ Contenedor del formulario */
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+    }
 
     .form-label {
       color: #ffffff !important;
       font-weight: 500;
+      margin-bottom: 0.5rem;
     }
 
     .text-danger {
       color: #000000 !important;
       font-weight: 500;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
     }
 
     .form-title {
@@ -74,8 +101,9 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 20px; /* ✅ Aumentado de 10px */
       color: #ffffff;
+      flex-shrink: 0; /* ✅ Evita que se comprima */
 
       .icon-title {
         font-size: 40px;
@@ -165,6 +193,7 @@
     }
 
     .modal-right {
+
       position: relative;
       top: auto;
       right: auto;
@@ -212,5 +241,26 @@
     .register-option {
       font-size: 0.8rem;
     }
+  }
+
+  .file-input-group {
+    margin-bottom: 1rem;
+  }
+
+  .info-icon {
+    color: white;
+    margin-left: 0.5rem;
+    cursor: help;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+  }
+
+  .info-icon:hover {
+    color: #4a90e2;
+  }
+
+  /* Estilo personalizado para el tooltip (opcional) */
+  [title] {
+    position: relative;
   }
 }

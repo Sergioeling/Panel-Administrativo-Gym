@@ -1,220 +1,237 @@
-import { Injectable, inject } from '@angular/core';
-import { AppSettingsService } from '../../../app-settings.service';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { map, Observable, catchError, throwError } from 'rxjs';
+  import { Injectable, inject } from '@angular/core';
+  import { AppSettingsService } from '../../../app-settings.service';
+  import { HttpClient, HttpHeaders } from '@angular/common/http';
+  import { map, Observable, catchError, throwError } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class HttpServices {
-  private url = `${AppSettingsService.API_ENDPOINT}`;
-  private http = inject(HttpClient);
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class HttpServices {
+    private url = `${AppSettingsService.API_ENDPOINT}`;
+    private http = inject(HttpClient);
 
-  constructor() { }
+    constructor() { }
 
-  private getHeaders(): HttpHeaders {
-    const headers = AppSettingsService.getHeaders(true);
-    return new HttpHeaders(headers);
-  }
+    private getHeaders(): HttpHeaders {
+      const headers = AppSettingsService.getHeaders(true);
+      return new HttpHeaders(headers);
+    }
 
-  changedtaToken(datas: string, access: any): Observable<any> {
-    const datosObj = JSON.parse(datas);
-    return this.post(access, datosObj);
-  }
+    changedtaToken(datas: string, access: any): Observable<any> {
+      const datosObj = JSON.parse(datas);
+      return this.post(access, datosObj);
+    }
 
-  changeDataByToken(values: any, Ruta: string) {
-    let datas = JSON.stringify(values);
-    return this.changedtaToken(datas, Ruta);
-  }
+    changeDataByToken(values: any, Ruta: string) {
+      let datas = JSON.stringify(values);
+      return this.changedtaToken(datas, Ruta);
+    }
 
-  request(method: 'GET' | 'POST' | 'PUT' | 'DELETE', endpoint: string, data?: any): Observable<any> {
+   request(method: 'GET' | 'POST' | 'PUT' | 'DELETE', endpoint: string, data?: any): Observable<any> {
     const url = `${this.url}${endpoint}`;
-    const headers = this.getHeaders();
+    
+    let headers: HttpHeaders;
+    
+    // ✅ DETECTAR SI ES FORMDATA
+    if (data instanceof FormData) {
+        // Para FormData: solo Authorization, SIN Content-Type
+        const token = localStorage.getItem('token');
+        if (token) {
+            headers = new HttpHeaders({
+                'Authorization': `Bearer ${token}`
+            });
+        } else {
+            headers = new HttpHeaders();
+        }
+    } else {
+        // Para JSON: incluir Content-Type y Authorization
+        headers = this.getHeaders();
+    }
 
     let httpCall: Observable<any>;
 
     switch (method) {
-      case 'GET':
-        httpCall = this.http.get(url, { headers });
-        break;
-      case 'POST':
-        httpCall = this.http.post(url, data || {}, { headers });
-        break;
-      case 'PUT':
-        httpCall = this.http.put(url, data || {}, { headers });
-        break;
-      case 'DELETE':
-        httpCall = this.http.delete(url, { headers });
-        break;
-      default:
-        throw new Error(`Método HTTP ${method} no soportado`);
+        case 'GET':
+            httpCall = this.http.get(url, { headers });
+            break;
+        case 'POST':
+            httpCall = this.http.post(url, data || {}, { headers });
+            break;
+        case 'PUT':
+            httpCall = this.http.put(url, data || {}, { headers });
+            break;
+        case 'DELETE':
+            httpCall = this.http.delete(url, { headers });
+            break;
+        default:
+            throw new Error(`Método HTTP ${method} no soportado`);
     }
 
     return httpCall.pipe(
-      map((resp: any) => resp),
-      catchError((error) => {
-        console.error(`Error en ${method} ${endpoint}:`, error);
-        return throwError(() => error);
-      })
+        map((resp: any) => resp),
+        catchError((error) => {
+            console.error(`Error en ${method} ${endpoint}:`, error);
+            return throwError(() => error);
+        })
     );
-  }
-
-
-  get(endpoint: string): Observable<any> {
-    return this.request('GET', endpoint);
-  }
-
-  post(endpoint: string, data: any): Observable<any> {
-    return this.request('POST', endpoint, data);
-  }
-
-  put(endpoint: string, data: any): Observable<any> {
-    return this.request('PUT', endpoint, data);
-  }
-
-  delete(endpoint: string): Observable<any> {
-    return this.request('DELETE', endpoint);
-  }
-
-
-  //services
-  verificarConexion(): Observable<any> {
-    return this.get('test');
-  }
-
-  obtenerAlimentos(): Observable<any> {
-    return this.get('alimentos');
-  }
-
-  obtenerCategoria(): Observable<any> {
-    return this.get('categorias');
-  }
-
-  crearAlimento(alimentoData: any): Observable<any> {
-    return this.post('alimentos', alimentoData);
-  }
-  actualizarAlimento(AlimentoData: any): Observable<any> {
-    return this.put('alimentos', AlimentoData);
-  }
-  //-----CREACION DE TIPOS
-  crearTipoObjetivo(tipoObjetivoData: any): Observable<any> {
-    return this.post('tipos-objetivo', tipoObjetivoData);
-  }
-  crearTipoDieta(tipoObjetivoData: any): Observable<any> {
-    return this.post('tipos-dieta', tipoObjetivoData);
-  }
-  crearTipoComida(tipoObjetivoData: any): Observable<any> {
-    return this.post('tipos-comida', tipoObjetivoData);
-  }
-  
-
-  login(credenciales: any): Observable<any> {
-    return this.post('login', credenciales);
-  }
-
-  crearUsuario(usuarioData: any): Observable<any> {
-    return this.post('crear-usuario', usuarioData);
-  }
-
-  obtenerUsuarios(): Observable<any> {
-    return this.get('usuarios');
-  }
-
-  eliminarUsuario(userId: number): Observable<any> {
-    return this.delete(`usuarios?id=${userId}`);
-  }
-
-  actualizarStatusUsuario(userId: number, statusData: any): Observable<any> {
-    return this.put(`usuarios&id=${userId}`, statusData);
-  }
-
-  //-------- ACTULIZACION 
-  actualizarStatusObjetivo(userId: number, statusData: any): Observable<any> {
-    return this.put(`tipos-objetivo&id=${userId}`, statusData);
-  }
-  actualizarStatusTipoComida(userId: number, statusData: any): Observable<any> {
-    return this.put(`tipos-comida&id=${userId}`, statusData);
-  }
-  actualizarStatusDieta(userId: number, statusData: any): Observable<any> {
-    return this.put(`tipos-dieta&id=${userId}`, statusData);
-  }
-  //------
-
-  getUsuarios(): Observable<any> {
-    return this.get('perfil');
-  }
-
-  updateUser(usuarioData: any): Observable<any> {
-    return this.put('perfil', usuarioData);
-  }
-
-  updatePassword(passwords: any): Observable<any> {
-    return this.put('cambiar-contrasena', passwords);
-  }
-
-  enviarEmail(to: string, subject: string, message: string): Observable<any> {
-    const emailData = { to, subject, message };
-    return this.post('enviar-correo', emailData);
-  }
-
-  obtenerPlatillos(): Observable<any> {
-    return this.get('platillos');
-  }
-
-  obtenerPlatilloById(platilloId: number): Observable<any> {
-    return this.get(`platillos&id=${platilloId}`);
-  }
-
-  crearPlatillo(platilloData: any): Observable<any> {
-    const url = `${this.url}platillos`;
-    const headers = new HttpHeaders({
-      'Authorization': AppSettingsService.getHeaders(true)['Authorization']
-    });
-    
-    return this.http.post(url, platilloData, { headers }).pipe(
-      map((resp: any) => resp),
-      catchError((error) => {
-        console.error('Error en POST platillos:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  actualizarPlatillo(platilloData: FormData, platilloId?: string | number): Observable<any> {
-    const id = platilloId || platilloData.get('id');
-    const url = `${this.url}platillos&id=${id}`;
-    const headers = new HttpHeaders({
-      'Authorization': AppSettingsService.getHeaders(true)['Authorization']
-    });
-    
-    return this.http.put(url, platilloData, { headers }).pipe(
-      map((resp: any) => resp),
-      catchError((error) => {
-        console.error('Error en PUT platillos:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  eliminarPlatillo(platilloId: number): Observable<any> {
-    return this.delete(`platillos&id=${platilloId}`);
-  }
-
-  obtenerTiposDieta(): Observable<any> {
-    return this.get('tipos-dieta');
-  }
-
-  obtenerTiposComida(): Observable<any> {
-    return this.get('tipos-comida');
-  }
-
-  obtenerTiposObjetivos(): Observable<any> {
-    return this.get('tipos-objetivo');
-  }
-
-  platilloStatus(platilloId: number, statusData: any): Observable<any> {
-    return this.put(`platillos-status&id=${platilloId}`, statusData);
-  }
-
-
 }
+
+
+    get(endpoint: string): Observable<any> {
+      return this.request('GET', endpoint);
+    }
+
+    post(endpoint: string, data: any): Observable<any> {
+      return this.request('POST', endpoint, data);
+    }
+
+    put(endpoint: string, data: any): Observable<any> {
+      return this.request('PUT', endpoint, data);
+    }
+
+    delete(endpoint: string): Observable<any> {
+      return this.request('DELETE', endpoint);
+    }
+
+
+    //services
+    verificarConexion(): Observable<any> {
+      return this.get('test');
+    }
+
+    obtenerAlimentos(): Observable<any> {
+      return this.get('alimentos');
+    }
+
+    obtenerCategoria(): Observable<any> {
+      return this.get('categorias');
+    }
+
+    crearAlimento(alimentoData: any): Observable<any> {
+      return this.post('alimentos', alimentoData);
+    }
+    actualizarAlimento(AlimentoData: any): Observable<any> {
+      return this.put('alimentos', AlimentoData);
+    }
+    //-----CREACION DE TIPOS
+    crearTipoObjetivo(tipoObjetivoData: any): Observable<any> {
+      return this.post('tipos-objetivo', tipoObjetivoData);
+    }
+    crearTipoDieta(tipoObjetivoData: any): Observable<any> {
+      return this.post('tipos-dieta', tipoObjetivoData);
+    }
+    crearTipoComida(tipoObjetivoData: any): Observable<any> {
+      return this.post('tipos-comida', tipoObjetivoData);
+    }
+    
+
+    login(credenciales: any): Observable<any> {
+      return this.post('login', credenciales);
+    }
+
+    crearUsuario(formData: FormData): Observable<any> {
+    return this.post('crear-usuario', formData);
+}
+
+    obtenerUsuarios(): Observable<any> {
+      return this.get('usuarios');
+    }
+
+    eliminarUsuario(userId: number): Observable<any> {
+      return this.delete(`usuarios?id=${userId}`);
+    }
+
+    actualizarStatusUsuario(userId: number, statusData: any): Observable<any> {
+      return this.put(`usuarios&id=${userId}`, statusData);
+    }
+
+    //-------- ACTULIZACION 
+    actualizarStatusObjetivo(userId: number, statusData: any): Observable<any> {
+      return this.put(`tipos-objetivo&id=${userId}`, statusData);
+    }
+    actualizarStatusTipoComida(userId: number, statusData: any): Observable<any> {
+      return this.put(`tipos-comida&id=${userId}`, statusData);
+    }
+    actualizarStatusDieta(userId: number, statusData: any): Observable<any> {
+      return this.put(`tipos-dieta&id=${userId}`, statusData);
+    }
+    //------
+
+    getUsuarios(): Observable<any> {
+      return this.get('perfil');
+    }
+
+    updateUser(usuarioData: any): Observable<any> {
+      return this.put('perfil', usuarioData);
+    }
+
+    updatePassword(passwords: any): Observable<any> {
+      return this.put('cambiar-contrasena', passwords);
+    }
+
+    enviarEmail(to: string, subject: string, message: string): Observable<any> {
+      const emailData = { to, subject, message };
+      return this.post('enviar-correo', emailData);
+    }
+
+    obtenerPlatillos(): Observable<any> {
+      return this.get('platillos');
+    }
+
+    obtenerPlatilloById(platilloId: number): Observable<any> {
+      return this.get(`platillos&id=${platilloId}`);
+    }
+
+    crearPlatillo(platilloData: any): Observable<any> {
+      const url = `${this.url}platillos`;
+      const headers = new HttpHeaders({
+        'Authorization': AppSettingsService.getHeaders(true)['Authorization']
+      });
+      
+      return this.http.post(url, platilloData, { headers }).pipe(
+        map((resp: any) => resp),
+        catchError((error) => {
+          console.error('Error en POST platillos:', error);
+          return throwError(() => error);
+        })
+      );
+    }
+
+    actualizarPlatillo(platilloData: FormData, platilloId?: string | number): Observable<any> {
+      const id = platilloId || platilloData.get('id');
+      const url = `${this.url}platillos&id=${id}`;
+      const headers = new HttpHeaders({
+        'Authorization': AppSettingsService.getHeaders(true)['Authorization']
+      });
+      
+      return this.http.put(url, platilloData, { headers }).pipe(
+        map((resp: any) => resp),
+        catchError((error) => {
+          console.error('Error en PUT platillos:', error);
+          return throwError(() => error);
+        })
+      );
+    }
+
+    eliminarPlatillo(platilloId: number): Observable<any> {
+      return this.delete(`platillos&id=${platilloId}`);
+    }
+
+    obtenerTiposDieta(): Observable<any> {
+      return this.get('tipos-dieta');
+    }
+
+    obtenerTiposComida(): Observable<any> {
+      return this.get('tipos-comida');
+    }
+
+    obtenerTiposObjetivos(): Observable<any> {
+      return this.get('tipos-objetivo');
+    }
+
+    platilloStatus(platilloId: number, statusData: any): Observable<any> {
+      return this.put(`platillos-status&id=${platilloId}`, statusData);
+    }
+
+
+  }

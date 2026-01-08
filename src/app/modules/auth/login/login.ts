@@ -68,6 +68,8 @@ export class Login {
         })
       ).subscribe({
         next: (response) => {
+          console.log("RESPONSE: ", response);
+          
           this.activeModal.close('success');
           setTimeout(() => {
             const userRole = this.authService.getUserRole();

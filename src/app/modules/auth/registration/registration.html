@@ -55,6 +55,58 @@
         Las contraseñas no coinciden.
       </div>
 
+      <!-- SECCION DE SUBIDA DE ARCHIVOS -->
+      <div class="file-input-group">
+        <label for="titulo-file" class="form-label">
+          Sube tu título escaneado
+          <i class="bi bi-info-circle-fill info-icon" 
+             title="Deberás subir tu título profesional escaneado para poder corroborar tu perfil como nutriólogo"></i>
+        </label>
+        <input type="file" 
+               id="titulo-file" 
+               class="form-control" 
+               (change)="onFileSelected($event, 'titulo')"
+               accept=".pdf,.jpg,.jpeg,.png">
+        <div class="text-danger mt-1" *ngIf="registerForm.get('titulo')?.touched && registerForm.get('titulo')?.invalid">
+          <div *ngIf="registerForm.get('titulo')?.errors?.['required']">El título es obligatorio</div>
+          <div *ngIf="registerForm.get('titulo')?.errors?.['invalidFileType']">Solo se permiten archivos PDF, JPG o PNG</div>
+        </div>
+      </div>
+
+      <div class="file-input-group">
+        <label for="ine-file" class="form-label">
+          Sube tu INE escaneada
+          <i class="bi bi-info-circle-fill info-icon" 
+             title="Deberás subir tu INE escaneada para poder corroborar tu identidad"></i>
+        </label>
+        <input type="file" 
+               id="ine-file" 
+               class="form-control" 
+               (change)="onFileSelected($event, 'ine')"
+               accept=".pdf,.jpg,.jpeg,.png">
+        <div class="text-danger mt-1" *ngIf="registerForm.get('ine')?.touched && registerForm.get('ine')?.invalid">
+          <div *ngIf="registerForm.get('ine')?.errors?.['required']">La INE es obligatoria</div>
+          <div *ngIf="registerForm.get('ine')?.errors?.['invalidFileType']">Solo se permiten archivos PDF, JPG o PNG</div>
+        </div>
+      </div>
+
+      <div class="file-input-group">
+        <label for="domicilio-file" class="form-label">
+          Sube tu comprobante de domicilio
+          <i class="bi bi-info-circle-fill info-icon" 
+             title="Deberás subir un comprobante de domicilio reciente (no mayor a 3 meses) para verificar tu dirección"></i>
+        </label>
+        <input type="file" 
+               id="domicilio-file" 
+               class="form-control" 
+               (change)="onFileSelected($event, 'domicilio')"
+               accept=".pdf,.jpg,.jpeg,.png">
+        <div class="text-danger mt-1" *ngIf="registerForm.get('domicilio')?.touched && registerForm.get('domicilio')?.invalid">
+          <div *ngIf="registerForm.get('domicilio')?.errors?.['required']">El comprobante de domicilio es obligatorio</div>
+          <div *ngIf="registerForm.get('domicilio')?.errors?.['invalidFileType']">Solo se permiten archivos PDF, JPG o PNG</div>
+        </div>
+      </div>
+
       <!-- Botones -->
       <div class="d-flex gap-3 mt-3 px-3">
         <button type="button" class="btn btn-secondary w-100 mb-3" (click)="close()">Cancelar</button>
