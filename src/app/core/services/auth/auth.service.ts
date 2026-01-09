@@ -328,6 +328,12 @@ export class AuthServices {
     return new Observable(observer => {
       this.http.login(credenciales).subscribe({
         next: (response: LoginResponse) => {
+           if (response.status === 'success' && !response.data.token) {
+            observer.next(response);
+            observer.complete();
+            return;
+          }
+          
           if (response.status === 'success' && response.data?.token) {
             localStorage.clear();
 

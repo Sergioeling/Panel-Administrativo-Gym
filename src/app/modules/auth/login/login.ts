@@ -70,14 +70,31 @@ export class Login {
         next: (response) => {
           console.log("RESPONSE: ", response);
           
-          this.activeModal.close('success');
-          setTimeout(() => {
-            const userRole = this.authService.getUserRole();
-            if (userRole) {
-              this.router.navigate(['/dashboard']);
-              window.location.reload();
-            }
-          }, 100);
+          if (response.data?.inactive === true) {
+            Swal.fire({
+              title: 'Cuenta en revisión',
+              html: `
+                <br>
+                <small>Nos comunicaremos contigo cuando tu cuenta esté lista.</small>
+              `,
+              icon: 'info',
+              confirmButtonText: 'Entendido',
+              confirmButtonColor: '#3085d6'
+            });
+            this.activeModal.close('inactive');
+            return;
+          }
+          
+          if (response.data?.token) {
+            this.activeModal.close('success');
+            setTimeout(() => {
+              const userRole = this.authService.getUserRole();
+              if (userRole) {
+                this.router.navigate(['/dashboard']);
+                window.location.reload();
+              }
+            }, 100); 
+          }
         },
         error: (error) => {
           console.error('Error en login:', error);
