@@ -45,7 +45,6 @@ export class Login {
   loginForm: FormGroup;
   isLoading = false;
   hidePassword = true;
-  // ELIMINAR: formData = new FormData(); // ❌ NO usar como propiedad de clase
 
   constructor() {
     this.loginForm = this.fb.group({
@@ -105,7 +104,6 @@ export class Login {
     }
   }
 
-  // NUEVO MÉTODO: Mostrar alerta de documentos rechazados
   mostrarAlertaDocumentosRechazados(documentosRechazados: any[]) {
     Swal.fire({
       title: 'Detalle en documentación',
@@ -133,10 +131,8 @@ export class Login {
       cancelButtonText: 'Más tarde',
       cancelButtonColor: '#d33',
       didOpen: () => {
-        // Variables locales para este alert específico
         let documentosSeleccionados: {tipo: string, docId: string, userId: string, file: File}[] = [];
         
-        // Configurar eventos para los inputs file
         const inputs = document.querySelectorAll('.btn-resubir');
         
         inputs.forEach(input => {
@@ -148,7 +144,6 @@ export class Login {
             const file = target.files?.[0];
             
             if (file) {
-              // Verificar tipo de archivo
               const extension = file.name.split('.').pop()?.toLowerCase();
               const extensionesPermitidas = ['pdf', 'jpg', 'jpeg', 'png', 'webp'];
               
@@ -158,7 +153,7 @@ export class Login {
                   title: 'Formato no válido',
                   text: `El archivo ${file.name} no tiene un formato permitido. Formatos: ${extensionesPermitidas.join(', ')}`
                 });
-                target.value = ''; // Limpiar input
+                target.value = ''; 
                 return;
               }
               
@@ -173,18 +168,14 @@ export class Login {
                 return;
               }
               
-              // Buscar si ya existe este tipo de documento
               const indexExistente = documentosSeleccionados.findIndex(d => d.tipo === tipo);
               
               if (indexExistente >= 0) {
-                // Reemplazar el existente
                 documentosSeleccionados[indexExistente] = { tipo, docId, userId, file };
               } else {
-                // Agregar nuevo
                 documentosSeleccionados.push({ tipo, docId, userId, file });
               }
               
-              // Mostrar confirmación visual
               target.style.border = '2px solid green';
               
               console.log(`Documento ${tipo} seleccionado:`, file.name);
@@ -192,7 +183,6 @@ export class Login {
           });
         });
         
-        // Configurar evento para el botón de enviar
         const btn = document.getElementById('btnEnviarDocs');
         if (btn) {
           btn.addEventListener('click', () => {
@@ -205,7 +195,6 @@ export class Login {
               return;
             }
             
-            // Crear FormData NUEVO cada vez
             const formData = new FormData();
             
             // Agregar documentos al FormData
@@ -244,9 +233,7 @@ export class Login {
                     text: res.message || 'Documentos subidos correctamente',
                     confirmButtonText: 'Aceptar'
                   }).then(() => {
-                    // Cerrar el modal actual y recargar
                     this.activeModal.close('documentosActualizados');
-                    // Opcional: recargar la página o hacer algo más
                   });
                 } else {
                   Swal.fire({
@@ -275,7 +262,6 @@ export class Login {
     });
   }
 
-  // Método para alerta simple de revisión
   mostrarAlertaRevision(mensaje: string) {
     Swal.fire({
       title: 'Cuenta en revisión',
@@ -292,7 +278,6 @@ export class Login {
     });
   }
 
-  // Método para generar HTML de documentos - CORREGIDO
   generateDocsItem(docs: any[]): string {
     if (!docs || docs.length === 0) {
       return `<li>No hay documentos rechazados</li>`;
@@ -322,7 +307,6 @@ export class Login {
     }).join('');
   }
 
-  // ELIMINAR: handleResubirDocumentos() ya no se usa
 
   private markFormGroupTouched() {
     Object.keys(this.loginForm.controls).forEach(key => {
