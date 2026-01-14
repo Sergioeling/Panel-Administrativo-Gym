@@ -15,6 +15,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RegistrationComponent } from '../../auth/registration/registration';
 import { finalize } from 'rxjs/operators';
 import { ChangeDetectorRef } from '@angular/core';
+import { HttpServices } from '../../../core/services/http/http.service';
 
 @Component({
   selector: 'app-login',
@@ -37,12 +38,14 @@ export class Login {
   public activeModal = inject(NgbActiveModal);
   private fb = inject(FormBuilder);
   private authService = inject(AuthServices);
+  private http = inject(HttpServices);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   modalService = inject(NgbModal);
   loginForm: FormGroup;
   isLoading = false;
   hidePassword = true;
+  // ELIMINAR: formData = new FormData(); // ❌ NO usar como propiedad de clase
 
   constructor() {
     this.loginForm = this.fb.group({
@@ -71,17 +74,14 @@ export class Login {
           console.log("RESPONSE: ", response);
           
           if (response.data?.inactive === true) {
-            Swal.fire({
-              title: 'Cuenta en revisión',
-              html: `
-                <br>
-                <small>Nos comunicaremos contigo cuando tu cuenta esté lista.</small>
-              `,
-              icon: 'info',
-              confirmButtonText: 'Entendido',
-              confirmButtonColor: '#3085d6'
-            });
-            this.activeModal.close('inactive');
+            const documentos = response.data.documentos || [];
+            const documentosRechazados = documentos.filter((doc: any) => doc.estado === 0);
+            
+            if (documentosRechazados.length > 0) {
+              this.mostrarAlertaDocumentosRechazados(documentosRechazados);
+            } else {
+              this.mostrarAlertaRevision(response.message);
+            }
             return;
           }
           
@@ -93,10 +93,10 @@ export class Login {
                 this.router.navigate(['/dashboard']);
                 window.location.reload();
               }
-            }, 100); 
+            }, 2100); 
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error en login:', error);
         }
       });
@@ -105,15 +105,231 @@ export class Login {
     }
   }
 
+  // NUEVO MÉTODO: Mostrar alerta de documentos rechazados
+  mostrarAlertaDocumentosRechazados(documentosRechazados: any[]) {
+    Swal.fire({
+      title: 'Detalle en documentación',
+      html: `
+        <br>
+        <small style="color: #e74c3c; font-weight: 600;">
+          Hay un detalle con los siguientes documentos:
+        </small>
+        <ul class="lista-docs" style="text-align: left; padding-left: 20px; margin: 15px auto; max-width: 300px;">
+          ${this.generateDocsItem(documentosRechazados)}
+        </ul>
+        <br>
+        <small style="color: #7f8c8d;">
+          Por favor, selecciona los archivos corregidos.
+        </small>
+        <br><br>
+        <button id="btnEnviarDocs" 
+                style="color: #ffffff; background-color: green; margin-top: 10px; border-radius:5px; padding: 8px 20px; cursor: pointer;">
+          Enviar documentos
+        </button>
+      `,
+      icon: 'warning',
+      showConfirmButton: false,
+      showCancelButton: true,
+      cancelButtonText: 'Más tarde',
+      cancelButtonColor: '#d33',
+      didOpen: () => {
+        // Variables locales para este alert específico
+        let documentosSeleccionados: {tipo: string, docId: string, userId: string, file: File}[] = [];
+        
+        // Configurar eventos para los inputs file
+        const inputs = document.querySelectorAll('.btn-resubir');
+        
+        inputs.forEach(input => {
+          input.addEventListener('change', (event: any) => {
+            const target = event.target as HTMLInputElement;
+            const tipo = target.getAttribute('data-tipo') || '';
+            const userId = target.getAttribute('data-userId') || '';
+            const docId = target.getAttribute('data-docId') || '';
+            const file = target.files?.[0];
+            
+            if (file) {
+              // Verificar tipo de archivo
+              const extension = file.name.split('.').pop()?.toLowerCase();
+              const extensionesPermitidas = ['pdf', 'jpg', 'jpeg', 'png', 'webp'];
+              
+              if (!extension || !extensionesPermitidas.includes(extension)) {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Formato no válido',
+                  text: `El archivo ${file.name} no tiene un formato permitido. Formatos: ${extensionesPermitidas.join(', ')}`
+                });
+                target.value = ''; // Limpiar input
+                return;
+              }
+              
+              // Verificar tamaño (5MB máximo)
+              if (file.size > 5 * 1024 * 1024) {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Archivo muy grande',
+                  text: `El archivo ${file.name} excede el tamaño máximo de 5MB`
+                });
+                target.value = '';
+                return;
+              }
+              
+              // Buscar si ya existe este tipo de documento
+              const indexExistente = documentosSeleccionados.findIndex(d => d.tipo === tipo);
+              
+              if (indexExistente >= 0) {
+                // Reemplazar el existente
+                documentosSeleccionados[indexExistente] = { tipo, docId, userId, file };
+              } else {
+                // Agregar nuevo
+                documentosSeleccionados.push({ tipo, docId, userId, file });
+              }
+              
+              // Mostrar confirmación visual
+              target.style.border = '2px solid green';
+              
+              console.log(`Documento ${tipo} seleccionado:`, file.name);
+            }
+          });
+        });
+        
+        // Configurar evento para el botón de enviar
+        const btn = document.getElementById('btnEnviarDocs');
+        if (btn) {
+          btn.addEventListener('click', () => {
+            if (documentosSeleccionados.length === 0) {
+              Swal.fire({
+                icon: 'warning',
+                title: 'Sin archivos',
+                text: 'Por favor, selecciona al menos un archivo'
+              });
+              return;
+            }
+            
+            // Crear FormData NUEVO cada vez
+            const formData = new FormData();
+            
+            // Agregar documentos al FormData
+            documentosSeleccionados.forEach((doc, index) => {
+              formData.append(`documentos[${index}][docId]`, doc.docId);
+              formData.append(`documentos[${index}][userId]`, doc.userId);
+              formData.append(`documentos[${index}][tipo]`, doc.tipo);
+              formData.append(`documentos[${index}][file]`, doc.file, doc.file.name);
+            });
+            
+            // Depurar lo que se envía
+            console.log('Enviando FormData con:', documentosSeleccionados.length, 'documentos');
+            for (let pair of (formData as any).entries()) {
+              console.log(pair[0], pair[1]);
+            }
+            
+            // Mostrar loading
+            Swal.fire({
+              title: 'Subiendo documentos...',
+              text: 'Por favor espera',
+              allowOutsideClick: false,
+              didOpen: () => {
+                Swal.showLoading();
+              }
+            });
+            
+            // Enviar al backend
+            this.http.resubirDocumento(formData).subscribe({
+              next: (res: any) => {
+                console.log('Respuesta del servidor:', res);
+                
+                if (res.status === 'success') {
+                  Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: res.message || 'Documentos subidos correctamente',
+                    confirmButtonText: 'Aceptar'
+                  }).then(() => {
+                    // Cerrar el modal actual y recargar
+                    this.activeModal.close('documentosActualizados');
+                    // Opcional: recargar la página o hacer algo más
+                  });
+                } else {
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: res.message || 'Error al subir documentos'
+                  });
+                }
+              },
+              error: (err) => {
+                console.error('Error en la petición:', err);
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error de conexión',
+                  text: 'No se pudo conectar con el servidor. Intenta de nuevo.'
+                });
+              }
+            });
+          });
+        }
+      }
+    }).then((result) => {
+      if (result.dismiss === Swal.DismissReason.cancel) {
+        this.activeModal.close('inactive');
+      }
+    });
+  }
+
+  // Método para alerta simple de revisión
+  mostrarAlertaRevision(mensaje: string) {
+    Swal.fire({
+      title: 'Cuenta en revisión',
+      html: `
+        <p>${mensaje}</p>
+        <br>
+        <small>¿Por qué hacemos esto? Puedes revisar tu correo para mayor información.</small>
+      `,
+      icon: 'info',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#3085d6'
+    }).then(() => {
+      this.activeModal.close('inactive');
+    });
+  }
+
+  // Método para generar HTML de documentos - CORREGIDO
+  generateDocsItem(docs: any[]): string {
+    if (!docs || docs.length === 0) {
+      return `<li>No hay documentos rechazados</li>`;
+    }
+    
+    const nombresDocumentos: { [key: string]: string } = {
+      'titulo': 'Título Profesional',
+      'ine': 'INE',
+      'domicilio': 'Comprobante de Domicilio'
+    };
+    
+    return docs.map(doc => {
+      const nombreDoc = nombresDocumentos[doc.tipo_documento] || doc.tipo_documento;
+      return `
+        <li style="margin: 15px 0; color: #e74c3c;">
+          <strong>${nombreDoc}</strong><br>
+          <small>Motivo: ${doc.comentarios || 'Sin comentarios'}</small>
+          <br><br>
+          <input type="file" 
+                 class="btn-resubir" 
+                 data-tipo="${doc.tipo_documento}" 
+                 data-docId="${doc.id}"
+                 data-userId="${doc.usuario_id}"
+                 accept=".pdf,.jpg,.jpeg,.png,.webp"
+                 style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+        </li>`;
+    }).join('');
+  }
+
+  // ELIMINAR: handleResubirDocumentos() ya no se usa
+
   private markFormGroupTouched() {
     Object.keys(this.loginForm.controls).forEach(key => {
       const control = this.loginForm.get(key);
       control?.markAsTouched();
     });
   }
-
-
-
 
   getErrorMessage(fieldName: string): string {
     const field = this.loginForm.get(fieldName);

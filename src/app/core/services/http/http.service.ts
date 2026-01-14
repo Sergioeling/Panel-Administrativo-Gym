@@ -131,7 +131,11 @@
 
     crearUsuario(formData: FormData): Observable<any> {
     return this.post('crear-usuario', formData);
-}
+    }
+
+    resubirDocumento(formData: FormData): Observable<any>{
+      return this.post('resubir-documento', formData);
+    }
 
     obtenerUsuarios(): Observable<any> {
       return this.get('usuarios');
