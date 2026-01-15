@@ -3,8 +3,10 @@ import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
-import { RevisionService } from './revision.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
+import { RevisionService } from './revision.service';
+import { AltaPlatillos } from '../../shared/modales/alta-platillos/alta-platillos';
 
 @Component({
   selector: 'app-revision',
@@ -58,11 +60,14 @@ export class RevisionComponent implements OnInit, AfterViewInit {
   dataPlatillos = new MatTableDataSource<any>([]);
   @ViewChild('paginatorPlat') paginatorPlat!: MatPaginator;
 
-  constructor(private revisionService: RevisionService) {}
+  constructor(
+    private revisionService: RevisionService,
+    private modalService: NgbModal
+  ) {}
 
   ngOnInit(): void {
     this.cargarNutricionistasPendientes();
-    this.cargarPlatillosPendientes(); // ⬅️ YA ACTIVO
+    this.cargarPlatillosPendientes();
   }
 
   ngAfterViewInit(): void {
@@ -146,9 +151,21 @@ export class RevisionComponent implements OnInit, AfterViewInit {
   }
 
   /* =========================
-   *  DETALLES PLATILLO
+   *  DETALLES PLATILLO (MODAL)
    * ========================= */
   verDetallesPlatillo(platillo: any): void {
-    console.log('Ver detalles del platillo ID:', platillo.id);
+    const modalRef = this.modalService.open(AltaPlatillos, {
+      size: 'xl',
+      backdrop: 'static',
+      keyboard: false,
+      scrollable: true
+    });
+
+    modalRef.componentInstance.platilloData = {
+      id: platillo.id
+    };
+
+    modalRef.componentInstance.isEdit = true;
+    modalRef.componentInstance.isViewOnly = true;
   }
 }
