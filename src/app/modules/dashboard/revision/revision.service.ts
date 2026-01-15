@@ -20,4 +20,19 @@ export class RevisionService {
       { headers }
     );
   }
+
+getPlatillosPendientes() {
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
+
+  return this.http.get<any>(
+    'http://localhost/Backend/Rutas.php?platillos-pendientes',
+    { headers }
+  );
+}
+
+
 }

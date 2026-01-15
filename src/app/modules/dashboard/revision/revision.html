@@ -94,46 +94,59 @@
   </section>
 
   <!-- Tabla Platillos -->
-  <section class="mt">
-    <h3>Solicitudes de Platillos</h3>
+<section class="mt">
+  <h3>Solicitudes de Platillos</h3>
 
-    <table mat-table [dataSource]="dataPlatillos" class="users-table">
+  <table mat-table [dataSource]="dataPlatillos" class="users-table">
 
-      <ng-container matColumnDef="platillo">
-        <th mat-header-cell *matHeaderCellDef>Platillo</th>
-        <td mat-cell *matCellDef="let e">{{ e.platillo }}</td>
-      </ng-container>
+    <ng-container matColumnDef="platillo">
+      <th mat-header-cell *matHeaderCellDef>Platillo</th>
+      <td mat-cell *matCellDef="let e">{{ e.platillo }}</td>
+    </ng-container>
 
-      <ng-container matColumnDef="nutricionista">
-        <th mat-header-cell *matHeaderCellDef>Nutricionista</th>
-        <td mat-cell *matCellDef="let e">{{ e.nutricionista }}</td>
-      </ng-container>
+    <ng-container matColumnDef="detalles">
+      <th mat-header-cell *matHeaderCellDef>Detalles</th>
+      <td mat-cell *matCellDef="let p">
+        <button class="btn-detalle" (click)="verDetallesPlatillo(p)">
+          Ver detalles
+        </button>
+      </td>
+    </ng-container>
 
-      <ng-container matColumnDef="fecha">
-        <th mat-header-cell *matHeaderCellDef>Fecha</th>
-        <td mat-cell *matCellDef="let e">{{ e.fecha }}</td>
-      </ng-container>
+    <ng-container matColumnDef="nutricionista">
+      <th mat-header-cell *matHeaderCellDef>Nutricionista</th>
+      <td mat-cell *matCellDef="let e">{{ e.nutricionista }}</td>
+    </ng-container>
 
-      <ng-container matColumnDef="estado">
-        <th mat-header-cell *matHeaderCellDef>Estado</th>
-        <td mat-cell *matCellDef="let e">
-          <span class="estado" [class]="e.estado">{{ e.estado }}</span>
-        </td>
-      </ng-container>
+    <!-- ⬅️ CAMBIO AQUÍ -->
+    <ng-container matColumnDef="tiempo">
+      <th mat-header-cell *matHeaderCellDef>Tiempo</th>
+      <td mat-cell *matCellDef="let e">
+        {{ e.tiempo }}
+      </td>
+    </ng-container>
 
-      <ng-container matColumnDef="acciones">
-        <th mat-header-cell *matHeaderCellDef>Acciones</th>
-        <td mat-cell *matCellDef="let e">
-          <button class="btn-approve" (click)="aprobar(e)">Aprobar</button>
-          <button class="btn-reject" (click)="rechazar(e)">Rechazar</button>
-        </td>
-      </ng-container>
+    <ng-container matColumnDef="estado">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let e">
+        <span class="estado" [class]="e.estado">{{ e.estado }}</span>
+      </td>
+    </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumnsPlatillos"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumnsPlatillos"></tr>
-    </table>
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let e">
+        <button class="btn-approve" (click)="aprobar(e)">Aprobar</button>
+        <button class="btn-reject" (click)="rechazar(e)">Rechazar</button>
+      </td>
+    </ng-container>
 
-    <mat-paginator #paginatorPlat [pageSize]="5"></mat-paginator>
-  </section>
+    <tr mat-header-row *matHeaderRowDef="displayedColumnsPlatillos"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumnsPlatillos"></tr>
+  </table>
+
+  <mat-paginator #paginatorPlat [pageSize]="5"></mat-paginator>
+</section>
+
 
 </div>
