@@ -1,0 +1,91 @@
+.revision-container {
+  padding: 20px;
+}
+
+.header {
+  margin-bottom: 20px;
+
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  p {
+    color: #6b7280;
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  h2 {
+    font-size: 26px;
+    font-weight: 700;
+  }
+
+  span {
+    color: #6b7280;
+  }
+}
+
+.users-table {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.estado {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  text-transform: capitalize;
+
+  &.pendiente {
+    background: #fff7ed;
+    color: #c2410c;
+  }
+
+  &.aprobado {
+    background: #ecfdf5;
+    color: #047857;
+  }
+
+  &.rechazado {
+    background: #fef2f2;
+    color: #b91c1c;
+  }
+}
+
+.btn-approve {
+  background: #16a34a;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-right: 6px;
+  cursor: pointer;
+}
+
+.btn-reject {
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.mt {
+  margin-top: 40px;
+}

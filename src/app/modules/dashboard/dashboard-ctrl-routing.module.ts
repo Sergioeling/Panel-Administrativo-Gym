@@ -14,6 +14,7 @@ import { permission } from 'process';
 import { TipoObjetivoComponent } from './tipo-objetivo/tipo-objetivo';
 import { TipoDietaComponent } from './tipo-dieta/tipo-dieta';
 import { Reportes } from './reportes/reportes';
+import { RevisionComponent } from './revision/revision';
 
 const userRoutes = {
   ADMIN: [
@@ -23,6 +24,7 @@ const userRoutes = {
     { path: 'tipo_objetivo', component: TipoObjetivoComponent, data: { permission: null } },
     { path: 'tipo_dieta', component: TipoDietaComponent, data: { permission: null } },
     { path: 'reportes-admin', component: Reportes, data: { permission: null } },
+    { path: 'revision', component: RevisionComponent, data: { permission: null } },
   ],
   NUTRICIONISTA: [
     { path: 'inicio', component: Inicio, data: { permission: null } },
