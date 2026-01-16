@@ -17,16 +17,6 @@
             </div>
         </div>
 
-        <!-- Centro (search) - Solo en desktop 
-        <div class="hidden lg:block w-full max-w-md mx-4">
-            <div class="relative rounded-full px-4 py-2 backdrop-blur"
-                style="background-color: rgba(255, 255, 255, 0.15);">
-                <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 opacity-70"></i>
-                <input type="text" placeholder="Buscar..."
-                    class="w-full bg-transparent pl-7 pr-3 text-sm text-white placeholder-white/70 outline-none" />
-            </div>
-        </div> -->
-
         <!-- Lado derecho -->
         <div class="flex items-center gap-1 sm:gap-2">
             
@@ -38,14 +28,25 @@
 
             <!-- Botones de acción -->
             <div class="flex items-center gap-1">
-                <!-- Notificaciones -->
+                <!-- Notificaciones - OPCIÓN 1: Con async pipe (recomendado) -->
                 <button mat-icon-button
+                    (click)="openoti()"
                     class="relative rounded-full p-1.5 sm:p-2 transition-all duration-300 hover:bg-white/10 active:scale-95"
                     title="Notificaciones">
                     <i class="bi bi-bell text-sm sm:text-lg"></i>
-                    <span class="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 grid h-3 w-3 sm:h-4 sm:w-4 place-items-center rounded-full bg-[var(--accent-color)] text-black text-[8px] sm:text-[10px] font-semibold">
-                        3
+                    <span *ngIf="(unreadCount$ | async) as count"
+                        [class.hidden]="count === 0"
+                        class="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 grid h-3 w-3 sm:h-4 sm:w-4 place-items-center rounded-full bg-[var(--accent-color)] text-black text-[8px] sm:text-[10px] font-semibold">
+                        {{ count }}
                     </span>
+                    <div *ngIf="openNoti && (notifies$ | async) as notifies" 
+                        class="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-md p-2 z-50">
+                    <div *ngFor="let noti of notifies" class="border-b border-gray-200 py-1">
+                        <p class="font-semibold text-sm text-black">{{ noti.titulo }}</p>
+                        <p class="text-xs text-gray-600">Revisa la solicitud de <Strong>{{noti.usuario_nombre}}</Strong> para unirse a PowerGym</p>
+                        <span class="text-[10px] text-gray-400">{{ noti.fecha_creacion }}</span>
+                    </div>
+                    </div>
                 </button>
 
                 <!-- Inicio -->

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthServices } from '../../../core/services/auth/auth.service';
 import { HttpServices } from '../../../core/services/http/http.service';
+import { NotificationService } from '../../../core/services/notificacion/notificacion.service';
 import { Subject, takeUntil } from 'rxjs';
 
 interface DashboardStats {
@@ -37,6 +38,7 @@ export class Inicio implements OnInit, OnDestroy {
   private router = inject(Router);
   private http = inject(HttpServices);
   private cdr = inject(ChangeDetectorRef);
+  private noti = inject(NotificationService);
   private destroy$ = new Subject<void>();
 
   protected userName: string = '';
@@ -44,6 +46,7 @@ export class Inicio implements OnInit, OnDestroy {
   protected loading = true;
   protected currentTime = new Date();
   protected timeInterval: any;
+  protected userId: number = 0;
 
   protected stats: DashboardStats = {
     totalUsuarios: 0,
@@ -87,7 +90,29 @@ export class Inicio implements OnInit, OnDestroy {
     try {
       this.userName = this.auth.getUserName() || 'Usuario';
       this.userRole = this.auth.getUserRole() || 'USUARIO';
+      this.userId = this.auth.getIdUser();
+      
+      if(this.userId) {
+        console.log("USERID: ", this.userId);
+        
+        // Configurar el servicio de notificaciones con el userId
+        this.noti.setUserId(this.userId);
+        
+        // Suscribirse a las notificaciones para debugging
+        this.noti.notifications$
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(notifications => {
+            console.log('Notificaciones recibidas:', notifications);
+          });
+          
+        this.noti.unreadCount$
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(count => {
+            console.log('Total no leídas:', count);
+          });
+      }
     } catch (error) {
+      console.error('Error loading user data:', error);
       this.userName = 'Usuario';
       this.userRole = 'USUARIO';
     }
@@ -220,6 +245,18 @@ export class Inicio implements OnInit, OnDestroy {
       this.cdr.detectChanges();
     }, 1000);
   }
+
+  /* private getNotifications(userId: number) { 
+  this.noti.getNotificationsFromApi(userId).subscribe({
+    next: (response) => {
+      console.log('Respuesta de notificaciones:', response);
+      
+    },
+    error: (err) => {
+      console.error('Error al traer notificaciones:', err);
+    }
+  });
+} */
 
   protected getGreeting(): string {
     const hour = this.currentTime.getHours();
