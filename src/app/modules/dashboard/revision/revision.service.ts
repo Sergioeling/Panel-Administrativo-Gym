@@ -8,31 +8,50 @@ export class RevisionService {
 
   constructor(private http: HttpClient) {}
 
-  getNutricionistasPendientes() {
-    const token = localStorage.getItem('token');
+        getNutricionistasPendientes() {
+          const token = localStorage.getItem('token');
 
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
+          const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`
+          });
 
-    return this.http.get<any>(
-      'http://localhost/Backend/Rutas.php?nutricionistas-pendientes',
-      { headers }
-    );
-  }
+          return this.http.get<any>(
+            'http://localhost/Backend/Rutas.php?nutricionistas-pendientes',
+            { headers }
+          );
+        }
 
-getPlatillosPendientes() {
-  const token = localStorage.getItem('token');
+      getPlatillosPendientes() {
+        const token = localStorage.getItem('token');
 
-  const headers = new HttpHeaders({
-    Authorization: `Bearer ${token}`
-  });
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`
+        });
 
-  return this.http.get<any>(
-    'http://localhost/Backend/Rutas.php?platillos-pendientes',
-    { headers }
-  );
-}
+        return this.http.get<any>(
+          'http://localhost/Backend/Rutas.php?platillos-pendientes',
+          { headers }
+        );
+      }
+
+      revisionPlatillo(id: number, estado: number, motivo?: string) {
+        const token = localStorage.getItem('token');
+
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`
+        });
+
+        return this.http.put<any>(
+          'http://localhost/Backend/Rutas.php?platillos-revision',
+          {
+            id,
+            estado,
+            motivo
+          },
+          { headers }
+        );
+      }
+
 
 
 }
