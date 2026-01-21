@@ -7,6 +7,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { RevisionService } from './revision.service';
 import { AltaPlatillos } from '../../shared/modales/alta-platillos/alta-platillos';
+import { VistaDocumentos } from '../../shared/modales/vista-documentos/vista-documentos';
+
 
 @Component({
   selector: 'app-revision',
@@ -101,25 +103,31 @@ export class RevisionComponent implements OnInit, AfterViewInit {
   }
 
   cargarPlatillosPendientes(): void {
-    this.revisionService.getPlatillosPendientes().subscribe({
-      next: (resp) => {
-        if (resp.status === 'success') {
-          this.dataPlatillos.data = resp.data.map((p: any) => ({
-            id: p.platillo_id,
-            platillo: p.platillo,
-            nutricionista: p.nutricionista,
-            tiempo: `${p.tiempo_preparacion} min`,
-            estado: 'pendiente'
-          }));
+  this.revisionService.getPlatillosPendientes().subscribe({
+    next: (resp) => {
+      if (resp.status === 'success') {
+        this.dataPlatillos.data = resp.data.map((p: any) => ({
+          id: p.platillo_id,
+          platillo: p.platillo,
+          nutricionista: p.nutricionista,
+          tiempo: `${p.tiempo_preparacion} min`,
+          estado:
+            p.status === 2
+              ? 'pendiente'
+              : p.status === 1
+              ? 'aprobado'
+              : 'rechazado'
+        }));
 
-          this.calcularTotales();
-        }
-      },
-      error: (err) => {
-        console.error('Error al cargar platillos pendientes', err);
+        this.calcularTotales();
       }
-    });
-  }
+    },
+    error: (err) => {
+      console.error('Error al cargar platillos pendientes', err);
+    }
+  });
+}
+
 
   /* =========================
    *  MÉTRICAS
@@ -139,16 +147,40 @@ export class RevisionComponent implements OnInit, AfterViewInit {
    *  ACCIONES
    * ========================= */
   aprobar(item: any): void {
-    console.log('Aprobar', item);
-  }
+  this.revisionService
+    .revisionPlatillo(item.id, 1)
+    .subscribe({
+      next: () => {
+        this.cargarPlatillosPendientes();
+      },
+      error: (err) => {
+        console.error('Error al aprobar platillo', err);
+      }
+    });
+}
+
 
   rechazar(item: any): void {
     console.log('Rechazar', item);
   }
 
   verArchivos(item: any): void {
-    console.log('Ver archivos de', item);
-  }
+  const modalRef = this.modalService.open(
+    VistaDocumentos,
+    {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false
+    }
+  );
+
+  modalRef.componentInstance.usuario = {
+    id: item.id,
+    nombre: item.nombre,
+    email: item.email
+  };
+}
+
 
   /* =========================
    *  DETALLES PLATILLO (MODAL)
