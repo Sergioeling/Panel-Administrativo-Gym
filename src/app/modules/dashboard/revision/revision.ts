@@ -7,6 +7,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { RevisionService } from './revision.service';
 import { AltaPlatillos } from '../../shared/modales/alta-platillos/alta-platillos';
+import { VistaDocumentos } from '../../shared/modales/vista-documentos/vista-documentos';
+
 
 @Component({
   selector: 'app-revision',
@@ -163,8 +165,22 @@ export class RevisionComponent implements OnInit, AfterViewInit {
   }
 
   verArchivos(item: any): void {
-    console.log('Ver archivos de', item);
-  }
+  const modalRef = this.modalService.open(
+    VistaDocumentos,
+    {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false
+    }
+  );
+
+  modalRef.componentInstance.usuario = {
+    id: item.id,
+    nombre: item.nombre,
+    email: item.email
+  };
+}
+
 
   /* =========================
    *  DETALLES PLATILLO (MODAL)

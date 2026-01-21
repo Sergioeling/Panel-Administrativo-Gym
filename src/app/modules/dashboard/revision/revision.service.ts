@@ -52,6 +52,18 @@ export class RevisionService {
         );
       }
 
+      getDocumentosUsuario(usuarioId: number) {
+        const token = localStorage.getItem('token');
+
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`
+        });
+
+        return this.http.get<any>(
+          `http://localhost/Backend/Rutas.php?documentos-usuario&id=${usuarioId}`,
+          { headers }
+        );
+      }
 
 
 }
