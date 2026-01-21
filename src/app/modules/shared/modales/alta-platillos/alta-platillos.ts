@@ -128,10 +128,11 @@ export class AltaPlatillos implements OnInit, OnDestroy {
       proteinas: [0, [Validators.required, Validators.min(0)]],
       carbohidratos: [0, [Validators.required, Validators.min(0)]],
       grasas: [0, [Validators.required, Validators.min(0)]],
+      precio_platillo: [0, [Validators.required, Validators.min(0)]],
       tiempo_preparacion: [0, [Validators.required, Validators.min(1)]],
       es_publico: [1, Validators.required],
       ingredientes: this.fb.array([]),
-      configuraciones: this.fb.array([])
+      configuraciones: this.fb.array([]) 
     });
   }
 
@@ -299,9 +300,16 @@ export class AltaPlatillos implements OnInit, OnDestroy {
           valor = Number(valor) || 1;
         }
 
+        if (key === 'precio_platillo') {
+          valor = Number(valor) || 0;
+        }
+
         platilloFormData[key] = valor;
       }
     });
+
+    console.log("PLATILLOS INFO: ", platilloFormData); 
+    
 
     this.platilloForm.patchValue(platilloFormData);
 
@@ -634,6 +642,7 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     formData.append('proteinas', String(Number(rawFormData.proteinas) || 0));
     formData.append('carbohidratos', String(Number(rawFormData.carbohidratos) || 0));
     formData.append('grasas', String(Number(rawFormData.grasas) || 0));
+    formData.append('precio', String(Number(rawFormData.precio_platillo) || 0));
     formData.append('tiempo_preparacion', String(Number(rawFormData.tiempo_preparacion) || 0));
     formData.append('es_publico', String(Number(rawFormData.es_publico) || 0));
 

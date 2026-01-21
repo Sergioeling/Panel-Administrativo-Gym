@@ -172,6 +172,22 @@
                         </small>
                     </div>
 
+                    <!-- precio por platillo -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-gray-700">Precio *</label> 
+                        <div class="input-group">
+                            <input type="number" class="form-control" [class.is-invalid]="isFieldInvalid('precio')"
+                                formControlName="precio_platillo" placeholder="150" min="0" step="0.1" />
+                            <span class="input-group-text">Mxn</span>
+                        </div>
+                        <div *ngIf="isFieldInvalid('precio')" class="invalid-feedback">{{ getFieldError('precio') }}
+                        </div>
+                        <small class="form-text text-muted"> 
+                            <i class="fas fa-cheese me-1"></i>
+                            Precio por platillo
+                        </small>
+                    </div>
+
                     <!-- Descripción -->
                     <div class="col-12">
                         <label class="form-label fw-semibold text-gray-700">Pasos *</label>
