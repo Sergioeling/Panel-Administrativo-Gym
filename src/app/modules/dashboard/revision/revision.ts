@@ -165,21 +165,34 @@ export class RevisionComponent implements OnInit, AfterViewInit {
   }
 
   verArchivos(item: any): void {
-  const modalRef = this.modalService.open(
-    VistaDocumentos,
-    {
-      size: 'lg',
-      backdrop: 'static',
-      keyboard: false
-    }
-  );
+      const modalRef = this.modalService.open(
+        VistaDocumentos,
+        {
+          size: 'lg',
+          backdrop: 'static',
+          keyboard: false
+        }
+      );
 
-  modalRef.componentInstance.usuario = {
-    id: item.id,
-    nombre: item.nombre,
-    email: item.email
-  };
-}
+      modalRef.componentInstance.usuario = {
+        id: item.id,
+        nombre: item.nombre,
+        email: item.email
+      };
+
+      // 🔥 CUANDO SE CIERRA EL MODAL
+      modalRef.result
+        .then((result) => {
+          if (result) {
+            // Recargar solicitudes de nutricionistas
+            this.cargarNutricionistasPendientes();
+          }
+        })
+        .catch(() => {
+          // Modal cerrado sin acción (ESC, X, etc.)
+        });
+    }
+
 
 
   /* =========================

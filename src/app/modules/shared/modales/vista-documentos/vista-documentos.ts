@@ -82,8 +82,9 @@ export class VistaDocumentos {
   }
 
   cerrar(): void {
-    this.activeModal.close();
-  }
+  this.activeModal.close(true);
+}
+
 
 
 }
