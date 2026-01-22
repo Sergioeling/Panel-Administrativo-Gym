@@ -36,7 +36,7 @@ export class VistaDocumentos {
   constructor(
     public activeModal: NgbActiveModal,
     private revisionService: RevisionService,
-    private cdr: ChangeDetectorRef // 🔥 CLAVE
+    private cdr: ChangeDetectorRef
   ) {}
 
   obtenerDocumentos(): void {
@@ -47,8 +47,7 @@ export class VistaDocumentos {
         next: (resp) => {
           this.documentos = resp.status === 'success' ? resp.data : [];
           this.loading = false;
-
-          this.cdr.detectChanges(); // 🔥 FORZAR RENDER
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error(err);
@@ -58,7 +57,33 @@ export class VistaDocumentos {
       });
   }
 
+  /* =========================
+   *  ACCIONES (SOLO UI POR AHORA)
+   * ========================= */
+
+  aceptarDocumento(doc: any): void {
+  this.revisionService.aprobarDocumento(doc.id)
+    .subscribe({
+      next: () => {
+        doc.estado = 1;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al aprobar documento', err);
+      }
+    });
+}
+
+
+  rechazarDocumento(doc: any): void {
+    // Cambio visual inmediato (rechazado)
+    doc.estado = 0;
+    this.cdr.detectChanges();
+  }
+
   cerrar(): void {
     this.activeModal.close();
   }
+
+
 }

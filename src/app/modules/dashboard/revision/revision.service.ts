@@ -65,5 +65,20 @@ export class RevisionService {
         );
       }
 
+      aprobarDocumento(documentoId: number) {
+        const token = localStorage.getItem('token');
+
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`
+        });
+
+        return this.http.put<any>(
+          'http://localhost/Backend/Rutas.php?documento-aprobar',
+          { documento_id: documentoId },
+          { headers }
+        );
+      }
+
+
 
 }

@@ -35,16 +35,19 @@
         <tr>
           <th>Documento</th>
           <th>Archivo</th>
+          <th>Estado</th>
           <th class="text-center">Acciones</th>
         </tr>
       </thead>
 
       <tbody>
         <tr *ngFor="let doc of documentos">
+          <!-- Documento -->
           <td class="doc-name">
             {{ doc.tipo_documento | titlecase }}
           </td>
 
+          <!-- Archivo -->
           <td>
             <a
               class="file-link"
@@ -55,14 +58,48 @@
             </a>
           </td>
 
-          <td class="actions">
-            <button class="btn btn-success btn-sm">
-              Aceptar
-            </button>
+          <!-- Estado -->
+        <td>
+            <span
+                class="estado pendiente"
+                *ngIf="doc.estado == 2"
+            >
+                Pendiente
+            </span>
 
-            <button class="btn btn-danger btn-sm">
-              Rechazar
-            </button>
+            <span
+                class="estado aprobado"
+                *ngIf="doc.estado == 1"
+            >
+                Aceptado
+            </span>
+
+            <span
+                class="estado rechazado"
+                *ngIf="doc.estado == 0"
+            >
+                Rechazado
+            </span>
+        </td>
+
+
+          <!-- Acciones -->
+          <td class="actions">
+            <ng-container *ngIf="doc.estado == 2">
+              <button
+                class="btn btn-success btn-sm"
+                (click)="aceptarDocumento(doc)"
+              >
+                Aceptar
+              </button>
+
+              <button
+                class="btn btn-danger btn-sm"
+                (click)="rechazarDocumento(doc)"
+              >
+                Rechazar
+              </button>
+            </ng-container>
           </td>
         </tr>
       </tbody>
