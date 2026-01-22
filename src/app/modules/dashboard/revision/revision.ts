@@ -102,7 +102,7 @@ export class RevisionComponent implements OnInit, AfterViewInit {
     });
   }
 
-  cargarPlatillosPendientes(): void {
+cargarPlatillosPendientes(): void {
   this.revisionService.getPlatillosPendientes().subscribe({
     next: (resp) => {
       if (resp.status === 'success') {
@@ -112,9 +112,9 @@ export class RevisionComponent implements OnInit, AfterViewInit {
           nutricionista: p.nutricionista,
           tiempo: `${p.tiempo_preparacion} min`,
           estado:
-            p.status === 2
+            Number(p.status) === 2
               ? 'pendiente'
-              : p.status === 1
+              : Number(p.status) === 1
               ? 'aprobado'
               : 'rechazado'
         }));
@@ -127,6 +127,9 @@ export class RevisionComponent implements OnInit, AfterViewInit {
     }
   });
 }
+
+
+
 
 
   /* =========================
