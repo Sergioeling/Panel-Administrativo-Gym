@@ -8,6 +8,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RevisionService } from './revision.service';
 import { AltaPlatillos } from '../../shared/modales/alta-platillos/alta-platillos';
 import { VistaDocumentos } from '../../shared/modales/vista-documentos/vista-documentos';
+import Swal from 'sweetalert2';
 
 
 @Component({
@@ -102,7 +103,7 @@ export class RevisionComponent implements OnInit, AfterViewInit {
     });
   }
 
-  cargarPlatillosPendientes(): void {
+cargarPlatillosPendientes(): void {
   this.revisionService.getPlatillosPendientes().subscribe({
     next: (resp) => {
       if (resp.status === 'success') {
@@ -112,9 +113,9 @@ export class RevisionComponent implements OnInit, AfterViewInit {
           nutricionista: p.nutricionista,
           tiempo: `${p.tiempo_preparacion} min`,
           estado:
-            p.status === 2
+            Number(p.status) === 2
               ? 'pendiente'
-              : p.status === 1
+              : Number(p.status) === 1
               ? 'aprobado'
               : 'rechazado'
         }));
@@ -127,6 +128,9 @@ export class RevisionComponent implements OnInit, AfterViewInit {
     }
   });
 }
+
+
+
 
 
   /* =========================
@@ -161,25 +165,84 @@ export class RevisionComponent implements OnInit, AfterViewInit {
 
 
   rechazar(item: any): void {
-    console.log('Rechazar', item);
-  }
+  Swal.fire({
+    title: 'Rechazar platillo',
+    text: 'Escribe el motivo del rechazo',
+    input: 'textarea',
+    inputPlaceholder: 'Motivo del rechazo...',
+    inputAttributes: {
+      'aria-label': 'Motivo del rechazo'
+    },
+    showCancelButton: true,
+    confirmButtonText: 'Rechazar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#dc2626',
+    inputValidator: (value) => {
+      if (!value || !value.trim()) {
+        return 'El motivo es obligatorio';
+      }
+      return null;
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const motivo = result.value;
+
+      this.revisionService
+        .revisionPlatillo(item.id, 0, motivo)
+        .subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Platillo rechazado',
+              text: 'Se notificó al nutricionista',
+              timer: 2500,
+              showConfirmButton: false
+            });
+
+            this.cargarPlatillosPendientes();
+          },
+          error: () => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo rechazar el platillo'
+            });
+          }
+        });
+    }
+  });
+}
+
 
   verArchivos(item: any): void {
-  const modalRef = this.modalService.open(
-    VistaDocumentos,
-    {
-      size: 'lg',
-      backdrop: 'static',
-      keyboard: false
-    }
-  );
+      const modalRef = this.modalService.open(
+        VistaDocumentos,
+        {
+          size: 'lg',
+          backdrop: 'static',
+          keyboard: false
+        }
+      );
 
-  modalRef.componentInstance.usuario = {
-    id: item.id,
-    nombre: item.nombre,
-    email: item.email
-  };
-}
+      modalRef.componentInstance.usuario = {
+        id: item.id,
+        nombre: item.nombre,
+        email: item.email
+      };
+
+      // 🔥 CUANDO SE CIERRA EL MODAL
+      modalRef.result
+        .then((result) => {
+          if (result) {
+            // Recargar solicitudes de nutricionistas
+            this.cargarNutricionistasPendientes();
+          }
+        })
+        .catch(() => {
+          // Modal cerrado sin acción (ESC, X, etc.)
+        });
+    }
+
 
 
   /* =========================

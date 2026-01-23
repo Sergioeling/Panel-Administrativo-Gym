@@ -21,6 +21,7 @@ export class RevisionService {
           );
         }
 
+        
       getPlatillosPendientes() {
         const token = localStorage.getItem('token');
 
@@ -61,6 +62,20 @@ export class RevisionService {
 
         return this.http.get<any>(
           `http://localhost/Backend/Rutas.php?documentos-usuario&id=${usuarioId}`,
+          { headers }
+        );
+      }
+
+      aprobarDocumento(documentoId: number) {
+        const token = localStorage.getItem('token');
+
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`
+        });
+
+        return this.http.put<any>(
+          'http://localhost/Backend/Rutas.php?documento-aprobar',
+          { documento_id: documentoId },
           { headers }
         );
       }
