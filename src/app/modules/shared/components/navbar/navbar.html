@@ -29,25 +29,84 @@
             <!-- Botones de acción -->
             <div class="flex items-center gap-1">
                 <!-- Notificaciones - OPCIÓN 1: Con async pipe (recomendado) -->
-                <button mat-icon-button
-                    (click)="openoti()"
-                    class="relative rounded-full p-1.5 sm:p-2 transition-all duration-300 hover:bg-white/10 active:scale-95"
-                    title="Notificaciones">
-                    <i class="bi bi-bell text-sm sm:text-lg"></i>
-                    <span *ngIf="(unreadCount$ | async) as count"
-                        [class.hidden]="count === 0"
-                        class="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 grid h-3 w-3 sm:h-4 sm:w-4 place-items-center rounded-full bg-[var(--accent-color)] text-black text-[8px] sm:text-[10px] font-semibold">
-                        {{ count }}
-                    </span>
-                    <div *ngIf="openNoti && (notifies$ | async) as notifies" 
-                        class="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-md p-2 z-50">
-                    <div *ngFor="let noti of notifies" class="border-b border-gray-200 py-1">
-                        <p class="font-semibold text-sm text-black">{{ noti.titulo }}</p>
-                        <p class="text-xs text-gray-600">Revisa la solicitud de <Strong>{{noti.usuario_nombre}}</Strong> para unirse a PowerGym</p>
-                        <span class="text-[10px] text-gray-400">{{ noti.fecha_creacion }}</span>
+                <!-- Notificaciones -->
+<button mat-icon-button
+    (click)="openoti()"
+    class="relative rounded-full p-1.5 sm:p-2 transition-all duration-300 hover:bg-white/10 active:scale-95"
+    title="Notificaciones">
+    <i class="bi bi-bell text-sm sm:text-lg"></i>
+    
+    <!-- Contador con animación -->
+    <span *ngIf="(unreadCount$ | async) as count"
+        [class.hidden]="count === 0"
+        class="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 grid h-3 w-3 sm:h-4 sm:w-4 place-items-center rounded-full bg-[var(--accent-color)] text-black text-[8px] sm:text-[10px] font-semibold shadow-lg">
+        {{ count > 99 ? '99+' : count }}
+    </span>
+    
+    <!-- Dropdown de notificaciones -->
+    <div *ngIf="openNoti" 
+        class="absolute right-0 mt-2 w-80 max-w-[90vw] bg-white shadow-2xl rounded-lg overflow-hidden z-50 border border-gray-200">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-3 flex justify-between items-center">
+            <h3 class="text-white font-semibold text-sm">Notificaciones</h3>
+            <button *ngIf="unreadCount > 0"
+                (click)="markAllAsRead()"
+                class="text-white text-xs hover:underline">
+                Marcar todas como leídas
+            </button>
+        </div>
+        
+        <!-- Loading -->
+        <div *ngIf="isLoadingNotifications" class="p-4 text-center text-gray-500">
+            <i class="bi bi-arrow-repeat animate-spin text-xl"></i>
+            <p class="text-xs mt-2">Cargando...</p>
+        </div>
+        
+        <!-- Lista de notificaciones -->
+        <div *ngIf="!isLoadingNotifications" class="max-h-96 overflow-y-auto">
+            <div *ngIf="(notifies$ | async) as notifies">
+                <div *ngIf="notifies.length === 0" class="p-8 text-center text-gray-400">
+                    <i class="bi bi-bell-slash text-3xl"></i>
+                    <p class="text-sm mt-2">No tienes notificaciones</p>
+                </div>
+                
+                <div *ngFor="let noti of notifies" 
+                    class="border-b border-gray-100 p-3 hover:bg-gray-50 transition-colors cursor-pointer"
+                    [class.bg-blue-50]="!noti.leido">
+                    
+                    <div class="flex items-start gap-3">
+                        <!-- Icono según tipo -->
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
+                            [ngClass]="{
+                                'bg-blue-100 text-blue-600': noti.tipo === 'info',
+                                'bg-green-100 text-green-600': noti.tipo === 'promocion',
+                                'bg-yellow-100 text-yellow-600': noti.tipo === 'alerta',
+                                'bg-red-100 text-red-600': noti.tipo === 'sistema'
+                            }">
+                            <i class="bi bi-person-plus text-sm"></i>
+                        </div>
+                        
+                        <!-- Contenido -->
+                        <div class="flex-1 min-w-0">
+                            <p class="font-semibold text-sm text-gray-900 mb-1">{{ noti.titulo }}</p>
+                            <p class="text-xs text-gray-600 leading-relaxed">
+                                Revisa la solicitud de <strong>{{noti.usuario_nombre}}</strong> para unirse a PowerGym
+                            </p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="text-[10px] text-gray-400">
+                                    {{ noti.fecha_creacion | date: 'dd/MM/yyyy HH:mm' }}
+                                </span>
+                                <span *ngIf="!noti.leido" 
+                                    class="w-2 h-2 rounded-full bg-blue-500"></span>
+                            </div>
+                        </div>
                     </div>
-                    </div>
-                </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</button>
 
                 <!-- Inicio -->
                 <button mat-icon-button (click)="onRedirectTo('dashboard')"

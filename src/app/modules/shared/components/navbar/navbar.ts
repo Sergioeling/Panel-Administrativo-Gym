@@ -1,21 +1,10 @@
-import { Component, EventEmitter, Input, Output, inject, OnInit, HostListener, ChangeDetectorRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, OnInit, HostListener, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule, AsyncPipe } from '@angular/common';
 import { MatIconButton } from "@angular/material/button";
 import { AuthServices } from '../../../../core/services/auth/auth.service';
-import { NotificationService } from '../../../../core/services/notificacion/notificacion.service';
-import { Observable } from 'rxjs';
-
-export interface Notification {
-  id: number;
-  titulo: string;
-  mensaje: string;
-  tipo: string;
-  leido: boolean;
-  fecha_creacion: string;
-  usuario_nombre?: string;
-  usuario_correo?: string;
-  accion?: string;
-}
+import { NotificationService, Notification } from '../../../../core/services/notificacion/notificacion.service';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-navbar',
@@ -24,15 +13,17 @@ export interface Notification {
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss'
 })
-export class Navbar implements OnInit {
+export class Navbar implements OnInit, OnDestroy {
   private auth = inject(AuthServices);
   private noti = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
+  private destroy$ = new Subject<void>();
+  
   public openNoti: boolean = false;
-  // Hacer el observable público y tipado
   public unreadCount$: Observable<number>;
   public notifies$: Observable<Notification[]>;
-   public unreadCount: number = 0; // Variable alternativa
+  public unreadCount: number = 0;
+  public isLoadingNotifications = false;
   
   @Input() user: string = '';
   @Input() userRole: string = '';
@@ -50,18 +41,21 @@ export class Navbar implements OnInit {
   ngOnInit() {
     this.checkScreenSize();
     
-    // Suscripción adicional para debugging y forzar detección de cambios
-    this.unreadCount$.subscribe(count => {
-      console.log('Navbar - Contador actualizado:', count);
-      this.unreadCount = count;
-      this.cdr.detectChanges(); // Forzar detección de cambios
-    });
+    // Suscribirse al contador
+    this.unreadCount$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(count => {
+        console.log('Navbar - Contador actualizado:', count);
+        this.unreadCount = count;
+        this.cdr.detectChanges();
+      });
 
-    this.notifies$.subscribe(data => {
-      console.log("Notificaciones desde navbar: ", data);
-    }) 
-
-
+    // Suscribirse a las notificaciones
+    this.notifies$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        console.log("Notificaciones desde navbar:", data);
+      });
   }
 
   @HostListener('window:resize', ['$event'])
@@ -81,7 +75,51 @@ export class Navbar implements OnInit {
     this.redirectTo.emit(url);
   }
 
+  /**
+   * Abre el dropdown de notificaciones
+   * SOLO AQUÍ carga las notificaciones completas
+   */
   openoti() {
     this.openNoti = !this.openNoti;
+    
+    if (this.openNoti && !this.isLoadingNotifications) {
+      // Cargar notificaciones completas solo al abrir
+      this.isLoadingNotifications = true;
+      
+      this.noti.loadNotifications()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.isLoadingNotifications = false;
+            console.log('Notificaciones cargadas al abrir dropdown');
+          },
+          error: (error) => {
+            this.isLoadingNotifications = false;
+            console.error('Error al cargar notificaciones:', error);
+          }
+        });
+    }
+  }
+
+  /**
+   * Marcar todas como leídas
+   */
+  markAllAsRead() {
+    this.noti.markAllAsRead()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          console.log('Todas las notificaciones marcadas como leídas');
+          this.openNoti = false;
+        },
+        error: (error) => {
+          console.error('Error al marcar como leídas:', error);
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

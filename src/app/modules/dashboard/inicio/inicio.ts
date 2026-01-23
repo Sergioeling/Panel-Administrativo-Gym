@@ -63,19 +63,19 @@ export class Inicio implements OnInit, OnDestroy {
 
   constructor() { }
 
-  ngOnInit() {
-    this.loadUserData();
-    this.initializeQuickActions();
-    this.loadDashboardStats();
-    this.startTimeUpdate();
-    
-    setTimeout(() => {
-      if (this.loading) {
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
-    }, 5000);
-  }
+  async ngOnInit() {
+  await this.loadUserData();
+  this.initializeQuickActions();
+  this.loadDashboardStats();
+  this.startTimeUpdate();
+  
+  setTimeout(() => {
+    if (this.loading) {
+      this.loading = false;
+      this.cdr.detectChanges();
+    }
+  }, 5000);
+}
 
   ngOnDestroy() {
     this.destroy$.next();
@@ -86,37 +86,38 @@ export class Inicio implements OnInit, OnDestroy {
     }
   }
 
-  private loadUserData() {
-    try {
-      this.userName = this.auth.getUserName() || 'Usuario';
-      this.userRole = this.auth.getUserRole() || 'USUARIO';
-      this.userId = this.auth.getIdUser();
+  private async loadUserData() {
+  try {
+    this.userName = this.auth.getUserName() || 'Usuario';
+    this.userRole = this.auth.getUserRole() || 'USUARIO';
+    this.userId = this.auth.getIdUser();
+    
+    if(this.userId) {
+      console.log("USERID: ", this.userId);
       
-      if(this.userId) {
-        console.log("USERID: ", this.userId);
+      // ✅ ESPERAR a que se inicialice completamente
+      await this.noti.setUserId(this.userId);
+      console.log('✅ Servicio de notificaciones inicializado');
+      
+      // Suscribirse a las notificaciones para debugging
+      this.noti.notifications$
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(notifications => {
+          console.log('Notificaciones recibidas:', notifications);
+        });
         
-        // Configurar el servicio de notificaciones con el userId
-        this.noti.setUserId(this.userId);
-        
-        // Suscribirse a las notificaciones para debugging
-        this.noti.notifications$
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(notifications => {
-            console.log('Notificaciones recibidas:', notifications);
-          });
-          
-        this.noti.unreadCount$
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(count => {
-            console.log('Total no leídas:', count);
-          });
-      }
-    } catch (error) {
-      console.error('Error loading user data:', error);
-      this.userName = 'Usuario';
-      this.userRole = 'USUARIO';
+      this.noti.unreadCount$
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(count => {
+          console.log('Total no leídas:', count);
+        });
     }
+  } catch (error) {
+    console.error('Error loading user data:', error);
+    this.userName = 'Usuario';
+    this.userRole = 'USUARIO';
   }
+}
 
   private initializeQuickActions() {
     const allActions: QuickAction[] = [
