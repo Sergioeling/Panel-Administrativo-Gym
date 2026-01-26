@@ -570,7 +570,7 @@ generarHTMLCorreoRegistro(usuario: Usuario): string {
             <div class="header">
                 <div class="icon-container"></div>
                 <h1>✅ ¡Registro Exitoso!</h1>
-                <p>DTI Nutrición - Plataforma de Nutricionistas</p>
+                <p>PowerGym</p>
             </div>
             
             <div class="content">
@@ -593,7 +593,7 @@ generarHTMLCorreoRegistro(usuario: Usuario): string {
                 
                 <div class="info-box">
                     <h4>💡 ¿Por qué hacemos esto?</h4>
-                    <p>En DTI Nutrición estamos <strong>comprometidos con la excelencia y la confianza</strong>. Validamos cada cuenta para:</p>
+                    <p>En PowerGym estamos <strong>comprometidos con la excelencia y la confianza</strong>. Validamos cada cuenta para:</p>
                     <ul style="margin: 15px 0; padding-left: 20px; color: #5a6c7d;">
                         <li style="margin: 8px 0;">Garantizar un servicio confiable a nuestros usuarios</li>
                         <li style="margin: 8px 0;">Proteger a la comunidad de personas no autorizadas</li>
@@ -649,10 +649,10 @@ generarHTMLCorreoRegistro(usuario: Usuario): string {
             </div>
             
             <div class="footer">
-                <p class="company-name">DTI Nutrición</p>
+                <p class="company-name">PowerGym</p>
                 <p>Conectando profesionales de la nutrición con personas que buscan una <span class="accent">vida más saludable</span></p>
                 <p>Este correo fue enviado automáticamente el ${fechaRegistro}</p>
-                <p style="margin-top: 15px; font-size: 12px;">© ${new Date().getFullYear()} DTI Nutrición. Todos los derechos reservados.</p>
+                <p style="margin-top: 15px; font-size: 12px;">© ${new Date().getFullYear()} PowerGym. Todos los derechos reservados.</p>
             </div>
         </div>
     </body>
