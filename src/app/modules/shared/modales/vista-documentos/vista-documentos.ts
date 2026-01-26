@@ -2,6 +2,7 @@ import { Component, Input, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { RevisionService } from '../../../dashboard/revision/revision.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-vista-documentos',
@@ -75,11 +76,51 @@ export class VistaDocumentos {
 }
 
 
-  rechazarDocumento(doc: any): void {
-    // Cambio visual inmediato (rechazado)
-    doc.estado = 0;
-    this.cdr.detectChanges();
-  }
+ rechazarDocumento(doc: any): void {
+  Swal.fire({
+    title: 'Rechazar documento',
+    text: 'Escribe el motivo del rechazo',
+    input: 'textarea',
+    inputPlaceholder: 'Motivo del rechazo...',
+    showCancelButton: true,
+    confirmButtonText: 'Rechazar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#dc2626',
+    inputValidator: (value) => {
+      if (!value || !value.trim()) {
+        return 'El motivo es obligatorio';
+      }
+      return null;
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+
+      this.revisionService
+        .rechazarDocumentoNutricionista(doc.id, result.value)
+        .subscribe({
+          next: () => {
+            doc.estado = 0;
+            this.cdr.detectChanges();
+
+            Swal.fire({
+              icon: 'success',
+              title: 'Documento rechazado',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          },
+          error: () => {
+            Swal.fire(
+              'Error',
+              'No se pudo rechazar el documento',
+              'error'
+            );
+          }
+        });
+    }
+  });
+}
+
 
   cerrar(): void {
   this.activeModal.close(true);

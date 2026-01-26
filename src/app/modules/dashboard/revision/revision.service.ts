@@ -99,4 +99,21 @@ export class RevisionService {
 }
 
 
+rechazarDocumentoNutricionista(documentoId: number, motivo: string) {
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
+
+  return this.http.put<any>(
+    'http://localhost/Backend/Rutas.php?documento-rechazar',
+    {
+      documento_id: documentoId,
+      motivo: motivo
+    },
+    { headers }
+  );
+}
+
 }
