@@ -21,7 +21,7 @@ export class RevisionService {
           );
         }
 
-        
+
       getPlatillosPendientes() {
         const token = localStorage.getItem('token');
 
@@ -79,6 +79,24 @@ export class RevisionService {
           { headers }
         );
       }
+
+
+      rechazarNutricionista(usuarioId: number, motivo: string) {
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
+
+  return this.http.put<any>(
+    'http://localhost/Backend/Rutas.php?nutricionista-rechazar',
+    {
+      usuario_id: usuarioId,
+      motivo
+    },
+    { headers }
+  );
+}
 
 
 }

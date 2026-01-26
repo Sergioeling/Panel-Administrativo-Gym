@@ -4,7 +4,6 @@ import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-
 import { RevisionService } from './revision.service';
 import { AltaPlatillos } from '../../shared/modales/alta-platillos/alta-platillos';
 import { VistaDocumentos } from '../../shared/modales/vista-documentos/vista-documentos';
@@ -25,17 +24,13 @@ import Swal from 'sweetalert2';
 })
 export class RevisionComponent implements OnInit, AfterViewInit {
 
-  /* =========================
-   *  TARJETAS
-   * ========================= */
+
   totalSolicitudes = 0;
   solicitudesNutricionistas = 0;
   solicitudesPlatillos = 0;
   solicitudesPendientes = 0;
 
-  /* =========================
-   *  TABLA NUTRICIONISTAS
-   * ========================= */
+
   displayedColumnsNutricionistas = [
     'nombre',
     'email',
@@ -48,9 +43,7 @@ export class RevisionComponent implements OnInit, AfterViewInit {
   dataNutricionistas = new MatTableDataSource<any>([]);
   @ViewChild('paginatorNutri') paginatorNutri!: MatPaginator;
 
-  /* =========================
-   *  TABLA PLATILLOS
-   * ========================= */
+
   displayedColumnsPlatillos = [
     'platillo',
     'detalles',
@@ -78,9 +71,7 @@ export class RevisionComponent implements OnInit, AfterViewInit {
     this.dataPlatillos.paginator = this.paginatorPlat;
   }
 
-  /* =========================
-   *  API
-   * ========================= */
+
   cargarNutricionistasPendientes(): void {
     this.revisionService.getNutricionistasPendientes().subscribe({
       next: (resp) => {
@@ -130,12 +121,6 @@ cargarPlatillosPendientes(): void {
 }
 
 
-
-
-
-  /* =========================
-   *  MÉTRICAS
-   * ========================= */
   calcularTotales(): void {
     this.solicitudesNutricionistas = this.dataNutricionistas.data.length;
     this.solicitudesPlatillos = this.dataPlatillos.data.length;
@@ -147,9 +132,6 @@ cargarPlatillosPendientes(): void {
       this.solicitudesNutricionistas + this.solicitudesPlatillos;
   }
 
-  /* =========================
-   *  ACCIONES
-   * ========================= */
   aprobar(item: any): void {
   this.revisionService
     .revisionPlatillo(item.id, 1)
@@ -230,24 +212,17 @@ cargarPlatillosPendientes(): void {
         email: item.email
       };
 
-      // 🔥 CUANDO SE CIERRA EL MODAL
       modalRef.result
         .then((result) => {
           if (result) {
-            // Recargar solicitudes de nutricionistas
             this.cargarNutricionistasPendientes();
           }
         })
         .catch(() => {
-          // Modal cerrado sin acción (ESC, X, etc.)
         });
     }
 
 
-
-  /* =========================
-   *  DETALLES PLATILLO (MODAL)
-   * ========================= */
   verDetallesPlatillo(platillo: any): void {
     const modalRef = this.modalService.open(AltaPlatillos, {
       size: 'xl',
@@ -263,4 +238,51 @@ cargarPlatillosPendientes(): void {
     modalRef.componentInstance.isEdit = true;
     modalRef.componentInstance.isViewOnly = true;
   }
+
+  rechazarNutricionista(item: any): void {
+  Swal.fire({
+    title: 'Rechazar solicitud',
+    text: 'Escribe el motivo del rechazo',
+    input: 'textarea',
+    inputPlaceholder: 'Motivo del rechazo...',
+    showCancelButton: true,
+    confirmButtonText: 'Rechazar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#dc2626',
+    inputValidator: (value) => {
+      if (!value || !value.trim()) {
+        return 'El motivo es obligatorio';
+      }
+      return null;
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const motivo = result.value;
+
+      this.revisionService
+        .rechazarNutricionista(item.id, motivo)
+        .subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Solicitud rechazada',
+              text: 'El nutricionista fue notificado',
+              timer: 2500,
+              showConfirmButton: false
+            });
+
+            this.cargarNutricionistasPendientes();
+          },
+          error: () => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo rechazar la solicitud'
+            });
+          }
+        });
+    }
+  });
+}
+
 }
