@@ -97,6 +97,17 @@ onSubmit() {
     this.http.crearUsuario(formData).subscribe({
       next: (res) => {
 
+        if(res && res.data.duplicado == 1) {
+            Swal.fire({
+                title: 'Este correo ya existe',
+                text: 'El correo que ingresaste ya existe, accede a tu cuenta o registra otro correo',
+                icon: 'info',
+                confirmButtonText: 'Aceptar'
+            })
+            this.close();
+            return;
+        }
+
         console.log("RES: ", res);
         
         Swal.fire({

@@ -74,7 +74,7 @@ export class Login {
           
           if (response.data?.inactive === true) {
             const documentos = response.data.documentos || [];
-            const documentosRechazados = documentos.filter((doc: any) => doc.estado === 0);
+            const documentosRechazados = documentos.filter((doc: any) => doc.estado == 0);
             
             if (documentosRechazados.length > 0) {
               this.mostrarAlertaDocumentosRechazados(documentosRechazados);
