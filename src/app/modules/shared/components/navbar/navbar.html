@@ -88,7 +88,7 @@
                         </div>
                         
                         <!-- Contenido -->
-                        <div class="flex-1 min-w-0">
+                        <div class="flex-1 min-w-0" (click)="showNoti(noti); $event.stopPropagation()">
                             <p class="font-semibold text-sm text-gray-900 mb-1">{{ noti.titulo }}</p>
                             <p class="text-xs text-gray-600 leading-relaxed">
                                 Revisa la solicitud de <strong>{{noti.usuario_nombre}}</strong> para unirse a PowerGym

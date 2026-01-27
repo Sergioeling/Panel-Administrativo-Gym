@@ -78,8 +78,10 @@ export class Login {
             
             if (documentosRechazados.length > 0) {
               this.mostrarAlertaDocumentosRechazados(documentosRechazados);
-            } else {
+            } else if(response.data.status == 2) {
               this.mostrarAlertaRevision(response.message);
+            } else {
+              this.mostrarAlertaRechazo(response.message)
             }
             return;
           }
@@ -269,6 +271,22 @@ export class Login {
         <p>${mensaje}</p>
         <br>
         <small>¿Por qué hacemos esto? Puedes revisar tu correo para mayor información.</small>
+      `,
+      icon: 'info',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#3085d6'
+    }).then(() => {
+      this.activeModal.close('inactive');
+    });
+  }
+
+  mostrarAlertaRechazo(mensaje: string) {
+    Swal.fire({
+      title: 'Cuenta rechazada',
+      html: `
+        <p>${mensaje}</p>
+        <br>
+        <small>revisa tu correo para mayor información.</small>
       `,
       icon: 'info',
       confirmButtonText: 'Entendido',

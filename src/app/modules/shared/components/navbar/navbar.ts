@@ -5,6 +5,7 @@ import { AuthServices } from '../../../../core/services/auth/auth.service';
 import { NotificationService, Notification } from '../../../../core/services/notificacion/notificacion.service';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -18,6 +19,8 @@ export class Navbar implements OnInit, OnDestroy {
   private noti = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
+  private router = inject(Router);
+
   
   public openNoti: boolean = false;
   public unreadCount$: Observable<number>;
@@ -101,6 +104,12 @@ export class Navbar implements OnInit, OnDestroy {
     }
   }
 
+
+  showNoti(noti: any) {
+    console.log("ELEGISTE: ", noti);
+    this.markAsRead(noti.id);
+  }
+
   /**
    * Marcar todas como leídas
    */
@@ -111,6 +120,21 @@ export class Navbar implements OnInit, OnDestroy {
         next: () => {
           console.log('Todas las notificaciones marcadas como leídas');
           this.openNoti = false;
+        },
+        error: (error) => {
+          console.error('Error al marcar como leídas:', error);
+        }
+      });
+  }
+
+  markAsRead(noti_id: number) {
+    this.noti.markAsRead(noti_id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          console.log('notificacion marcada como leida');
+          this.openNoti = false;
+          this.router.navigate(['/dashboard/revision']);
         },
         error: (error) => {
           console.error('Error al marcar como leídas:', error);

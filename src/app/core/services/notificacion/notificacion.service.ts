@@ -274,6 +274,47 @@ export class NotificationService implements OnDestroy {
     });
   }
 
+
+  markAsRead(noti_id: number): Observable<any> {
+  if (!noti_id) {
+    return new Observable(observer => observer.complete());
+  }
+
+  console.log('✔️ Marcando notificación como leída...', noti_id);
+
+  return new Observable(observer => {
+    this.http.patch(`${this.apiUrl}marcar-leida`, {
+      noti_id: noti_id
+    })
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (response) => {
+        console.log('✅ Notificación marcada como leída');
+        
+        // 1. Actualizar el contador
+        const currentCount = this.unreadCountSubject.value;
+        if (currentCount > 0) {
+          this.unreadCountSubject.next(currentCount - 1);
+        }
+        
+        // 2. Actualizar las notificaciones en memoria
+        const currentNotifs = this.notificationsSubject.value;
+        const updatedNotifs = currentNotifs.map(n => 
+          n.id === noti_id ? { ...n, leido: true } : n
+        );
+        this.notificationsSubject.next(updatedNotifs);
+        
+        observer.next(response);
+        observer.complete();
+      },
+      error: (error) => {
+        console.error('❌ Error al marcar como leída:', error);
+        observer.error(error);
+      }
+    });
+  });
+}
+
   /**
    * Forzar recarga (útil después de crear usuarios)
    */
