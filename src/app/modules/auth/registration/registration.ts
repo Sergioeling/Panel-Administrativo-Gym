@@ -175,7 +175,7 @@ onFileSelected(event: Event, controlName: string): void {
 
 
 enviarCorreoRegistro(usuario: any): void {
-    const subject = 'Tu cuenta esta en revision! - Panel Administrativo Gym';
+    const subject = 'Tu cuenta esta en revision! - PowerGym';
     const message = this.generarHTMLCorreoRegistro(usuario);
 
     this.http.enviarEmail(usuario.correo, subject, message)
