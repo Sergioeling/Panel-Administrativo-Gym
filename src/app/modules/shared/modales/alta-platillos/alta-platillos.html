@@ -100,13 +100,72 @@
             <div class="card-body p-3 p-md-4">
                 <div class="row g-3">
                     <!-- Nombre del Platillo -->
-                    <div class="col-12 col-md-6">
-                        <label class="form-label fw-semibold text-gray-700">Nombre del Platillo *</label>
-                        <input type="text" class="form-control" [class.is-invalid]="isFieldInvalid('nombre')"
-                            formControlName="nombre" placeholder="Ej: Ensalada César" />
-                        <div *ngIf="isFieldInvalid('nombre')" class="invalid-feedback">{{ getFieldError('nombre') }}
-                        </div>
+                    <!-- Nombre del Platillo -->
+<div class="col-12 col-md-6">
+    <label class="form-label fw-semibold text-gray-700">Nombre del Platillo *</label>
+    <div class="position-relative">
+        <input 
+            type="text" 
+            class="form-control" 
+            [class.is-invalid]="isFieldInvalid('nombre') || nombreDuplicadoExacto"
+            [class.border-danger]="nombreDuplicadoExacto"
+            formControlName="nombre" 
+            placeholder="Ej: Ensalada César" 
+            (input)="onNombreChange($event)"
+            (focus)="showSimilaresDropdown = platillosSimilares.length > 0"
+            (blur)="hideSimilaresDropdown()" />
+        
+        <!-- Mensaje de error -->
+        <div *ngIf="isFieldInvalid('nombre') || nombreDuplicadoExacto" class="invalid-feedback d-block">
+            <i class="fas fa-exclamation-circle me-1"></i>
+            {{ getFieldError('nombre') }}
+        </div>
+        
+        <!-- Dropdown de platillos similares -->
+        <div 
+            class="similares-dropdown shadow-lg" 
+            *ngIf="showSimilaresDropdown && platillosSimilares.length > 0"
+            [style.display]="showSimilaresDropdown ? 'block' : 'none'">
+            
+            <div class="dropdown-header bg-warning bg-opacity-10 p-2 border-bottom">
+                <small class="text-warning fw-bold">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Platillos similares encontrados ({{ platillosSimilares.length }})
+                </small>
+            </div>
+            
+            <div 
+                class="dropdown-item-similar" 
+                *ngFor="let platillo of platillosSimilares; trackBy: trackBySimilar"
+                (mousedown)="$event.preventDefault()">
+                <div class="d-flex align-items-start">
+                    <i class="fas fa-utensils text-warning me-2 mt-1"></i>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold text-dark">{{ platillo.nombre }}</div>
+                        <small class="text-muted d-block">
+                            <i class="fas fa-fire me-1"></i>{{ platillo.calorias || 0 }} kcal
+                            <span class="mx-1">•</span>
+                            <i class="fas fa-clock me-1"></i>{{ platillo.tiempo_preparacion || 0 }} min
+                        </small>
                     </div>
+                </div>
+            </div>
+            
+            <div class="dropdown-footer bg-light p-2 border-top">
+                <small class="text-muted d-block text-center">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Verifica que no estés duplicando un platillo existente
+                </small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ayuda adicional -->
+    <small class="form-text text-muted mt-1">
+        <i class="fas fa-lightbulb me-1"></i>
+        Ingresa un nombre único y descriptivo para tu platillo
+    </small>
+</div>
 
                     <!-- Calorías -->
                     <div class="col-12 col-md-6">

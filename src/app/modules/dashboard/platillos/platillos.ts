@@ -94,9 +94,16 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
   ];
 
   dataSource = new MatTableDataSource<Platillo>([]);
+  dataSourceFiltrados = new MatTableDataSource<Platillo>([]);
+  platillosGeneralesDataSource = new MatTableDataSource<Platillo>([]); 
+  private platillosGeneralesArray: Platillo[] = [];
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+
+  @ViewChild('paginatorMisPlatillos') paginatorMisPlatillos!: MatPaginator;
+  @ViewChild('paginatorGeneral') paginatorGeneral!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+ 
 
   constructor(private modalService: NgbModal) { }
 
@@ -147,8 +154,19 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  setupDataSourceConfig(): void {
-    this.dataSource.filterPredicate = (data: Platillo, filter: string) => {
+private setupDataSourceConfig(): void {
+    // Configurar para dataSourceFiltrados (Mis Platillos)
+    this.dataSourceFiltrados.filterPredicate = this.createFilterPredicate();
+    this.dataSourceFiltrados.sortingDataAccessor = this.createSortingAccessor();
+
+    // Configurar para platillosGeneralesDataSource
+    this.platillosGeneralesDataSource.filterPredicate = this.createFilterPredicate();
+    this.platillosGeneralesDataSource.sortingDataAccessor = this.createSortingAccessor();
+  }
+
+
+private createFilterPredicate(): (data: Platillo, filter: string) => boolean {
+    return (data: Platillo, filter: string) => {
       const searchStr = filter.toLowerCase();
       return data.nombre.toLowerCase().includes(searchStr) ||
         data.descripcion.toLowerCase().includes(searchStr) ||
@@ -156,32 +174,77 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
         data.tiempo_preparacion.toString().includes(searchStr) ||
         (data.creador_nombre || '').toLowerCase().includes(searchStr);
     };
+  }
 
-    this.dataSource.sortingDataAccessor = (item: Platillo, prop: string) => {
+private createSortingAccessor(): (item: Platillo, prop: string) => string | number {
+    return (item: Platillo, prop: string) => {
       switch (prop) {
         case 'nombre': return item.nombre.toLowerCase();
         case 'creador': return (item.creador_nombre || '').toLowerCase();
         case 'calorias': return item.calorias;
         case 'tiempo_preparacion': return item.tiempo_preparacion;
-        default: return item[prop as keyof Platillo] as string;
+        default: return (item[prop as keyof Platillo] as string | number) || '';
       }
     };
   }
 
+  private actualizarPlatillosGenerales(): void {
+  const platillosGenerales = this.dataSource.data.filter(platillo => 
+    platillo.creador_id !== this.currentUserId
+  );
+  this.platillosGeneralesDataSource.data = platillosGenerales;
+  
+  // Configurar filterPredicate para platillos generales
+  this.platillosGeneralesDataSource.filterPredicate = (data: Platillo, filter: string) => {
+    const searchStr = filter.toLowerCase();
+    return data.nombre.toLowerCase().includes(searchStr) ||
+      data.descripcion.toLowerCase().includes(searchStr) ||
+      data.calorias.toString().includes(searchStr) ||
+      data.tiempo_preparacion.toString().includes(searchStr) ||
+      (data.creador_nombre || '').toLowerCase().includes(searchStr);
+  };
+  
+  this.platillosGeneralesDataSource.sortingDataAccessor = (item: Platillo, prop: string) => {
+    switch (prop) {
+      case 'nombre': return item.nombre.toLowerCase();
+      case 'creador': return (item.creador_nombre || '').toLowerCase();
+      case 'calorias': return item.calorias;
+      case 'tiempo_preparacion': return item.tiempo_preparacion;
+      default: return item[prop as keyof Platillo] as string;
+    }
+  };
+}
+
   ngAfterViewInit(): void {
+    // Esperar un ciclo para que los ViewChild estén disponibles
     setTimeout(() => {
-      this.configurarPaginator();
-    }, 100);
+      this.configurarPaginators();
+    }, 0);
   }
 
-  private configurarPaginator(): void {
-    if (!this.isMobile && this.paginator && this.sort) {
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
+private configurarPaginators(): void {
+    if (!this.isMobile) {
+      // Configurar paginator para "Mis Platillos"
+      if (this.paginatorMisPlatillos) {
+        this.dataSourceFiltrados.paginator = this.paginatorMisPlatillos;
+        console.log('Paginator Mis Platillos configurado');
+      }
+
+      // Configurar paginator para "Platillos Generales"
+      if (this.paginatorGeneral) {
+        this.platillosGeneralesDataSource.paginator = this.paginatorGeneral;
+        console.log('Paginator General configurado');
+      }
+
+      // Configurar sort si está disponible
+      if (this.sort) {
+        this.dataSourceFiltrados.sort = this.sort;
+        // Necesitarías otro sort para platillosGenerales si quieres ordenar ambas tablas
+      }
+
       this.cdr.detectChanges();
     }
   }
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -198,7 +261,28 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
         next: (resp: any) => {
           if (resp?.status === 'success' && resp?.data && Array.isArray(resp.data)) {
             this.dataSource.data = resp.data;
-            this.intentarConfigurarPaginator();
+            
+            // Filtrar mis platillos
+            const misPlatillos = resp.data.filter((platillo: Platillo) => 
+              platillo.creador_id === this.currentUserId
+            );
+            this.dataSourceFiltrados.data = misPlatillos;
+            
+            // Actualizar platillos generales
+            const platillosGenerales = resp.data.filter((platillo: Platillo) => 
+              platillo.creador_id !== this.currentUserId
+            );
+            this.platillosGeneralesArray = platillosGenerales;
+            this.platillosGeneralesDataSource.data = platillosGenerales;
+            
+            // Forzar detección de cambios
+            this.cdr.detectChanges();
+            
+            // Reconfigurar paginadores después de actualizar datos
+            setTimeout(() => {
+              this.configurarPaginators();
+            }, 100);
+            
           } else {
             this.errorMsg = 'Estructura de respuesta inválida';
           }
@@ -213,47 +297,159 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  private intentarConfigurarPaginator(intentos: number = 0): void {
-    const maxIntentos = 5;
 
-    if (this.isMobile) {
-      this.updateMobilePagination();
-      return;
+  getPlatillosGeneralesDataSource(): MatTableDataSource<Platillo> {
+  const platillosGenerales = this.dataSource.data.filter(platillo => 
+    platillo.creador_id !== this.currentUserId
+  );
+  const dataSource = new MatTableDataSource<Platillo>(platillosGenerales);
+  
+  setTimeout(() => {
+    if (this.paginatorGeneral) {
+      dataSource.paginator = this.paginatorGeneral;
     }
+    if (this.sort) {
+      dataSource.sort = this.sort;
+    }
+  });
+  
+  return dataSource;
+}
 
-    if (this.paginator && this.sort) {
-      this.configurarPaginator();
-    } else if (intentos < maxIntentos) {
-      setTimeout(() => {
-        this.intentarConfigurarPaginator(intentos + 1);
-      }, 200 * (intentos + 1));
-    }
+
+getPlatillosGeneralesArray(): Platillo[] {
+    return this.platillosGeneralesArray;
   }
+
+
+getPagedData(data: Platillo[], section: string): Platillo[] {
+  const pageSize = this.mobilePageSize;
+  const currentPage = section === 'misPlatillos' ? this.misPlatillosCurrentPage : this.generalesCurrentPage;
+  
+  const startIndex = currentPage * pageSize;
+  const endIndex = startIndex + pageSize;
+  
+  return data.slice(startIndex, endIndex);
+}
+
+
+// Métodos de estadísticas para platillos generales
+getPlatillosActivosGenerales(): number {
+  const platillosGenerales = this.getPlatillosGeneralesArray();
+  return platillosGenerales.filter(p => p.status === 1 || p.status === '1').length;
+}
+
+getPlatillosInactivosGenerales(): number {
+  const platillosGenerales = this.getPlatillosGeneralesArray();
+  return platillosGenerales.filter(p => p.status === 0 || p.status === '0').length;
+}
+
+getPlatillosConUsuariosGenerales(): number {
+  const platillosGenerales = this.getPlatillosGeneralesArray();
+  return platillosGenerales.filter(p => this.tieneUsuariosAsignados(p)).length;
+}
+
+// Método para platillos activos (mis platillos)
+getPlatillosActivos(platillos: Platillo[]): number {
+  return platillos.filter(p => p.status === 1 || p.status === '1').length;
+}
+
+// Método para platillos inactivos (mis platillos)
+getPlatillosInactivos(platillos: Platillo[]): number {
+  return platillos.filter(p => p.status === 0 || p.status === '0').length;
+}
+
+// Método para platillos con usuarios (mis platillos)
+getPlatillosConUsuarios(platillos: Platillo[]): number {
+  return platillos.filter(p => this.tieneUsuariosAsignados(p)).length;
+}
+
+// Variables para paginación separada en móvil
+misPlatillosCurrentPage = 0;
+generalesCurrentPage = 0;
+
+// Métodos para cambiar página en móvil
+previousPage(section: string): void {
+  if (section === 'misPlatillos' && this.misPlatillosCurrentPage > 0) {
+    this.misPlatillosCurrentPage--;
+  } else if (section === 'generales' && this.generalesCurrentPage > 0) {
+    this.generalesCurrentPage--;
+  }
+}
+
+nextPage(section: string): void {
+  const totalPages = this.getTotalPages(section);
+  if (section === 'misPlatillos' && this.misPlatillosCurrentPage < totalPages - 1) {
+    this.misPlatillosCurrentPage++;
+  } else if (section === 'generales' && this.generalesCurrentPage < totalPages - 1) {
+    this.generalesCurrentPage++;
+  }
+}
+
+getTotalPages(section: string): number {
+  const data = section === 'misPlatillos' 
+    ? this.dataSourceFiltrados.data 
+    : this.getPlatillosGeneralesArray();
+  return Math.ceil(data.length / this.mobilePageSize);
+}
+
+getCurrentPage(section: string): number {
+  return section === 'misPlatillos' ? this.misPlatillosCurrentPage : this.generalesCurrentPage;
+}
+
+
+  private intentarConfigurarPaginator(intentos: number = 0): void {
+  const maxIntentos = 5;
+
+  if (this.isMobile) {
+    this.updateMobilePagination();
+    return;
+  }
+
+  if (this.paginatorMisPlatillos && this.paginatorGeneral && this.sort) {
+    this.configurarPaginators();
+  } else if (intentos < maxIntentos) {
+    setTimeout(() => {
+      this.intentarConfigurarPaginator(intentos + 1);
+    }, 200 * (intentos + 1));
+  }
+}
 
   applyFilter(value: string): void {
     this.search = value ?? '';
-    this.dataSource.filter = this.search.trim().toLowerCase();
+    const filterValue = this.search.trim().toLowerCase();
+    
+    this.dataSource.filter = filterValue;
+    this.dataSourceFiltrados.filter = filterValue;
+    this.platillosGeneralesDataSource.filter = filterValue;
 
-    if (!this.isMobile && this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    } else if (this.isMobile) {
-      this.mobileCurrentPage = 0;
-      this.updateMobilePagination();
+    if (!this.isMobile) {
+      // Ir a primera página en ambos paginadores
+      if (this.dataSourceFiltrados.paginator) {
+        this.dataSourceFiltrados.paginator.firstPage();
+      }
+      if (this.platillosGeneralesDataSource.paginator) {
+        this.platillosGeneralesDataSource.paginator.firstPage();
+      }
     }
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
   clearSearch(): void {
     this.search = '';
     this.dataSource.filter = '';
+    this.dataSourceFiltrados.filter = '';
+    this.platillosGeneralesDataSource.filter = '';
 
-    if (!this.isMobile && this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    } else if (this.isMobile) {
-      this.mobileCurrentPage = 0;
-      this.updateMobilePagination();
+    if (!this.isMobile) {
+      if (this.dataSourceFiltrados.paginator) {
+        this.dataSourceFiltrados.paginator.firstPage();
+      }
+      if (this.platillosGeneralesDataSource.paginator) {
+        this.platillosGeneralesDataSource.paginator.firstPage();
+      }
     }
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
   updateMobilePagination(): void {
@@ -1014,6 +1210,8 @@ export class Platillos implements OnInit, AfterViewInit, OnDestroy {
       size: 'lg',
       scrollable: true
     });
+
+    modalRef.componentInstance.dataSource = this.dataSource.data;
 
     if (edit && item) {
       modalRef.componentInstance.platilloData = item;

@@ -7,7 +7,7 @@
             </div>
             <div>
                 <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-1">Gestión de Platillos</h1>
-                <p class="text-sm sm:text-base text-gray-600">Administra todos los platillos del sistema</p>
+                <p class="text-sm sm:text-base text-gray-600">Administra tus platillos y explora los del sistema</p>
             </div>
         </div>
 
@@ -18,8 +18,8 @@
                 <span class="hidden sm:inline">Agregar</span> Platillo
             </button>
 
-            <div class="relative w-full sm:w-auto">
-                <!-- Buscador HTML puro mejorado -->
+            <div class="relative w-full sm:w-auto"> 
+                <!-- Buscador -->
                 <div class="search-container">
                     <div class="search-input-wrapper">
                         <i class="bi bi-search search-icon"></i>
@@ -35,228 +35,11 @@
                     <div *ngIf="search" class="search-results-indicator">
                         <span class="results-count">
                             <i class="bi bi-check-circle me-1"></i>
-                            {{ filteredData.length }} resultado{{ filteredData.length !== 1 ? 's' : '' }}
+                            {{ (dataSourceFiltrados.data.length + (dataSource.data.length - dataSourceFiltrados.data.length)) }} resultado{{ (dataSourceFiltrados.data.length + (dataSource.data.length - dataSourceFiltrados.data.length)) !== 1 ? 's' : '' }}
                         </span>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Statistics Cards -->
-    <div *ngIf="!loading && dataSource.data.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
-        <div class="stat-card">
-            <div class="stat-icon bg-red-100">
-                <i class="bi bi-egg-fried text-red-600"></i>
-            </div>
-            <div class="stat-content">
-                <p class="stat-number">{{ totalPlatillos }}</p>
-                <p class="stat-label">Total Platillos</p>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon bg-green-100">
-                <i class="bi bi-check-circle text-green-600"></i>
-            </div>
-            <div class="stat-content">
-                <p class="stat-number">{{ platillosActivos }}</p>
-                <p class="stat-label">Activos</p>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon bg-red-100">
-                <i class="bi bi-x-circle text-red-600"></i>
-            </div>
-            <div class="stat-content">
-                <p class="stat-number">{{ platillosInactivos }}</p>
-                <p class="stat-label">Inactivos</p>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon bg-blue-100">
-                <i class="bi bi-people text-blue-600"></i>
-            </div>
-            <div class="stat-content">
-                <p class="stat-number">{{ platillosConUsuarios }}</p>
-                <p class="stat-label">Asignados</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Desktop/Tablet Table View -->
-    <div class="hidden md:block" *ngIf="!loading">
-        <div class="table-container">
-            <table mat-table [dataSource]="dataSource" matSort class="users-table w-full">
-
-                <!-- Imagen Column -->
-                <ng-container matColumnDef="imagen">
-                    <th mat-header-cell *matHeaderCellDef>
-                        <i class="bi bi-image me-2"></i>IMAGEN
-                    </th>
-                    <td mat-cell *matCellDef="let platillo">
-                        <div class="flex items-center justify-center">
-                            <div class="relative w-12 h-12">
-                                <!-- Imagen real si existe -->
-                                <img *ngIf="platillo.imagen_url && platillo.imagen_url.trim() !== ''" 
-                                     [src]="platillo.imagen_url" 
-                                     [alt]="platillo.nombre"
-                                     class="w-12 h-12 rounded-lg object-cover shadow-sm"
-                                     (error)="handleImageError($event)"
-                                     [title]="platillo.nombre">
-                                
-                                <!-- Placeholder si no hay imagen -->
-                                <div *ngIf="!platillo.imagen_url || platillo.imagen_url.trim() === ''" 
-                                     class="w-12 h-12 flex items-center justify-center bg-gray-100 rounded-lg shadow-sm">
-                                    <i class="bi bi-egg-fried text-red-600 text-lg"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                </ng-container>
-
-                <!-- Nombre Column -->
-                <ng-container matColumnDef="nombre">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                        <i class="bi bi-egg-fried me-2"></i>NOMBRE
-                    </th>
-                    <td mat-cell *matCellDef="let platillo">
-                        <div class="flex items-center gap-3">
-                            <!--
-                            <div class="platillo-avatar">
-                                <i class="bi bi-egg-fried text-red-600"></i>
-                            </div>
-                            -->
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <h3 class="font-semibold text-gray-800 text-sm truncate" [title]="platillo.nombre">
-                                        {{
-                                        platillo.nombre }}</h3>
-                                    <!-- Indicador de usuarios asignados -->
-                                    <span *ngIf="tieneUsuariosAsignados(platillo)"
-                                        class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 cursor-pointer hover:bg-blue-200 transition-colors duration-200"
-                                        title="Ver usuarios asignados (clic para más detalles)"
-                                        (click)="mostrarUsuariosAsignados(platillo)">
-                                        <i class="bi bi-people-fill text-xs"></i>
-                                    </span>
-                                </div>
-                                <p class="text-xs text-gray-600 line-clamp-1" [title]="platillo.descripcion">{{
-                                    truncateText(platillo.descripcion, 50) }}</p>
-                            </div>
-                        </div>
-                    </td>
-                </ng-container>
-
-                <!-- Creador Column -->
-                <ng-container matColumnDef="creador">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                        <i class="bi bi-person me-2"></i>CREADOR
-                    </th>
-                    <td mat-cell *matCellDef="let platillo">
-                        <div class="flex items-center gap-2 min-w-0">
-                            <i class="bi bi-person-circle text-gray-400"></i>
-                            <span class="text-sm text-gray-700 font-medium truncate">{{ platillo.creador_nombre ||
-                                'Usuario' }}</span>
-                        </div>
-                    </td>
-                </ng-container>
-
-                <!-- Calorías Column -->
-                <ng-container matColumnDef="calorias">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                        <i class="bi bi-lightning me-2"></i>CALORÍAS
-                    </th>
-                    <td mat-cell *matCellDef="let platillo">
-                        <span [class]="getCaloriasBadgeClass(platillo.calorias)">
-                            {{ platillo.calorias }} kcal
-                        </span>
-                    </td>
-                </ng-container>
-
-                <!-- Tiempo Column -->
-                <ng-container matColumnDef="tiempo_preparacion">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                        <i class="bi bi-clock me-2"></i>TIEMPO
-                    </th>
-                    <td mat-cell *matCellDef="let platillo">
-                        <div class="flex items-center gap-2">
-                            <i [class]="'bi ' + getTiempoIcon(platillo.tiempo_preparacion) + ' text-gray-400'"></i>
-                            <span class="text-sm text-gray-700">{{ platillo.tiempo_preparacion }} min</span>
-                        </div>
-                    </td>
-                </ng-container>
-
-                <!-- Estado Column -->
-                <ng-container matColumnDef="status">
-                    <th mat-header-cell *matHeaderCellDef>
-                        <i class="bi bi-power me-2"></i>ESTADO
-                    </th>
-                    <td mat-cell *matCellDef="let platillo" [class.bg-red-50]="!isPlatilloActivo(platillo)">
-                        <div class="flex items-center justify-center gap-3">
-                            <!-- Solo mostrar toggle para usuarios que pueden editar -->
-                            <div *ngIf="canEditOrDelete(platillo)" class="flex items-center gap-2">
-                                <div class="custom-toggle" [class.active]="isPlatilloActivo(platillo)"
-                                    (click)="togglePlatilloStatus(platillo, !isPlatilloActivo(platillo))">
-                                    <div class="toggle-thumb"></div>
-                                </div>
-                            </div>
-
-                            <!-- Para usuarios que no pueden editar, mostrar solo el estado -->
-                            <div *ngIf="!canEditOrDelete(platillo)" class="flex items-center gap-2">
-                                <span
-                                    [class]="isPlatilloActivo(platillo) ? 'role-badge nutricionista' : 'role-badge admin'">
-                                    <i
-                                        [class]="isPlatilloActivo(platillo) ? 'bi bi-check-circle me-1' : 'bi bi-x-circle me-1'"></i>
-                                    {{ isPlatilloActivo(platillo) ? 'Activo' : 'Inactivo' }}
-                                </span>
-                            </div>
-                        </div>
-                    </td>
-                </ng-container>
-
-                <!-- Acciones Column -->
-                <ng-container matColumnDef="acciones">
-                    <th mat-header-cell *matHeaderCellDef>
-                        <i class="bi bi-gear me-2"></i>ACCIONES
-                    </th>
-                    <td mat-cell *matCellDef="let platillo">
-                        <div class="flex items-center justify-center gap-3">
-                            <!-- Botones de edición y eliminación solo para propietarios -->
-                            <button *ngIf="canEditOrDelete(platillo)" (click)="editarPlatillo(platillo)"
-                                class="btn-action edit" title="Editar platillo">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-
-                            <!--
-
-                             <button *ngIf="canEditOrDelete(platillo)" (click)="eliminarPlatillo(platillo)"
-                                class="btn-action edit" title="Eliminar platillo"
-                                style="background-color: rgba(239, 68, 68, 0.1); color: #dc2626;">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                            -->
-
-                            <!-- Botón de solo vista para no propietarios -->
-                            <button *ngIf="!canEditOrDelete(platillo)" (click)="verDetallesPlatillo(platillo)"
-                                class="btn-action edit" title="Ver detalles"
-                                style="background-color: rgba(107, 114, 128, 0.1); color: #6b7280;">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                        </div>
-                    </td>
-                </ng-container>
- 
-                <!-- HEADERS Y ROWS -->
-                <tr mat-header-row *matHeaderRowDef="currentDisplayedColumns; sticky: true"></tr>
-                <tr mat-row *matRowDef="let row; columns: currentDisplayedColumns;" class="table-row-hover"></tr>
-            </table>
-
-            <!-- Paginator -->
-            <mat-paginator #paginator [pageSize]="5" [pageSizeOptions]="[5,10,25,50]" class="paginator-custom"
-                showFirstLastButtons>
-            </mat-paginator>
         </div>
     </div>
 
@@ -283,169 +66,620 @@
         </div>
     </div>
 
-    <!-- Mobile Card View -->
-    <div class="block md:hidden" *ngIf="!loading">
-        <div class="space-y-3">
-            <div *ngFor="let platillo of mobilePagedData; trackBy: trackById; let i = index" class="user-card"
-                [class.bg-red-50]="!isPlatilloActivo(platillo)">
-
-                <div class="flex items-start justify-between gap-3 mb-3">
-                    <div class="flex items-center gap-3 min-w-0 flex-1">
-                        <div class="user-avatar-mobile flex-shrink-0 relative w-12 h-12">
-                            <!-- Imagen real si existe -->
-                            <img *ngIf="platillo.imagen_url && platillo.imagen_url.trim() !== ''" 
-                                 [src]="platillo.imagen_url" 
-                                 [alt]="platillo.nombre"
-                                 class="w-12 h-12 rounded-lg object-cover shadow-sm"
-                                 (error)="handleImageError($event)"
-                                 [title]="platillo.nombre">
-                            
-                            <!-- Placeholder si no hay imagen -->
-                            <div *ngIf="!platillo.imagen_url || platillo.imagen_url.trim() === ''" 
-                                 class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center shadow-sm">
-                                <i class="bi bi-egg-fried text-red-600"></i>
-                            </div>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <h3 class="font-semibold text-gray-800 text-sm truncate" [title]="platillo.nombre">{{
-                                    truncateText(platillo.nombre, 25) }}</h3>
-                                <!-- Indicador de usuarios asignados -->
-                                <span *ngIf="tieneUsuariosAsignados(platillo)"
-                                    class="inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 cursor-pointer hover:bg-blue-200 transition-colors duration-200"
-                                    title="Ver usuarios asignados (clic para más detalles)"
-                                    (click)="mostrarUsuariosAsignados(platillo)">
-                                    <i class="bi bi-people-fill text-xs"></i>
-                                </span>
-                            </div>
-                            <p class="text-xs text-gray-600 mb-1 truncate" [title]="platillo.creador_nombre">{{
-                                truncateText(platillo.creador_nombre || 'Usuario', 20) }}</p>
-                            <p class="text-xs text-gray-500 line-clamp-1" [title]="platillo.descripcion">{{
-                                truncateText(platillo.descripcion, 35) }}</p>
-                        </div>
+    <!-- Desktop/Tablet View - DOS TABLAS -->
+    <div class="hidden md:block" *ngIf="!loading && !errorMsg">
+        
+        <!-- ========== SECCIÓN 1: MIS PLATILLOS (Creados por mí) ========== -->
+        <div class="mb-10">
+            <!-- Header de sección -->
+            <div class="flex items-center gap-3 mb-4 p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+                <div class="p-2.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 shadow-md">
+                    <i class="bi bi-person-badge text-white text-lg"></i>
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-lg font-bold text-gray-800">Mis Platillos</h2>
+                    <p class="text-sm text-gray-600">Platillos creados por ti</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <div class="text-2xl font-bold text-blue-700">{{ dataSourceFiltrados.data.length }}</div>
+                        <div class="text-xs text-blue-600">Total</div>
                     </div>
+                    <!-- <div class="h-8 w-px bg-blue-300"></div> -->
+                    <!-- <button (click)="openModalAltaPlatillos(undefined, false)" 
+                            class="btn-add-section inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300">
+                        <i class="bi bi-plus-circle"></i>
+                        <span>Nuevo</span>
+                    </button> -->
+                </div>
+            </div>
 
-                    <div class="flex flex-col items-end gap-2 flex-shrink-0">
-                        <span [class]="getCaloriasBadgeClass(platillo.calorias)" class="text-xs">
-                            {{ platillo.calorias }} kcal
-                        </span>
+            <!-- Estadísticas de mis platillos -->
+            <div *ngIf="dataSourceFiltrados.data.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                <div class="stat-card">
+                    <div class="stat-icon bg-blue-100">
+                        <i class="bi bi-egg-fried text-blue-600"></i>
+                    </div>
+                    <div class="stat-content">
+                        <p class="stat-number">{{ dataSourceFiltrados.data.length }}</p>
+                        <p class="stat-label">Total</p>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <div class="flex items-center gap-2">
-                        <i [class]="'bi ' + getTiempoIcon(platillo.tiempo_preparacion) + ' text-gray-400 text-sm'"></i>
-                        <span class="text-sm text-gray-600">{{ platillo.tiempo_preparacion }} min</span>
+                <div class="stat-card">
+                    <div class="stat-icon bg-green-100">
+                        <i class="bi bi-check-circle text-green-600"></i>
                     </div>
+                    <div class="stat-content">
+                        <p class="stat-number">{{ getPlatillosActivos(dataSourceFiltrados.data) }}</p>
+                        <p class="stat-label">Activos</p>
+                    </div>
+                </div>
 
-                    <div class="flex items-center gap-3">
-                        <!-- Solo mostrar toggle para usuarios que pueden editar -->
-                        <div *ngIf="canEditOrDelete(platillo)" class="flex items-center gap-2">
-                            <div class="custom-toggle-mobile" [class.active]="isPlatilloActivo(platillo)"
-                                (click)="togglePlatilloStatus(platillo, !isPlatilloActivo(platillo))">
-                                <div class="toggle-thumb-mobile"></div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-red-100">
+                        <i class="bi bi-x-circle text-red-600"></i>
+                    </div>
+                    <div class="stat-content">
+                        <p class="stat-number">{{ getPlatillosInactivos(dataSourceFiltrados.data) }}</p>
+                        <p class="stat-label">Inactivos</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon bg-purple-100">
+                        <i class="bi bi-people text-purple-600"></i>
+                    </div>
+                    <div class="stat-content">
+                        <p class="stat-number">{{ getPlatillosConUsuarios(dataSourceFiltrados.data) }}</p>
+                        <p class="stat-label">Asignados</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de mis platillos -->
+            <div *ngIf="dataSourceFiltrados.data.length > 0" class="table-container mb-2">
+                <table mat-table [dataSource]="dataSourceFiltrados" matSort class="users-table w-full">
+                    
+                    <!-- Imagen Column -->
+                    <ng-container matColumnDef="imagen">
+                        <th mat-header-cell *matHeaderCellDef>
+                            <i class="bi bi-image me-2"></i>IMAGEN
+                        </th>
+                        <td mat-cell *matCellDef="let platillo">
+                            <div class="flex items-center justify-center">
+                                <div class="relative w-12 h-12">
+                                    <img *ngIf="platillo.imagen_url && platillo.imagen_url.trim() !== ''" 
+                                         [src]="platillo.imagen_url" 
+                                         [alt]="platillo.nombre"
+                                         class="w-12 h-12 rounded-lg object-cover shadow-sm border border-blue-200"
+                                         (error)="handleImageError($event)"
+                                         [title]="platillo.nombre">
+                                    
+                                    <div *ngIf="!platillo.imagen_url || platillo.imagen_url.trim() === ''" 
+                                         class="w-12 h-12 flex items-center justify-center bg-blue-100 rounded-lg shadow-sm border border-blue-200">
+                                        <i class="bi bi-egg-fried text-blue-600 text-lg"></i>
+                                    </div>
+                                </div>
                             </div>
-                            <span class="text-xs text-gray-500">{{ isPlatilloActivo(platillo) ? 'Activo' : 'Inactivo'
-                                }}</span>
-                        </div>
+                        </td>
+                    </ng-container>
 
-                        <!-- Para usuarios que no pueden editar, mostrar solo el estado -->
-                        <div *ngIf="!canEditOrDelete(platillo)" class="flex items-center gap-2">
-                            <span [class]="isPlatilloActivo(platillo) ? 'role-badge nutricionista' : 'role-badge admin'"
-                                class="text-xs">
-                                <i
-                                    [class]="isPlatilloActivo(platillo) ? 'bi bi-check-circle me-1' : 'bi bi-x-circle me-1'"></i>
-                                {{ isPlatilloActivo(platillo) ? 'Activo' : 'Inactivo' }}
+                    <!-- Nombre Column -->
+                    <ng-container matColumnDef="nombre">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                            <i class="bi bi-egg-fried me-2"></i>NOMBRE
+                        </th>
+                        <td mat-cell *matCellDef="let platillo">
+                            <div class="flex items-center gap-3">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <h3 class="font-semibold text-gray-800 text-sm truncate" [title]="platillo.nombre">
+                                            {{ platillo.nombre }}</h3>
+                                        <span *ngIf="tieneUsuariosAsignados(platillo)"
+                                            class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 cursor-pointer hover:bg-blue-200 transition-colors duration-200"
+                                            title="Ver usuarios asignados (clic para más detalles)"
+                                            (click)="mostrarUsuariosAsignados(platillo)">
+                                            <i class="bi bi-people-fill text-xs"></i>
+                                            <span class="ml-1">{{ platillo.usuarios_asignados?.length || 0 }}</span>
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-gray-600 line-clamp-1" [title]="platillo.descripcion">
+                                        {{ truncateText(platillo.descripcion, 50) }}
+                                    </p>
+                                </div>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="creador">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                        <i class="bi bi-person me-2"></i>CREADOR
+                    </th>
+                    <td mat-cell *matCellDef="let platillo">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <i class="bi bi-person-circle text-gray-400"></i>
+                            <span class="text-sm text-gray-700 font-medium truncate">{{ platillo.creador_nombre || 'Tú' }}</span>
+                        </div>
+                    </td>
+                    </ng-container>
+
+                    <!-- Calorías Column -->
+                    <ng-container matColumnDef="calorias">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                            <i class="bi bi-lightning me-2"></i>CALORÍAS
+                        </th>
+                        <td mat-cell *matCellDef="let platillo">
+                            <span [class]="getCaloriasBadgeClass(platillo.calorias)">
+                                {{ platillo.calorias }} kcal
                             </span>
-                        </div>
+                        </td>
+                    </ng-container>
+ 
+                    <!-- Tiempo Column -->
+                    <ng-container matColumnDef="tiempo_preparacion">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                            <i class="bi bi-clock me-2"></i>TIEMPO
+                        </th>
+                        <td mat-cell *matCellDef="let platillo">
+                            <div class="flex items-center gap-2">
+                                <i [class]="'bi ' + getTiempoIcon(platillo.tiempo_preparacion) + ' text-gray-400'"></i>
+                                <span class="text-sm text-gray-700">{{ platillo.tiempo_preparacion }} min</span>
+                            </div>
+                        </td>
+                    </ng-container>
 
-                        <!-- Botones de acción -->
-                        <div class="flex gap-2" *ngIf="canEditOrDelete(platillo)">
-                            <button (click)="editarPlatillo(platillo)" class="btn-action-mobile edit">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                           <!-- <button (click)="eliminarPlatillo(platillo)" class="btn-action-mobile edit"
-                                style="background-color: rgba(239, 68, 68, 0.1); color: #dc2626;">
-                                <i class="bi bi-trash"></i>
-                            </button> -->
-                        </div>
+                    <!-- Estado Column -->
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef>
+                            <i class="bi bi-power me-2"></i>ESTADO
+                        </th>
+                        <td mat-cell *matCellDef="let platillo" [class.bg-red-50]="!isPlatilloActivo(platillo)">
+                            <div class="flex items-center justify-center gap-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="custom-toggle" [class.active]="isPlatilloActivo(platillo)"
+                                        (click)="togglePlatilloStatus(platillo, !isPlatilloActivo(platillo))">
+                                        <div class="toggle-thumb"></div>
+                                    </div>
+                                    <span class="text-xs text-gray-500 hidden sm:inline">
+                                        {{ isPlatilloActivo(platillo) ? 'Activo' : 'Inactivo' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                    </ng-container>
 
-                        <!-- Botón de solo vista para no propietarios -->
-                        <div class="flex gap-2" *ngIf="!canEditOrDelete(platillo)">
-                            <button (click)="verDetallesPlatillo(platillo)" class="btn-action-mobile edit"
-                                title="Ver detalles"
-                                style="background-color: rgba(107, 114, 128, 0.1); color: #6b7280;">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                        </div>
-                    </div>
+                    <!-- Acciones Column -->
+                    <ng-container matColumnDef="acciones">
+                        <th mat-header-cell *matHeaderCellDef>
+                            <i class="bi bi-gear me-2"></i>ACCIONES
+                        </th>
+                        <td mat-cell *matCellDef="let platillo">
+                            <div class="flex items-center justify-center gap-2">
+                                <!-- Botón editar - solo si no tiene usuarios asignados -->
+                                <button *ngIf="canEditOrDelete(platillo) && !tieneUsuariosAsignados(platillo)" 
+                                        (click)="editarPlatillo(platillo)"
+                                        class="btn-action edit" title="Editar platillo">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                
+                                <!-- Botón eliminar - solo si no tiene usuarios asignados -->
+                                <button *ngIf="canEditOrDelete(platillo) && !tieneUsuariosAsignados(platillo)" 
+                                        (click)="eliminarPlatillo(platillo)"
+                                        class="btn-action delete" title="Eliminar platillo">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                
+                                <!-- Botón ver detalles - para todos o cuando tiene usuarios -->
+                                <button (click)="verDetallesPlatillo(platillo)"
+                                        class="btn-action view" title="Ver detalles">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- HEADERS Y ROWS -->
+                    <tr mat-header-row *matHeaderRowDef="currentDisplayedColumns; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: currentDisplayedColumns;" class="table-row-hover"></tr>
+                </table>
+                <mat-paginator #paginatorMisPlatillos 
+               [pageSize]="10" 
+               [pageSizeOptions]="[5,10,25,50]" 
+               [length]="dataSourceFiltrados.data.length"
+               class="paginator-custom">
+                </mat-paginator>
+            </div>
+            
+
+            <!-- Empty State para mis platillos -->
+            <div *ngIf="dataSourceFiltrados.data.length === 0" class="empty-section bg-blue-50 border-blue-200">
+                <div class="flex flex-col items-center justify-center py-10 text-center">
+                    <i class="bi bi-egg text-blue-300 text-5xl mb-4"></i>
+                    <h3 class="text-lg font-semibold text-blue-800 mb-2">No tienes platillos creados</h3>
+                    <p class="text-blue-600 mb-6 max-w-md">Comienza creando tu primer platillo personalizado</p>
+                    <button (click)="openModalAltaPlatillos(undefined, false)" 
+                            class="btn-create-first bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        Crear mi primer platillo
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Mobile Pagination -->
-        <div *ngIf="mobileTotalPages > 1" class="mobile-pagination mt-6">
-            <!-- Información de paginación -->
-            <div class="pagination-info">
-                <span class="text-sm text-gray-700 font-semibold">
-                    Página {{ mobileCurrentPage + 1 }} de {{ mobileTotalPages }}
-                </span>
-                <span class="text-xs text-gray-500">
-                    Mostrando {{ mobilePagedData.length }} de {{ filteredData.length }} platillos
-                </span>
+        <!-- ========== SECCIÓN 2: PLATILLOS GENERALES (De otros usuarios) ========== -->
+        <div>
+            <!-- Header de sección -->
+            <div class="flex items-center gap-3 mb-4 p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200">
+                <div class="p-2.5 rounded-lg bg-gradient-to-r from-green-500 to-green-600 shadow-md">
+                    <i class="bi bi-globe text-white text-lg"></i>
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-lg font-bold text-gray-800">Platillos Generales</h2>
+                    <p class="text-sm text-gray-600">Platillos creados por otros usuarios</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-2xl font-bold text-green-700">{{ dataSource.data.length - dataSourceFiltrados.data.length }}</div>
+                    <div class="text-xs text-green-600">Total disponibles</div>
+                </div>
             </div>
 
-            <!-- Controles de paginación -->
-            <div class="pagination-controls">
-                <!-- Botón anterior -->
-                <button (click)="previousMobilePage()" 
-                        [disabled]="mobileCurrentPage === 0" 
-                        class="pagination-btn"
-                        [class.disabled]="mobileCurrentPage === 0"
-                        title="Página anterior">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
-
-                <!-- Números de página (máximo 5 páginas visibles) -->
-                <ng-container *ngFor="let page of getVisibleMobilePages(); let i = index">
-                    <button (click)="onMobilePageChange(page)" 
-                            [class.active]="page === mobileCurrentPage" 
-                            class="pagination-number"
-                            [title]="'Ir a página ' + (page + 1)">
-                        {{ page + 1 }}
-                    </button>
-                </ng-container>
-
-                <!-- Botón siguiente -->
-                <button (click)="nextMobilePage()" 
-                        [disabled]="mobileCurrentPage >= mobileTotalPages - 1" 
-                        class="pagination-btn"
-                        [class.disabled]="mobileCurrentPage >= mobileTotalPages - 1"
-                        title="Página siguiente">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-            </div>
-
-            <!-- Indicador de progreso -->
-            <div class="progress-indicator">
-                <div class="progress-bar">
-                    <div class="progress-fill" 
-                         [style.width.%]="((mobileCurrentPage + 1) / mobileTotalPages) * 100">
+            <!-- Estadísticas de platillos generales -->
+            <div *ngIf="(dataSource.data.length - dataSourceFiltrados.data.length) > 0" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                <div class="stat-card">
+                    <div class="stat-icon bg-green-100">
+                        <i class="bi bi-egg-fried text-green-600"></i>
                     </div>
+                    <div class="stat-content">
+                        <p class="stat-number">{{ dataSource.data.length - dataSourceFiltrados.data.length }}</p>
+                        <p class="stat-label">Total</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon bg-green-100">
+                        <i class="bi bi-check-circle text-green-600"></i>
+                    </div>
+                    <div class="stat-content">
+                        <p class="stat-number">{{ getPlatillosActivosGenerales() }}</p>
+                        <p class="stat-label">Activos</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon bg-red-100">
+                        <i class="bi bi-x-circle text-red-600"></i>
+                    </div>
+                    <div class="stat-content">
+                        <p class="stat-number">{{ getPlatillosInactivosGenerales() }}</p>
+                        <p class="stat-label">Inactivos</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon bg-purple-100">
+                        <i class="bi bi-people text-purple-600"></i>
+                    </div>
+                    <div class="stat-content">
+                        <p class="stat-number">{{ getPlatillosConUsuariosGenerales() }}</p>
+                        <p class="stat-label">Asignados</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de platillos generales -->
+            <div *ngIf="(platillosGeneralesDataSource.data.length - dataSourceFiltrados.data.length) > 0" class="table-container mb-2">
+                <table mat-table [dataSource]="platillosGeneralesDataSource" matSort class="users-table w-full">
+                    
+                    <!-- Imagen Column -->
+                    <ng-container matColumnDef="imagen">
+                        <th mat-header-cell *matHeaderCellDef>
+                            <i class="bi bi-image me-2"></i>IMAGEN
+                        </th>
+                        <td mat-cell *matCellDef="let platillo">
+                            <div class="flex items-center justify-center">
+                                <div class="relative w-12 h-12">
+                                    <img *ngIf="platillo.imagen_url && platillo.imagen_url.trim() !== ''" 
+                                         [src]="platillo.imagen_url" 
+                                         [alt]="platillo.nombre"
+                                         class="w-12 h-12 rounded-lg object-cover shadow-sm border border-green-200"
+                                         (error)="handleImageError($event)"
+                                         [title]="platillo.nombre">
+                                    
+                                    <div *ngIf="!platillo.imagen_url || platillo.imagen_url.trim() === ''" 
+                                         class="w-12 h-12 flex items-center justify-center bg-green-100 rounded-lg shadow-sm border border-green-200">
+                                        <i class="bi bi-egg-fried text-green-600 text-lg"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Nombre Column -->
+                    <ng-container matColumnDef="nombre">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                            <i class="bi bi-egg-fried me-2"></i>NOMBRE
+                        </th>
+                        <td mat-cell *matCellDef="let platillo">
+                            <div class="flex items-center gap-3">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <h3 class="font-semibold text-gray-800 text-sm truncate" [title]="platillo.nombre">
+                                            {{ platillo.nombre }}</h3>
+                                        <span *ngIf="tieneUsuariosAsignados(platillo)"
+                                            class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 cursor-pointer hover:bg-green-200 transition-colors duration-200"
+                                            title="Ver usuarios asignados (clic para más detalles)"
+                                            (click)="mostrarUsuariosAsignados(platillo)">
+                                            <i class="bi bi-people-fill text-xs"></i>
+                                            <span class="ml-1">{{ platillo.usuarios_asignados?.length || 0 }}</span>
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs text-gray-500 flex items-center gap-1">
+                                            <i class="bi bi-person"></i>
+                                            {{ platillo.creador_nombre || 'Usuario' }}
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-gray-600 line-clamp-1 mt-1" [title]="platillo.descripcion">
+                                        {{ truncateText(platillo.descripcion, 50) }}
+                                    </p>
+                                </div>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="creador">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                        <i class="bi bi-person me-2"></i>CREADOR
+                    </th>
+                    <td mat-cell *matCellDef="let platillo">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <i class="bi bi-person-circle text-gray-400"></i>
+                            <span class="text-sm text-gray-700 font-medium truncate">{{ platillo.creador_nombre || 'Tú' }}</span>
+                        </div>
+                    </td>
+                    </ng-container>
+
+                    <!-- Calorías Column -->
+                    <ng-container matColumnDef="calorias">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                            <i class="bi bi-lightning me-2"></i>CALORÍAS
+                        </th>
+                        <td mat-cell *matCellDef="let platillo">
+                            <span [class]="getCaloriasBadgeClass(platillo.calorias)">
+                                {{ platillo.calorias }} kcal
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <!-- Tiempo Column -->
+                    <ng-container matColumnDef="tiempo_preparacion">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                            <i class="bi bi-clock me-2"></i>TIEMPO
+                        </th>
+                        <td mat-cell *matCellDef="let platillo">
+                            <div class="flex items-center gap-2">
+                                <i [class]="'bi ' + getTiempoIcon(platillo.tiempo_preparacion) + ' text-gray-400'"></i>
+                                <span class="text-sm text-gray-700">{{ platillo.tiempo_preparacion }} min</span>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Estado Column -->
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef>
+                            <i class="bi bi-power me-2"></i>ESTADO
+                        </th>
+                        <td mat-cell *matCellDef="let platillo" [class.bg-red-50]="!isPlatilloActivo(platillo)">
+                            <div class="flex items-center justify-center">
+                                <span [class]="isPlatilloActivo(platillo) ? 'role-badge nutricionista' : 'role-badge admin'">
+                                    <i [class]="isPlatilloActivo(platillo) ? 'bi bi-check-circle me-1' : 'bi bi-x-circle me-1'"></i>
+                                    {{ isPlatilloActivo(platillo) ? 'Activo' : 'Inactivo' }}
+                                </span>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Acciones Column -->
+                    <ng-container matColumnDef="acciones">
+                        <th mat-header-cell *matHeaderCellDef>
+                            <i class="bi bi-gear me-2"></i>ACCIONES
+                        </th>
+                        <td mat-cell *matCellDef="let platillo">
+                            <div class="flex items-center justify-center gap-2">
+                                <button (click)="verDetallesPlatillo(platillo)"
+                                    class="btn-action view" title="Ver detalles">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- HEADERS Y ROWS -->
+                    <tr mat-header-row *matHeaderRowDef="currentDisplayedColumns; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: currentDisplayedColumns;" class="table-row-hover"></tr>
+                </table>
+
+                <!-- Paginator para platillos generales -->
+                <mat-paginator #paginatorGeneral 
+                               [pageSize]="10" 
+                               [pageSizeOptions]="[5,10,25,50]" 
+                               [length]="platillosGeneralesDataSource.data.length - dataSourceFiltrados.data.length"
+                               class="paginator-custom">
+                </mat-paginator>
+            </div>
+
+            <!-- Empty State para platillos generales -->
+            <div *ngIf="(platillosGeneralesDataSource.data.length - dataSourceFiltrados.data.length) === 0" class="empty-section bg-green-50 border-green-200">
+                <div class="flex flex-col items-center justify-center py-10 text-center">
+                    <i class="bi bi-egg-fried text-green-300 text-5xl mb-4"></i>
+                    <h3 class="text-lg font-semibold text-green-800 mb-2">No hay platillos generales</h3>
+                    <p class="text-green-600 max-w-md">No hay platillos creados por otros usuarios en el sistema</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Empty State -->
-    <div *ngIf="!loading && !errorMsg && dataSource.data.length === 0" class="empty-state">
-        <div class="flex flex-col items-center justify-center py-12 text-center">
-            <i class="bi bi-egg-fried text-gray-400 text-6xl mb-4"></i>
-            <h3 class="text-xl font-semibold text-gray-600 mb-2">No hay platillos</h3>
-            <p class="text-gray-500 mb-4">Comienza creando tu primer platillo</p>
-            <button (click)="openModalAltaPlatillos(undefined, false)" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-2"></i>
-                Crear Platillo
+    <!-- Mobile Card View (Unificada) -->
+    <div class="block md:hidden" *ngIf="!loading && !errorMsg">
+        
+        <!-- Sección: Mis Platillos (Mobile) -->
+        <div *ngIf="dataSourceFiltrados.data.length > 0" class="mb-8">
+            <div class="section-header-mobile bg-blue-50 border-blue-200">
+                <i class="bi bi-person-badge text-blue-500"></i>
+                <h3 class="font-bold text-gray-800">Mis Platillos</h3>
+                <span class="badge-count-mobile bg-blue-500">{{ dataSourceFiltrados.data.length }}</span>
+            </div>
+            
+            <div class="space-y-3">
+                <div *ngFor="let platillo of getPagedData(dataSourceFiltrados.data, 'misPlatillos'); trackBy: trackById" 
+                     class="user-card border-l-4 border-blue-400">
+                    
+                    <div class="flex items-start justify-between gap-3 mb-3">
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                            <div class="user-avatar-mobile flex-shrink-0 relative w-12 h-12">
+                                <img *ngIf="platillo.imagen_url && platillo.imagen_url.trim() !== ''" 
+                                     [src]="platillo.imagen_url" 
+                                     [alt]="platillo.nombre"
+                                     class="w-12 h-12 rounded-lg object-cover shadow-sm"
+                                     (error)="handleImageError($event)">
+                                
+                                <div *ngIf="!platillo.imagen_url || platillo.imagen_url.trim() === ''" 
+                                     class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center shadow-sm">
+                                    <i class="bi bi-egg-fried text-blue-600"></i>
+                                </div>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <h3 class="font-semibold text-gray-800 text-sm truncate">{{ truncateText(platillo.nombre, 25) }}</h3>
+                                    <span *ngIf="tieneUsuariosAsignados(platillo)"
+                                        class="inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <i class="bi bi-people-fill text-xs"></i>
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-500 line-clamp-1">{{ truncateText(platillo.descripcion, 35) }}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end gap-2 flex-shrink-0">
+                            <span [class]="getCaloriasBadgeClass(platillo.calorias)" class="text-xs">
+                                {{ platillo.calorias }} kcal
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                        <div class="flex items-center gap-2">
+                            <i [class]="'bi ' + getTiempoIcon(platillo.tiempo_preparacion) + ' text-gray-400 text-sm'"></i>
+                            <span class="text-sm text-gray-600">{{ platillo.tiempo_preparacion }} min</span>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-2">
+                                <div class="custom-toggle-mobile" [class.active]="isPlatilloActivo(platillo)"
+                                    (click)="togglePlatilloStatus(platillo, !isPlatilloActivo(platillo))">
+                                    <div class="toggle-thumb-mobile"></div>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-2">
+                                <button *ngIf="canEditOrDelete(platillo) && !tieneUsuariosAsignados(platillo)" 
+                                        (click)="editarPlatillo(platillo)" 
+                                        class="btn-action-mobile edit">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button *ngIf="canEditOrDelete(platillo) && !tieneUsuariosAsignados(platillo)" 
+                                        (click)="eliminarPlatillo(platillo)" 
+                                        class="btn-action-mobile delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                <button (click)="verDetallesPlatillo(platillo)" class="btn-action-mobile view">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección: Platillos Generales (Mobile) -->
+        <div *ngIf="(dataSource.data.length - dataSourceFiltrados.data.length) > 0">
+            <div class="section-header-mobile bg-green-50 border-green-200">
+                <i class="bi bi-globe text-green-500"></i>
+                <h3 class="font-bold text-gray-800">Platillos Generales</h3>
+                <span class="badge-count-mobile bg-green-500">{{ dataSource.data.length - dataSourceFiltrados.data.length }}</span>
+            </div>
+            
+            <div class="space-y-3">
+                <div *ngFor="let platillo of getPagedData(getPlatillosGeneralesArray(), 'generales'); trackBy: trackById" 
+                     class="user-card border-l-4 border-green-400">
+                    
+                    <div class="flex items-start justify-between gap-3 mb-3">
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                            <div class="user-avatar-mobile flex-shrink-0 relative w-12 h-12">
+                                <img *ngIf="platillo.imagen_url && platillo.imagen_url.trim() !== ''" 
+                                     [src]="platillo.imagen_url" 
+                                     [alt]="platillo.nombre"
+                                     class="w-12 h-12 rounded-lg object-cover shadow-sm"
+                                     (error)="handleImageError($event)">
+                                
+                                <div *ngIf="!platillo.imagen_url || platillo.imagen_url.trim() === ''" 
+                                     class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center shadow-sm">
+                                    <i class="bi bi-egg-fried text-green-600"></i>
+                                </div>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <h3 class="font-semibold text-gray-800 text-sm truncate">{{ truncateText(platillo.nombre, 25) }}</h3>
+                                    <span *ngIf="tieneUsuariosAsignados(platillo)"
+                                        class="inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <i class="bi bi-people-fill text-xs"></i>
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-1 mb-1">
+                                    <i class="bi bi-person text-gray-400 text-xs"></i>
+                                    <span class="text-xs text-gray-500 truncate">{{ platillo.creador_nombre || 'Usuario' }}</span>
+                                </div>
+                                <p class="text-xs text-gray-500 line-clamp-1">{{ truncateText(platillo.descripcion, 35) }}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end gap-2 flex-shrink-0">
+                            <span [class]="getCaloriasBadgeClass(platillo.calorias)" class="text-xs">
+                                {{ platillo.calorias }} kcal
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                        <div class="flex items-center gap-2">
+                            <i [class]="'bi ' + getTiempoIcon(platillo.tiempo_preparacion) + ' text-gray-400 text-sm'"></i>
+                            <span class="text-sm text-gray-600">{{ platillo.tiempo_preparacion }} min</span>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <span [class]="isPlatilloActivo(platillo) ? 'role-badge nutricionista' : 'role-badge admin'" class="text-xs">
+                                {{ isPlatilloActivo(platillo) ? 'Activo' : 'Inactivo' }}
+                            </span>
+
+                            <div class="flex gap-2">
+                                <button (click)="verDetallesPlatillo(platillo)" class="btn-action-mobile view">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State mobile -->
+        <div *ngIf="dataSourceFiltrados.data.length === 0 && (dataSource.data.length - dataSourceFiltrados.data.length) === 0" 
+             class="empty-card-mobile bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200">
+            <i class="bi bi-egg-fried text-gray-300 text-3xl mb-3"></i>
+            <h4 class="text-gray-700 font-semibold mb-2">No hay platillos</h4>
+            <p class="text-gray-500 text-sm mb-4">Comienza creando tu primer platillo</p>
+            <button (click)="openModalAltaPlatillos(undefined, false)" class="btn-add-mobile bg-gradient-to-r from-blue-500 to-blue-600">
+                <i class="bi bi-plus-circle me-1"></i>Crear platillo
             </button>
         </div>
     </div>

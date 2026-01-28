@@ -1,10 +1,12 @@
-import { Component, inject, OnInit, OnDestroy, Input, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, Input, ChangeDetectorRef,OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { HttpServices } from '../../../../core/services/http/http.service';
+import { log } from 'console';
 
 interface PlatilloData {
   id?: string;
@@ -89,7 +91,9 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   @Input() platilloData: PlatilloData | null = null;
   @Input() isEdit: boolean = false;
   @Input() isViewOnly: boolean = false;
+  @Input() dataSource!: any[];
 
+  private dataSourceReady = false;
   loading = false;
   isLoadingConfig = false;
   isLoadingData = false;
@@ -116,6 +120,9 @@ export class AltaPlatillos implements OnInit, OnDestroy {
   filteredAlimentos: Alimento[][] = [];
   alimentoNotFound: boolean[] = [];
   alimentoSelected: boolean[] = [];
+  platillosSimilares: any[] = [];
+  nombreDuplicadoExacto: boolean = false;
+  showSimilaresDropdown: boolean = false;
 
   selectedImageFile: File | null = null;
   selectedImagePreview: string | null = null;
@@ -136,7 +143,16 @@ export class AltaPlatillos implements OnInit, OnDestroy {
     });
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['dataSource'] && changes['dataSource'].currentValue) {
+      console.log("DATAPLATILLOS en ngOnChanges:", this.dataSource);
+      this.dataSourceReady = true;
+    }
+  }
+
   ngOnInit(): void {
+    console.log("DATAPLATILLOS:", this.dataSource);
+    
     this.cargarCatalogos();
 
     this.alimentoSearchTerms = [];
@@ -851,6 +867,8 @@ export class AltaPlatillos implements OnInit, OnDestroy {
       if (field.errors['required']) return `${fieldName} es requerido`;
       if (field.errors['minlength']) return `Mínimo ${field.errors['minlength'].requiredLength} caracteres`;
       if (field.errors['min']) return `Valor mínimo: ${field.errors['min'].min}`;
+      if (field.errors['nombreDuplicado']) return '⚠️ Ya existe un platillo con este nombre exacto';
+
     }
     
     if (fieldName === 'imagen' && this.errorMsg && this.errorMsg.includes('imagen')) {
@@ -997,6 +1015,85 @@ export class AltaPlatillos implements OnInit, OnDestroy {
       }, 200);
     }
   }
+
+  onNombreChange(event: Event): void {
+  const target = event.target as HTMLInputElement;
+  this.alreadyExist(target.value);
+}
+
+ 
+alreadyExist(nombre: string): void {
+  // Resetear estado
+  this.platillosSimilares = [];
+  this.nombreDuplicadoExacto = false;
+  this.showSimilaresDropdown = false;
+
+  if (!this.dataSource || !Array.isArray(this.dataSource) || this.dataSource.length === 0) {
+    return;
+  }
+
+  if (!nombre || nombre.trim() === '' || nombre.trim().length < 2) {
+    // Limpiar el error si el campo está vacío
+    const nombreControl = this.platilloForm.get('nombre');
+    if (nombreControl?.hasError('nombreDuplicado')) {
+      const errors = { ...nombreControl.errors };
+      delete errors['nombreDuplicado'];
+      nombreControl.setErrors(Object.keys(errors).length ? errors : null);
+    }
+    return;
+  }
+
+  const nombreBuscado = nombre.toLowerCase().trim();
+
+  // Buscar coincidencias exactas
+  const duplicadosExactos = this.dataSource.filter((platillo) => {
+    if (this.isEdit && this.platilloData && platillo.id === this.platilloData.id) {
+      return false;
+    }
+    return platillo.nombre.toLowerCase().trim() === nombreBuscado;
+  });
+
+  // Buscar coincidencias parciales
+  const similares = this.dataSource.filter((platillo) => {
+    if (this.isEdit && this.platilloData && platillo.id === this.platilloData.id) {
+      return false;
+    }
+    const nombrePlatillo = platillo.nombre.toLowerCase().trim();
+    return nombrePlatillo.includes(nombreBuscado) && nombrePlatillo !== nombreBuscado;
+  });
+
+  // Si hay duplicado exacto
+  if (duplicadosExactos.length > 0) {
+    this.nombreDuplicadoExacto = true;
+    this.platilloForm.get('nombre')?.setErrors({ 'nombreDuplicado': true });
+    console.warn("⚠️ Ya existe un platillo con ese nombre exacto");
+  } else {
+    // Limpiar error de duplicado
+    const nombreControl = this.platilloForm.get('nombre');
+    if (nombreControl?.hasError('nombreDuplicado')) {
+      const errors = { ...nombreControl.errors };
+      delete errors['nombreDuplicado'];
+      nombreControl.setErrors(Object.keys(errors).length ? errors : null);
+    }
+  }
+
+  // Mostrar similares (máximo 5)
+  if (similares.length > 0) {
+    //this.platillosSimilares = similares.slice(0, 5);
+    this.platillosSimilares = similares;
+    this.showSimilaresDropdown = true;
+    console.log(`📋 Encontrados ${similares.length} platillos similares`);
+  }
+}
+
+hideSimilaresDropdown(): void {
+  this.showSimilaresDropdown = false;
+}
+
+// Método para el trackBy
+trackBySimilar(index: number, item: any): any {
+  return item.id;
+}
 
   getTypeOf(value: any): string {
     return typeof value;
