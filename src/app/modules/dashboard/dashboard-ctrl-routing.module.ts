@@ -27,16 +27,22 @@ const userRoutes = {
     { path: 'revision', component: RevisionComponent, data: { permission: null } },
   ],
   NUTRICIONISTA: [
-    { path: 'inicio', component: Inicio, data: { permission: null } },
-    { path: 'platillos-nutricionista', component: Platillos, data: { permission: null } },
+  { path: 'inicio', component: Inicio, data: { permission: null } },
+  { path: 'alimentos', component: alimentos, data: { permission: null } },
+  { path: 'platillos-nutricionista', component: Platillos, data: { permission: null } },
+  { path: 'alimentos', component: alimentos, data: { permission: null } },
 
   ],
+
   USUARIO: [
     { path: 'inicio', component: Inicio, data: { permission: null } },
   ],
+
   GENERAL: [
     { path: 'inicio', component: Inicio, data: { permission: null } },
     { path: 'perfil', component: Perfil, data: { permission: null } },
+    { path: 'alimentos', component: alimentos, data: { permission: null } },
+
   ]
 };
 
