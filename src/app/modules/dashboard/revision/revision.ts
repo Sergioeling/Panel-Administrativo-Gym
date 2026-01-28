@@ -9,7 +9,6 @@ import { AltaPlatillos } from '../../shared/modales/alta-platillos/alta-platillo
 import { VistaDocumentos } from '../../shared/modales/vista-documentos/vista-documentos';
 import Swal from 'sweetalert2';
 
-
 @Component({
   selector: 'app-revision',
   standalone: true,
@@ -24,12 +23,15 @@ import Swal from 'sweetalert2';
 })
 export class RevisionComponent implements OnInit, AfterViewInit {
 
-
   totalSolicitudes = 0;
   solicitudesNutricionistas = 0;
   solicitudesPlatillos = 0;
-  solicitudesPendientes = 0;
 
+  // ===== NUEVO =====
+  solicitudesAlimentos = 0;
+  // =================
+
+  solicitudesPendientes = 0;
 
   displayedColumnsNutricionistas = [
     'nombre',
@@ -43,7 +45,6 @@ export class RevisionComponent implements OnInit, AfterViewInit {
   dataNutricionistas = new MatTableDataSource<any>([]);
   @ViewChild('paginatorNutri') paginatorNutri!: MatPaginator;
 
-
   displayedColumnsPlatillos = [
     'platillo',
     'detalles',
@@ -56,6 +57,19 @@ export class RevisionComponent implements OnInit, AfterViewInit {
   dataPlatillos = new MatTableDataSource<any>([]);
   @ViewChild('paginatorPlat') paginatorPlat!: MatPaginator;
 
+  // ===== NUEVO: ALIMENTOS =====
+  displayedColumnsAlimentos = [
+    'nombre',
+    'categoria',
+    'nutricionista',
+    'estado',
+    'acciones'
+  ];
+
+  dataAlimentos = new MatTableDataSource<any>([]);
+  @ViewChild('paginatorAlimentos') paginatorAlimentos!: MatPaginator;
+  // ============================
+
   constructor(
     private revisionService: RevisionService,
     private modalService: NgbModal
@@ -64,13 +78,20 @@ export class RevisionComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.cargarNutricionistasPendientes();
     this.cargarPlatillosPendientes();
+
+    // ===== NUEVO =====
+    this.cargarAlimentosPendientes();
+    // =================
   }
 
   ngAfterViewInit(): void {
     this.dataNutricionistas.paginator = this.paginatorNutri;
     this.dataPlatillos.paginator = this.paginatorPlat;
-  }
 
+    // ===== NUEVO =====
+    this.dataAlimentos.paginator = this.paginatorAlimentos;
+    // =================
+  }
 
   cargarNutricionistasPendientes(): void {
     this.revisionService.getNutricionistasPendientes().subscribe({
@@ -94,134 +115,162 @@ export class RevisionComponent implements OnInit, AfterViewInit {
     });
   }
 
-cargarPlatillosPendientes(): void {
-  this.revisionService.getPlatillosPendientes().subscribe({
-    next: (resp) => {
-      if (resp.status === 'success') {
-        this.dataPlatillos.data = resp.data.map((p: any) => ({
-          id: p.platillo_id,
-          platillo: p.platillo,
-          nutricionista: p.nutricionista,
-          tiempo: `${p.tiempo_preparacion} min`,
-          estado:
-            Number(p.status) === 2
-              ? 'pendiente'
-              : Number(p.status) === 1
-              ? 'aprobado'
-              : 'rechazado'
-        }));
+  cargarPlatillosPendientes(): void {
+    this.revisionService.getPlatillosPendientes().subscribe({
+      next: (resp) => {
+        if (resp.status === 'success') {
+          this.dataPlatillos.data = resp.data.map((p: any) => ({
+            id: p.platillo_id,
+            platillo: p.platillo,
+            nutricionista: p.nutricionista,
+            tiempo: `${p.tiempo_preparacion} min`,
+            estado:
+              Number(p.status) === 2
+                ? 'pendiente'
+                : Number(p.status) === 1
+                ? 'aprobado'
+                : 'rechazado'
+          }));
 
-        this.calcularTotales();
+          this.calcularTotales();
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar platillos pendientes', err);
       }
-    },
-    error: (err) => {
-      console.error('Error al cargar platillos pendientes', err);
-    }
-  });
-}
+    });
+  }
 
+  // ===== NUEVO: ALIMENTOS =====
+  cargarAlimentosPendientes(): void {
+    this.revisionService.getAlimentosPendientes().subscribe({
+      next: (resp: any) => {
+        if (resp.status === 'success') {
+          this.dataAlimentos.data = resp.data.map((a: any) => ({
+            id: a.alimento_id,
+            nombre: a.nombre,
+            categoria: a.categoria,
+            nutricionista: a.nutricionista,
+            estado:
+              Number(a.status) === 2
+                ? 'pendiente'
+                : Number(a.status) === 1
+                ? 'aprobado'
+                : 'rechazado'
+          }));
+
+          this.calcularTotales();
+        }
+      },
+      error: (err: any) => {
+        console.error('Error al cargar alimentos pendientes', err);
+      }
+    });
+  }
+  // ============================
 
   calcularTotales(): void {
     this.solicitudesNutricionistas = this.dataNutricionistas.data.length;
     this.solicitudesPlatillos = this.dataPlatillos.data.length;
 
-    this.totalSolicitudes =
-      this.solicitudesNutricionistas + this.solicitudesPlatillos;
+    // ===== NUEVO =====
+    this.solicitudesAlimentos = this.dataAlimentos.data.length;
+    // =================
 
-    this.solicitudesPendientes =
-      this.solicitudesNutricionistas + this.solicitudesPlatillos;
+    this.totalSolicitudes =
+      this.solicitudesNutricionistas +
+      this.solicitudesPlatillos +
+      this.solicitudesAlimentos;
+
+    this.solicitudesPendientes = this.totalSolicitudes;
   }
 
   aprobar(item: any): void {
-  this.revisionService
-    .revisionPlatillo(item.id, 1)
-    .subscribe({
-      next: () => {
-        this.cargarPlatillosPendientes();
-      },
-      error: (err) => {
-        console.error('Error al aprobar platillo', err);
-      }
-    });
-}
-
+    this.revisionService
+      .revisionPlatillo(item.id, 1)
+      .subscribe({
+        next: () => {
+          this.cargarPlatillosPendientes();
+        },
+        error: (err) => {
+          console.error('Error al aprobar platillo', err);
+        }
+      });
+  }
 
   rechazar(item: any): void {
-  Swal.fire({
-    title: 'Rechazar platillo',
-    text: 'Escribe el motivo del rechazo',
-    input: 'textarea',
-    inputPlaceholder: 'Motivo del rechazo...',
-    inputAttributes: {
-      'aria-label': 'Motivo del rechazo'
-    },
-    showCancelButton: true,
-    confirmButtonText: 'Rechazar',
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#dc2626',
-    inputValidator: (value) => {
-      if (!value || !value.trim()) {
-        return 'El motivo es obligatorio';
+    Swal.fire({
+      title: 'Rechazar platillo',
+      text: 'Escribe el motivo del rechazo',
+      input: 'textarea',
+      inputPlaceholder: 'Motivo del rechazo...',
+      inputAttributes: {
+        'aria-label': 'Motivo del rechazo'
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Rechazar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#dc2626',
+      inputValidator: (value) => {
+        if (!value || !value.trim()) {
+          return 'El motivo es obligatorio';
+        }
+        return null;
       }
-      return null;
-    }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      const motivo = result.value;
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const motivo = result.value;
 
-      this.revisionService
-        .revisionPlatillo(item.id, 0, motivo)
-        .subscribe({
-          next: () => {
-            Swal.fire({
-              icon: 'success',
-              title: 'Platillo rechazado',
-              text: 'Se notificó al nutricionista',
-              timer: 2500,
-              showConfirmButton: false
-            });
+        this.revisionService
+          .revisionPlatillo(item.id, 0, motivo)
+          .subscribe({
+            next: () => {
+              Swal.fire({
+                icon: 'success',
+                title: 'Platillo rechazado',
+                text: 'Se notificó al nutricionista',
+                timer: 2500,
+                showConfirmButton: false
+              });
 
-            this.cargarPlatillosPendientes();
-          },
-          error: () => {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'No se pudo rechazar el platillo'
-            });
-          }
-        });
-    }
-  });
-}
-
+              this.cargarPlatillosPendientes();
+            },
+            error: () => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo rechazar el platillo'
+              });
+            }
+          });
+      }
+    });
+  }
 
   verArchivos(item: any): void {
-      const modalRef = this.modalService.open(
-        VistaDocumentos,
-        {
-          size: 'lg',
-          backdrop: 'static',
-          keyboard: false
+    const modalRef = this.modalService.open(
+      VistaDocumentos,
+      {
+        size: 'lg',
+        backdrop: 'static',
+        keyboard: false
+      }
+    );
+
+    modalRef.componentInstance.usuario = {
+      id: item.id,
+      nombre: item.nombre,
+      email: item.email
+    };
+
+    modalRef.result
+      .then((result) => {
+        if (result) {
+          this.cargarNutricionistasPendientes();
         }
-      );
-
-      modalRef.componentInstance.usuario = {
-        id: item.id,
-        nombre: item.nombre,
-        email: item.email
-      };
-
-      modalRef.result
-        .then((result) => {
-          if (result) {
-            this.cargarNutricionistasPendientes();
-          }
-        })
-        .catch(() => {
-        });
-    }
-
+      })
+      .catch(() => {});
+  }
 
   verDetallesPlatillo(platillo: any): void {
     const modalRef = this.modalService.open(AltaPlatillos, {
@@ -240,49 +289,57 @@ cargarPlatillosPendientes(): void {
   }
 
   rechazarNutricionista(item: any): void {
-  Swal.fire({
-    title: 'Rechazar solicitud',
-    text: 'Escribe el motivo del rechazo',
-    input: 'textarea',
-    inputPlaceholder: 'Motivo del rechazo...',
-    showCancelButton: true,
-    confirmButtonText: 'Rechazar',
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#dc2626',
-    inputValidator: (value) => {
-      if (!value || !value.trim()) {
-        return 'El motivo es obligatorio';
+    Swal.fire({
+      title: 'Rechazar solicitud',
+      text: 'Escribe el motivo del rechazo',
+      input: 'textarea',
+      inputPlaceholder: 'Motivo del rechazo...',
+      showCancelButton: true,
+      confirmButtonText: 'Rechazar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#dc2626',
+      inputValidator: (value) => {
+        if (!value || !value.trim()) {
+          return 'El motivo es obligatorio';
+        }
+        return null;
       }
-      return null;
-    }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      const motivo = result.value;
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const motivo = result.value;
 
-      this.revisionService
-        .rechazarNutricionista(item.id, motivo)
-        .subscribe({
-          next: () => {
-            Swal.fire({
-              icon: 'success',
-              title: 'Solicitud rechazada',
-              text: 'El nutricionista fue notificado',
-              timer: 2500,
-              showConfirmButton: false
-            });
+        this.revisionService
+          .rechazarNutricionista(item.id, motivo)
+          .subscribe({
+            next: () => {
+              Swal.fire({
+                icon: 'success',
+                title: 'Solicitud rechazada',
+                text: 'El nutricionista fue notificado',
+                timer: 2500,
+                showConfirmButton: false
+              });
 
-            this.cargarNutricionistasPendientes();
-          },
-          error: () => {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'No se pudo rechazar la solicitud'
-            });
-          }
-        });
-    }
-  });
-}
+              this.cargarNutricionistasPendientes();
+            },
+            error: () => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo rechazar la solicitud'
+              });
+            }
+          });
+      }
+    });
+  }
 
+  // ===== NUEVO: ACCIONES ALIMENTOS (VACÍAS A PROPÓSITO) =====
+  aprobarAlimento(item: any): void {
+    // pendiente de implementar
+  }
+
+  rechazarAlimento(item: any): void {
+    // pendiente de implementar
+  }
 }
