@@ -67,6 +67,7 @@ export class AltaAlimento implements OnInit, OnDestroy {
   categorias: Categoria[] = [];
   alimentoForm: FormGroup;
 
+  
   constructor() {
     this.alimentoForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],

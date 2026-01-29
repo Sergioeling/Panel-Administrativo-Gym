@@ -361,10 +361,26 @@ export class RevisionComponent implements OnInit, AfterViewInit {
 
 
 
-  // ===== NUEVO: ACCIONES ALIMENTOS (VACÍAS A PROPÓSITO) =====
-  aprobarAlimento(item: any): void {
-    // pendiente de implementar
-  }
+aprobarAlimento(alimento: any): void {
+  this.revisionService.aprobarAlimento(alimento.id).subscribe({
+    next: (resp: any) => {
+      if (resp?.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Alimento aprobado',
+          text: 'El alimento fue aprobado correctamente'
+        }).then(() => {
+          this.cargarAlimentosPendientes(); // o el método que refresca la tabla
+        });
+      } else {
+        Swal.fire('Error', resp?.message || 'No se pudo aprobar', 'error');
+      }
+    },
+    error: () => {
+      Swal.fire('Error', 'Error de comunicación con el servidor', 'error');
+    }
+  });
+}
 
   rechazarAlimento(item: any): void {
     // pendiente de implementar
