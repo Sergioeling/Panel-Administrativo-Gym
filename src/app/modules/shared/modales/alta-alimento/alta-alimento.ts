@@ -58,12 +58,18 @@ export class AltaAlimento implements OnInit, OnDestroy {
 
   @Input() alimentoData: AlimentoData | null = null;
   @Input() isEdit: boolean = false;
+  @Input() misAlimentosDataSource!: any[]; 
 
   loading = false;
   loadingCategorias = false;
   errorMsg: string | null = null;
   categorias: Categoria[] = [];
   alimentoForm: FormGroup;
+  alimentosSimilares: any[] = [];
+  nombreDuplicadoExacto: boolean = false;
+  showSimilaresDropdown: boolean = false;
+  alimentoDropdownVisible: boolean[] = [];
+
 
   constructor() {
     this.alimentoForm = this.fb.group({
@@ -99,6 +105,9 @@ export class AltaAlimento implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+
+    console.log("MIS ALIMENTOS: ", this.misAlimentosDataSource);
+    
     this.obtenerCategorias();
     if (this.isEdit && this.alimentoData) {
       this.cargarDatosAlimento();
@@ -194,6 +203,8 @@ export class AltaAlimento implements OnInit, OnDestroy {
       if (field.errors['required']) return 'Este campo es requerido';
       if (field.errors['minlength']) return 'Mínimo 2 caracteres';
       if (field.errors['pattern']) return 'Formato numérico inválido (usar punto decimal)';
+      if (field.errors['nombreDuplicado']) return '⚠️ Ya existe un alimento con este nombre exacto';
+
     }
     return '';
   }
@@ -367,7 +378,99 @@ export class AltaAlimento implements OnInit, OnDestroy {
     return this.isEdit ? 'Actualizar Alimento' : 'Guardar Alimento';
   }
 
+  hideAllDropdowns(event?: any): void {
+  if (event && (event.target.closest('.similares-dropdown') || 
+                event.target.closest('input[placeholder="Ej: Manzana roja"]'))) {
+    return;
+  }
+  
+  this.showSimilaresDropdown = false;
+}
+
+
+hideSimilaresDropdown(): void {
+  setTimeout(() => {
+    this.showSimilaresDropdown = false;
+  }, 200);
+}
+
   trackByCategoria(index: number, categoria: Categoria): string {
     return String(categoria.id);
   }
+
+  trackBySimilar(index: number, item: any): any {
+  return item.id;
 }
+
+
+  onNombreChange(event: Event): void {
+  const target = event.target as HTMLInputElement;
+  this.alreadyExist(target.value);
+  this.showSimilaresDropdown = this.alimentosSimilares.length > 0;
+}
+
+ 
+alreadyExist(nombre: string): void {
+  // Resetear estado
+  this.alimentosSimilares = [];
+  this.nombreDuplicadoExacto = false;
+  this.showSimilaresDropdown = false;
+
+  if (!this.misAlimentosDataSource || !Array.isArray(this.misAlimentosDataSource) || this.misAlimentosDataSource.length === 0) {
+    return;
+  }
+
+  if (!nombre || nombre.trim() === '' || nombre.trim().length < 2) {
+    // Limpiar el error si el campo está vacío
+    const nombreControl = this.alimentoForm.get('nombre');
+    if (nombreControl?.hasError('nombreDuplicado')) {
+      const errors = { ...nombreControl.errors };
+      delete errors['nombreDuplicado'];
+      nombreControl.setErrors(Object.keys(errors).length ? errors : null);
+    }
+    return;
+  }
+
+  const nombreBuscado = nombre.toLowerCase().trim();
+
+  // Buscar coincidencias exactas
+  const duplicadosExactos = this.misAlimentosDataSource.filter((alimento) => {
+    if (this.isEdit && this.alimentoData && alimento.id === this.alimentoData.id) {
+      return false;
+    }
+    return alimento.nombre.toLowerCase().trim() === nombreBuscado;
+  });
+
+  // Buscar coincidencias parciales
+  const similares = this.misAlimentosDataSource.filter((alimento) => {
+    if (this.isEdit && this.alimentoData && alimento.id === this.alimentoData.id) {
+      return false;
+    }
+    const nombrePlatillo = alimento.nombre.toLowerCase().trim();
+    return nombrePlatillo.includes(nombreBuscado) && nombrePlatillo !== nombreBuscado;
+  });
+
+  // Si hay duplicado exacto
+  if (duplicadosExactos.length > 0) {
+    this.nombreDuplicadoExacto = true;
+    this.alimentoForm.get('nombre')?.setErrors({ 'nombreDuplicado': true });
+    console.warn("⚠️ Ya existe un platillo con ese nombre exacto");
+  } else {
+    // Limpiar error de duplicado
+    const nombreControl = this.alimentoForm.get('nombre');
+    if (nombreControl?.hasError('nombreDuplicado')) {
+      const errors = { ...nombreControl.errors };
+      delete errors['nombreDuplicado'];
+      nombreControl.setErrors(Object.keys(errors).length ? errors : null);
+    }
+  }
+
+  // Mostrar similares (máximo 5)
+  if (similares.length > 0) {
+    //this.platillosSimilares = similares.slice(0, 5);
+    this.alimentosSimilares = similares;
+    this.showSimilaresDropdown = true;
+    console.log(`📋 Encontrados ${similares.length} platillos similares`);
+  }
+}
+} 

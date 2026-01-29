@@ -6,7 +6,7 @@
     <button type="button" class="btn-close btn-close-white" (click)="onCancel()"></button>
 </div>
 
-<div class="modal-body p-3 p-md-4" style="max-height: 80vh; overflow-y: auto;">
+<div class="modal-body p-3 p-md-4" style="max-height: 80vh; overflow-y: auto;" (click)="hideAllDropdowns($event)">
     <!-- Error Alert -->
     <div *ngIf="errorMsg" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
         <i class="fas fa-exclamation-triangle me-2"></i>
@@ -17,7 +17,7 @@
     <!-- Edit Mode Info Alert -->
     <div *ngIf="isEdit && alimentoData" class="alert alert-info alert-dismissible fade show mb-4" role="alert">
         <i class="fas fa-info-circle me-2"></i>
-        <strong>Modo Edición:</strong> Modificando "{{ alimentoData.nombre }}" <!--(ID: {{ alimentoData.id }})-->
+        <strong>Modo Edición:</strong> Modificando "{{ alimentoData.nombre }}"
     </div>
 
     <form [formGroup]="alimentoForm" (ngSubmit)="onSubmit()">
@@ -35,12 +35,59 @@
                     <!-- Nombre del alimento -->
                     <div class="col-12 col-md-6">
                         <label class="form-label fw-semibold text-gray-700">Nombre del Alimento *</label>
-                        <input type="text" class="form-control" [class.is-invalid]="isFieldInvalid('nombre')"
-                            formControlName="nombre" placeholder="Ej: Manzana roja" />
-                        <div *ngIf="isFieldInvalid('nombre')" class="invalid-feedback">{{ getFieldError('nombre') }}
+                        <div class="position-relative">
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                [class.is-invalid]="isFieldInvalid('nombre')"
+                                formControlName="nombre" 
+                                placeholder="Ej: Manzana roja" 
+                                (input)="onNombreChange($event)"
+                                (focus)="showSimilaresDropdown = alimentosSimilares.length > 0"
+                                (blur)="hideSimilaresDropdown()" />
+                            
+                            <!-- Dropdown de alimentos similares -->
+                            <div 
+                                class="similares-dropdown shadow-lg" 
+                                *ngIf="showSimilaresDropdown && alimentosSimilares.length > 0">
+                                
+                                <div class="dropdown-header bg-warning bg-opacity-10 p-2 border-bottom">
+                                    <small class="text-warning fw-bold">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Alimentos similares encontrados ({{ alimentosSimilares.length }})
+                                    </small>
+                                </div>
+                                
+                                <div 
+                                    class="dropdown-item-similar" 
+                                    *ngFor="let alimento of alimentosSimilares; trackBy: trackBySimilar"
+                                    (click)="hideSimilaresDropdown()"
+                                    (mousedown)="$event.preventDefault()">
+                                    <div class="d-flex align-items-start">
+                                        <i class="fas fa-carrot text-warning me-2 mt-1"></i>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-semibold text-dark">{{ alimento.nombre }}</div>
+                                            <small class="text-muted d-block">
+                                                <i class="fas fa-fire me-1"></i>{{ alimento.energia_kcal || 0 }} kcal
+                                                <span class="mx-1">•</span>
+                                                <i class="fas fa-weight me-1"></i>{{ alimento.proteina_g || 0 }}g proteína
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="dropdown-footer bg-light p-2 border-top">
+                                    <small class="text-muted d-block text-center">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Verifica que no estés duplicando un alimento existente
+                                    </small>
+                                </div>
+                            </div>
                         </div>
+                        <div *ngIf="isFieldInvalid('nombre')" class="invalid-feedback">{{ getFieldError('nombre') }}</div>
                     </div>
 
+                    <!-- Categoría -->
                     <div class="col-12 col-md-3">
                         <label class="form-label fw-semibold text-gray-700">Categoría *</label>
                         <div class="position-relative">
@@ -96,6 +143,7 @@
                         </div>
                     </div>
 
+                    <!-- Unidad -->
                     <div class="col-12 col-md-3">
                         <label class="form-label fw-semibold text-gray-700">Unidad *</label>
                         <select class="form-select" [class.is-invalid]="isFieldInvalid('unidad')"

@@ -2,150 +2,155 @@ import { AfterViewInit, Component, ViewChild, inject, OnInit, OnDestroy, ChangeD
 import { CommonModule, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { Subject, takeUntil } from 'rxjs';
-import { HttpServices } from '../../../core/services/http/http.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AltaAlimento } from '../../shared/modales/alta-alimento/alta-alimento';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { Subject, takeUntil, finalize } from 'rxjs';
+import { NgbModal, NgbModalModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { BreakpointObserver, Breakpoints, LayoutModule } from '@angular/cdk/layout';
 import Swal from 'sweetalert2';
+
+// Services
+import { HttpServices } from '../../../core/services/http/http.service';
+import { AuthServices } from '../../../core/services/auth/auth.service';
+import { AltaAlimento } from '../../shared/modales/alta-alimento/alta-alimento';
+
+// Interfaces
+interface Alimento {
+  id: string;
+  nombre: string;
+  categoria_id: string;
+  cantidad_sugerida: number;
+  unidad: string; 
+  energia_kcal: number;
+  proteina_g: number;
+  hidratos_de_carbono_g: number;
+  lipidos_g: number;
+  status?: string | number;
+  id_usuario?: string | number;
+  creador_nombre?: string;
+  [key: string]: any;
+}
+
+interface Stats {
+  avgCalories: number;
+  avgProtein: string;
+  uniqueCategories: number;
+}
 
 @Component({
   selector: 'app-alimentos',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    NgIf
+    CommonModule, FormsModule, MatTableModule, MatPaginatorModule,
+    MatSortModule, MatFormFieldModule, MatInputModule, MatIconModule, NgIf, NgbModalModule, LayoutModule,
   ],
-  templateUrl: './alimentos.html',
+  templateUrl: './alimentos.html', 
   styleUrl: './alimentos.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class alimentos implements OnInit, AfterViewInit, OnDestroy {
 
+  // Dependencies
+/*   private modalService = inject(NgbModal);
+ */  /* private breakpointObserver = inject(BreakpointObserver);
+  private cdr = inject(ChangeDetectorRef);
+  private http = inject(HttpServices);
+  private auth = inject(AuthServices);  */
 
   constructor(
     private modalService: NgbModal,
     private breakpointObserver: BreakpointObserver,
-    private cdr: ChangeDetectorRef
-  ) { }
+    private cdr: ChangeDetectorRef,
+    private http: HttpServices,
+    private auth: AuthServices
+  ) {}
 
-  private http = inject(HttpServices);
+   
+  // Lifecycle
   private destroy$ = new Subject<void>();
-
+  private viewInitialized = false;
+  
+  // State
+  isNutricionista = false;
   loading = false;
   errorMsg: string | null = null;
   search = '';
+  
+  // User Context
+  currentUserId: number = 0;
+  userRole = '';
+  
+  // Data
+  categorias: any[] = [];
+  categoryMap = new Map<string, string>();
+  private allAlimentos: Alimento[] = [];
+
+  // Material Tables
+  misAlimentosDataSource = new MatTableDataSource<Alimento>([]);
+  alimentosGeneralesDataSource = new MatTableDataSource<Alimento>([]);
+
+  displayedColumns: string[] = [
+    'nombre', 'categoria_id', 'cantidad_sugerida', 
+    'energia_kcal', 'proteina_g', 'hidratos_de_carbono_g', 'lipidos_g'
+  ];
+  displayedColumnsTablet: string[] = ['nombre', 'categoria_id', 'energia_kcal', 'proteina_g'];
+
+  // Responsive
   isMobile = false;
   isTablet = false;
   mobilePageSize = 6;
-  mobileCurrentPage = 0;
-  mobileTotalPages = 0;
-  mobilePagedData: any[] = [];
-  categorias: any[] = [];
-  categoryMap = new Map<string, string>();
+  
+  // Mobile Pagination
+  misAlimentosCurrentPage = 0;
+  misAlimentosTotalPages = 0;
+  generalesCurrentPage = 0;
+  generalesTotalPages = 0;
 
-  private _stats = {
-    avgCalories: 0,
-    avgProtein: '0',
-    uniqueCategories: 0,
-  };
+  // Statistics
+  private _misAlimentosStats: Stats = { avgCalories: 0, avgProtein: '0', uniqueCategories: 0 };
+  private _generalesStats: Stats = { avgCalories: 0, avgProtein: '0', uniqueCategories: 0 };
   private _statsDirty = true;
 
-  displayedColumns: string[] = [
-    'nombre',
-    'categoria_id',
-    'cantidad_sugerida',
-    'energia_kcal',
-    'proteina_g',
-    'hidratos_de_carbono_g',
-    'lipidos_g'
-  ];
+  // ViewChildren
+  @ViewChild('paginatorMisAlimentos') paginatorMisAlimentos!: MatPaginator;
+  @ViewChild('paginatorGeneral') paginatorGeneral!: MatPaginator;
+  @ViewChild('sortMisAlimentos') sortMisAlimentos!: MatSort;
+  @ViewChild('sortGeneral') sortGeneral!: MatSort;
 
-  displayedColumnsTablet: string[] = [
-    'nombre',
-    'categoria_id',
-    'energia_kcal',
-    'proteina_g'
-  ];
-
-  dataSource = new MatTableDataSource<any>([]);
-
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  // ========================================================================
+  // LIFECYCLE HOOKS
+  // ========================================================================
 
   ngOnInit(): void {
+    console.log('[Alimentos] Inicializando componente');
+    
+    // Initialize user context
+    this.initializeUserContext();
+    
+    // Setup responsive behavior
     this.setupResponsive();
-    this.obtenerDietas();
+    
+    // Configure data source predicates
+    this.setupDataSourcePredicates();
+    
+    // Load categories (async, non-blocking)
     this.obtenerCategorias();
-    this.setupDataSourceConfig();
   }
-
-  setupResponsive(): void {
-    this.breakpointObserver.observe([
-      Breakpoints.XSmall,
-      Breakpoints.Small,
-      Breakpoints.Medium
-    ]).pipe(takeUntil(this.destroy$))
-      .subscribe(result => {
-        this.isMobile = this.breakpointObserver.isMatched(['(max-width: 767px)']);
-        this.isTablet = this.breakpointObserver.isMatched(['(min-width: 768px) and (max-width: 1023px)']);
-
-        if (this.isMobile) {
-          this.updateMobilePagination();
-        }
-
-        this.cdr.markForCheck();
-      });
-  }
-
-setupDataSourceConfig(): void {
-  this.dataSource.filterPredicate = (data: any, filter: string) => {
-    const f = (filter ?? '').trim().toLowerCase();
-    const catName = this.categoryNameById(data?.categoria_id).toLowerCase();
-    return (
-      (data?.nombre ?? '').toString().toLowerCase().includes(f) ||
-      (data?.unidad ?? '').toString().toLowerCase().includes(f) ||
-      catName.includes(f) 
-    );
-  };
-
-  this.dataSource.sortingDataAccessor = (item: any, prop: string) => {
-    const numeric = [
-      'energia_kcal', 'proteina_g', 'lipidos_g', 'hidratos_de_carbono_g',
-      'peso_bruto_g', 'peso_neto_g', 'fibra_g', 'calcio_mg', 'hierro_mg',
-      'potasio_mg', 'sodio_mg', 'fosforo_mg', 'vitamina_a_mg_re'
-    ];
-
-    if (prop === 'categoria_id') {
-      return this.categoryNameById(item?.categoria_id).toLowerCase();
-    }
-    if (numeric.includes(prop)) {
-      const value = item?.[prop];
-      const v = parseFloat((value ?? '').toString().replace(',', '.')) || 0;
-      return isNaN(v) ? 0 : v;
-    }
-    return (item?.[prop] ?? '').toString().toLowerCase();
-  };
-}
-
 
   ngAfterViewInit(): void {
+    console.log('[Alimentos] Vista inicializada');
+    this.viewInitialized = true;
+    
+    // Configure paginators if not mobile
     if (!this.isMobile) {
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
+      this.configurePaginatorsAndSort();
     }
+    
+    // NOW load the data
+    this.obtenerAlimentos();
   }
 
   ngOnDestroy(): void {
@@ -153,220 +158,469 @@ setupDataSourceConfig(): void {
     this.destroy$.complete();
   }
 
- obtenerCategorias() {
-  this.http.obtenerCategoria()
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (resp: any) => {
-        const payload = resp?.data ?? resp;
-        const data: any[] = Array.isArray(payload) ? payload : (payload ? [payload] : []);
-        this.categorias = data;
-        this.categoryMap = new Map(this.categorias.map((c: any) => [String(c.id), c.nombre]));
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        console.error('Error al obtener categorías:', err);
-        this.errorMsg = 'No se pudieron cargar las categorías. Intenta nuevamente.';
-        this.cdr.markForCheck();
-      }
+  // ========================================================================
+  // INITIALIZATION
+  // ========================================================================
+
+  private initializeUserContext(): void {
+    // Get user role
+    const rol = this.auth.getRole();
+    this.userRole = rol || '';
+    this.isNutricionista = rol == 'NUTRICIONISTA';
+    
+    // Get user ID (try from auth service first)
+    const localId = this.auth.getIdUser();
+    if (localId) {
+      this.currentUserId = Number(localId);
+    }
+    
+    // Async fetch for complete profile (may update currentUserId)
+    this.obtenerPerfilUsuario();
+    
+    console.log('[Alimentos] Usuario:', { 
+      id: this.currentUserId, 
+      rol: this.userRole, 
+      isNutricionista: this.isNutricionista 
     });
+  }
+
+  private setupDataSourcePredicates(): void {
+    // Shared filter predicate
+    const filterPredicate = (data: Alimento, filter: string): boolean => {
+      const searchStr = filter.toLowerCase();
+      const catName = this.categoryNameById(data?.categoria_id).toLowerCase();
+      return data.nombre.toLowerCase().includes(searchStr) ||
+             (data.unidad || '').toLowerCase().includes(searchStr) ||
+             catName.includes(searchStr) ||
+             data.energia_kcal.toString().includes(searchStr);
+    };
+
+    // Shared sorting accessor
+    const sortingAccessor = (item: Alimento, prop: string): string | number => {
+      if (prop === 'categoria_id') {
+        return this.categoryNameById(item?.categoria_id).toLowerCase();
+      }
+      
+      const numericFields = [
+        'energia_kcal', 'proteina_g', 'lipidos_g', 
+        'hidratos_de_carbono_g', 'cantidad_sugerida'
+      ];
+      
+      if (numericFields.includes(prop)) {
+        const value = item[prop];
+        return parseFloat((value ?? '0').toString().replace(',', '.')) || 0;
+      }
+      
+      return (item[prop] as string | number) || '';
+    };
+
+    // Apply to both data sources
+    this.misAlimentosDataSource.filterPredicate = filterPredicate;
+    this.misAlimentosDataSource.sortingDataAccessor = sortingAccessor;
+    
+    this.alimentosGeneralesDataSource.filterPredicate = filterPredicate;
+    this.alimentosGeneralesDataSource.sortingDataAccessor = sortingAccessor;
+  }
+
+
+  private reconectarPaginadoresDespuesDeCarga(): void {
+  if (this.isMobile) return;
+  
+  // Forzar la desconexión y reconexión de los paginadores
+  setTimeout(() => {
+    // Para "Mis Alimentos"
+    if (this.paginatorMisAlimentos) {
+      this.misAlimentosDataSource.paginator = null;
+      this.cdr.detectChanges();
+      this.misAlimentosDataSource.paginator = this.paginatorMisAlimentos;
+    }
+    
+    // Para "Alimentos Generales"
+    if (this.paginatorGeneral) {
+      this.alimentosGeneralesDataSource.paginator = null;
+      this.cdr.detectChanges();
+      this.alimentosGeneralesDataSource.paginator = this.paginatorGeneral;
+    }
+    
+    console.log('[Alimentos] Paginadores reconectados después de carga');
+  }, 100);
 }
 
+  private configurePaginatorsAndSort(): void {
+    console.log('[Alimentos] Configurando paginadores y sort');
+    
+    // Configure "Mis Alimentos" table
+    if (this.paginatorMisAlimentos) {
+      this.misAlimentosDataSource.paginator = this.paginatorMisAlimentos;
+    }
+    if (this.sortMisAlimentos) {
+      this.misAlimentosDataSource.sort = this.sortMisAlimentos;
+    }
+    
+    // Configure "Generales" table
+    if (this.paginatorGeneral) {
+      this.alimentosGeneralesDataSource.paginator = this.paginatorGeneral;
+    }
+    if (this.sortGeneral) {
+      this.alimentosGeneralesDataSource.sort = this.sortGeneral;
+    }
+  }
 
-  obtenerDietas(): void {
-    this.loading = true;
-    this.errorMsg = null;
-    this.cdr.markForCheck();
+  // ========================================================================
+  // RESPONSIVE BEHAVIOR
+  // ========================================================================
 
-    this.http.obtenerAlimentos()
+  setupResponsive(): void {
+    this.breakpointObserver
+      .observe([Breakpoints.XSmall, Breakpoints.Small, Breakpoints.Medium])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        const wasMobile = this.isMobile;
+        
+        this.isMobile = result.breakpoints[Breakpoints.XSmall] || 
+                        result.breakpoints[Breakpoints.Small];
+        this.isTablet = result.breakpoints[Breakpoints.Medium];
+
+        // Handle transition between mobile and desktop
+        if (wasMobile !== this.isMobile) {
+          if (this.isMobile) {
+            // Switch to mobile: disconnect Material paginators
+            this.misAlimentosDataSource.paginator = null;
+            this.alimentosGeneralesDataSource.paginator = null;
+            this.updateMobilePagination();
+          } else if (this.viewInitialized) {
+            // Switch to desktop: reconnect Material paginators
+            this.configurePaginatorsAndSort();
+          }
+        } else if (this.isMobile) {
+          // Still mobile: update pagination
+          this.updateMobilePagination();
+        }
+        
+        this.cdr.markForCheck();
+      });
+  }
+
+  // ========================================================================
+  // DATA FETCHING
+  // ========================================================================
+
+  obtenerPerfilUsuario(): void {
+    this.http.getUsuarios()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (resp: any) => {
+          if (resp?.status === 'success' && resp?.data?.id) {
+            this.currentUserId = resp.data.id;
+            console.log('[Alimentos] ID de usuario actualizado:', this.currentUserId);
+          }
+        },
+        error: (err) => {
+          console.warn('[Alimentos] Error obteniendo perfil, usando fallback:', err);
+          const fallbackId = this.auth.getUser();
+          if (fallbackId) {
+            this.currentUserId = Number(fallbackId);
+          }
+        }
+      });
+  }
+
+  obtenerCategorias(): void {
+    this.http.obtenerCategoria()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (resp: any) => {
           const payload = resp?.data ?? resp;
-          const data: any[] = Array.isArray(payload) ? payload : (payload ? [payload] : []);
-          this.dataSource.data = data;
-
-          if (!this.isMobile && this.paginator) {
-            this.dataSource.paginator = this.paginator;
-          }
-          if (!this.isMobile && this.sort) {
-            this.dataSource.sort = this.sort;
-          }
-
-          this._statsDirty = true;
-          this.updateMobilePagination();
-          this.loading = false;
+          const data = Array.isArray(payload) ? payload : (payload ? [payload] : []);
+          this.categorias = data;
+          this.categoryMap = new Map(this.categorias.map(c => [String(c.id), c.nombre]));
+          console.log('[Alimentos] Categorías cargadas:', this.categorias.length);
           this.cdr.markForCheck();
         },
         error: (err) => {
-          console.error('Error al obtener alimentos:', err);
-          this.errorMsg = 'No se pudieron cargar los alimentos. Intenta nuevamente.';
-          this.loading = false;
+          console.error('[Alimentos] Error cargando categorías:', err);
+          this.errorMsg = 'Error al cargar categorías';
           this.cdr.markForCheck();
         }
       });
   }
 
+  obtenerAlimentos(): void {
+    console.log('[Alimentos] Iniciando carga de alimentos');
+    this.loading = true;
+    this.errorMsg = null;
+    this.cdr.markForCheck();
+
+    this.http.obtenerAlimentos()
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.loading = false;
+          console.log('[Alimentos] Carga finalizada');
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (resp: any) => {
+          if (resp?.status === 'success' && Array.isArray(resp.data)) {
+            console.log('[Alimentos] Datos recibidos:', resp.data.length);
+            this.allAlimentos = resp.data;
+            
+            // Distribute data based on role
+            this.distributeDataByRole(resp.data);
+            
+            // Recalculate statistics
+            this._statsDirty = true;
+
+            this.reconectarPaginadoresDespuesDeCarga();
+            
+            // Update mobile pagination if needed
+            if (this.isMobile) {
+              this.updateMobilePagination();
+            }
+            
+            console.log('[Alimentos] Distribución:', {
+              misAlimentos: this.misAlimentosDataSource.data.length,
+              generales: this.alimentosGeneralesDataSource.data.length
+            });
+          } else {
+            this.errorMsg = 'Formato de respuesta inválido';
+            console.error('[Alimentos] Respuesta inválida:', resp);
+          }
+        },
+        error: (err) => {
+          this.errorMsg = err?.error?.message || 'Error al cargar alimentos';
+          console.error('[Alimentos] Error:', err);
+        }
+      });
+  }
+
+  private distributeDataByRole(data: Alimento[]): void {
+    if (this.isNutricionista) {
+      // Mis Alimentos: created by current user
+      const misAlimentos = data.filter(a => 
+        Number(a.id_usuario) === this.currentUserId
+      );
+      this.misAlimentosDataSource.data = misAlimentos;
+      
+      // Generales: active foods NOT created by current user
+      const generales = data.filter(a => 
+        Number(a.id_usuario) !== this.currentUserId &&
+        (a.status === 1 || a.status === '1')
+      );
+      this.alimentosGeneralesDataSource.data = generales;
+    } else {
+      // For non-nutritionists: only show active foods
+      this.misAlimentosDataSource.data = [];
+      const activos = data.filter(a => a.status === 1 || a.status === '1');
+      this.alimentosGeneralesDataSource.data = activos;
+    }
+  }
+
+  // ========================================================================
+  // FILTERING & SEARCH
+  // ========================================================================
+
   applyFilter(value: string): void {
     this.search = value ?? '';
-    this.dataSource.filter = this.search.trim().toLowerCase();
+    const filterValue = this.search.trim().toLowerCase();
+    
+    this.misAlimentosDataSource.filter = filterValue;
+    this.alimentosGeneralesDataSource.filter = filterValue;
 
-    if (!this.isMobile && this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    } else if (this.isMobile) {
-      this.mobileCurrentPage = 0;
+    if (this.isMobile) {
+      // Reset mobile pagination to first page
+      this.misAlimentosCurrentPage = 0;
+      this.generalesCurrentPage = 0;
       this.updateMobilePagination();
+    } else {
+      // Reset Material paginators to first page
+      if (this.misAlimentosDataSource.paginator) {
+        this.misAlimentosDataSource.paginator.firstPage();
+      }
+      if (this.alimentosGeneralesDataSource.paginator) {
+        this.alimentosGeneralesDataSource.paginator.firstPage();
+      }
     }
+    
     this.cdr.markForCheck();
   }
 
   clearSearch(): void {
     this.search = '';
-    this.dataSource.filter = '';
-
-    if (!this.isMobile && this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    } else if (this.isMobile) {
-      this.mobileCurrentPage = 0;
-      this.updateMobilePagination();
-    }
-    this.cdr.markForCheck();
+    this.applyFilter('');
   }
 
-  // Paginación móvil
+  // ========================================================================
+  // MOBILE PAGINATION
+  // ========================================================================
+
   updateMobilePagination(): void {
     if (!this.isMobile) return;
-
-    const filteredData = this.dataSource.filteredData.length
-      ? this.dataSource.filteredData
-      : this.dataSource.data;
-
-    this.mobileTotalPages = Math.ceil(filteredData.length / this.mobilePageSize);
-
-    const startIndex = this.mobileCurrentPage * this.mobilePageSize;
-    const endIndex = startIndex + this.mobilePageSize;
-
-    this.mobilePagedData = filteredData.slice(startIndex, endIndex);
+    
+    this.misAlimentosTotalPages = Math.ceil(
+      this.misAlimentosDataSource.filteredData.length / this.mobilePageSize
+    );
+    this.generalesTotalPages = Math.ceil(
+      this.alimentosGeneralesDataSource.filteredData.length / this.mobilePageSize
+    );
+    
     this.cdr.markForCheck();
   }
 
-  onMobilePageChange(page: number): void {
-    this.mobileCurrentPage = page;
-    this.updateMobilePagination();
+  getPagedMisAlimentos(): Alimento[] {
+    const start = this.misAlimentosCurrentPage * this.mobilePageSize;
+    const end = start + this.mobilePageSize;
+    return this.misAlimentosDataSource.filteredData.slice(start, end);
   }
 
-  previousMobilePage(): void {
-    if (this.mobileCurrentPage > 0) {
-      this.mobileCurrentPage--;
-      this.updateMobilePagination();
+  getPagedGenerales(): Alimento[] {
+    const start = this.generalesCurrentPage * this.mobilePageSize;
+    const end = start + this.mobilePageSize;
+    return this.alimentosGeneralesDataSource.filteredData.slice(start, end);
+  }
+
+  previousMisAlimentosPage(): void {
+    if (this.misAlimentosCurrentPage > 0) {
+      this.misAlimentosCurrentPage--;
+      this.cdr.markForCheck();
     }
   }
 
-  nextMobilePage(): void {
-    if (this.mobileCurrentPage < this.mobileTotalPages - 1) {
-      this.mobileCurrentPage++;
-      this.updateMobilePagination();
+  nextMisAlimentosPage(): void {
+    if (this.misAlimentosCurrentPage < this.misAlimentosTotalPages - 1) {
+      this.misAlimentosCurrentPage++;
+      this.cdr.markForCheck();
     }
   }
 
-  getMobilePageNumbers(): number[] {
-    const pages: number[] = [];
-    const totalPages = this.mobileTotalPages;
-    const current = this.mobileCurrentPage;
-
-    // Mostrar máximo 5 páginas
-    let start = Math.max(0, current - 2);
-    let end = Math.min(totalPages - 1, current + 2);
-
-    // Ajustar si estamos cerca del inicio o final
-    if (end - start < 4) {
-      if (start === 0) {
-        end = Math.min(totalPages - 1, start + 4);
-      } else if (end === totalPages - 1) {
-        start = Math.max(0, end - 4);
-      }
+  previousGeneralesPage(): void {
+    if (this.generalesCurrentPage > 0) {
+      this.generalesCurrentPage--;
+      this.cdr.markForCheck();
     }
+  }
 
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
+  nextGeneralesPage(): void {
+    if (this.generalesCurrentPage < this.generalesTotalPages - 1) {
+      this.generalesCurrentPage++;
+      this.cdr.markForCheck();
     }
-
-    return pages;
   }
 
-  // Datos para móvil
-  get filteredData(): any[] {
-    return this.dataSource.filteredData.length
-      ? this.dataSource.filteredData
-      : this.dataSource.data;
+  // ========================================================================
+  // STATISTICS
+  // ========================================================================
+
+  get avgCaloriesMisAlimentos(): number {
+    this.recomputeStatsIfNeeded();
+    return this._misAlimentosStats.avgCalories;
   }
 
-  trackById: TrackByFunction<any> = (index: number, item: any): string => {
-    const id = (item?.id ?? index);
-    return id.toString();
-  };
-
-  get avgCalories(): number {
-    if (this._statsDirty) this._recomputeStats();
-    return this._stats.avgCalories;
+  get avgProteinMisAlimentos(): string {
+    this.recomputeStatsIfNeeded();
+    return this._misAlimentosStats.avgProtein;
   }
 
-  get avgProtein(): string {
-    if (this._statsDirty) this._recomputeStats();
-    return this._stats.avgProtein;
+  get uniqueCategoriesMisAlimentos(): number {
+    this.recomputeStatsIfNeeded();
+    return this._misAlimentosStats.uniqueCategories;
   }
 
-  get uniqueCategories(): number {
-    if (this._statsDirty) this._recomputeStats();
-    return this._stats.uniqueCategories;
+  get avgCaloriesGenerales(): number {
+    this.recomputeStatsIfNeeded();
+    return this._generalesStats.avgCalories;
   }
 
-  private _recomputeStats(): void {
-    const data = this.dataSource.data ?? [];
-    if (!data.length) {
-      this._stats = { avgCalories: 0, avgProtein: '0', uniqueCategories: 0 };
-      this._statsDirty = false;
-      return;
-    }
+  get avgProteinGenerales(): string {
+    this.recomputeStatsIfNeeded();
+    return this._generalesStats.avgProtein;
+  }
 
-    const toNum = (v: any) => parseFloat((v ?? '0').toString());
+  get uniqueCategoriesGenerales(): number {
+    this.recomputeStatsIfNeeded();
+    return this._generalesStats.uniqueCategories;
+  }
 
-    const totalCalories = data.reduce((sum: number, i: any) => sum + (toNum(i.energia_kcal) || 0), 0);
-    const totalProtein = data.reduce((sum: number, i: any) => sum + (toNum(i.proteina_g) || 0), 0);
-    const categories = new Set((data as any[]).map((i: any) => i?.categoria_id));
-
-    this._stats.avgCalories = Math.round(totalCalories / data.length);
-    this._stats.avgProtein = (totalProtein / data.length).toFixed(1);
-    this._stats.uniqueCategories = categories.size;
-
+  private recomputeStatsIfNeeded(): void {
+    if (!this._statsDirty) return;
+    
+    this._misAlimentosStats = this.calculateStatsForData(
+      this.misAlimentosDataSource.data
+    );
+    this._generalesStats = this.calculateStatsForData(
+      this.alimentosGeneralesDataSource.data
+    );
+    
     this._statsDirty = false;
   }
 
-  getMacroPercentage(value: string, type: 'protein' | 'carbs' | 'fats'): number {
-    const numValue = parseFloat(value || '0');
-    if (!numValue || !this.dataSource.data.length) return 0;
-
-    let maxValue = 0;
-    switch (type) {
-      case 'protein':
-        maxValue = Math.max(...this.dataSource.data.map((i: any) => parseFloat(i.proteina_g || '0')));
-        break;
-      case 'carbs':
-        maxValue = Math.max(...this.dataSource.data.map((i: any) => parseFloat(i.hidratos_de_carbono_g || '0')));
-        break;
-      case 'fats':
-        maxValue = Math.max(...this.dataSource.data.map((i: any) => parseFloat(i.lipidos_g || '0')));
-        break;
+  private calculateStatsForData(data: Alimento[]): Stats {
+    if (!data.length) {
+      return { avgCalories: 0, avgProtein: '0', uniqueCategories: 0 };
     }
-    return maxValue > 0 ? Math.min((numValue / maxValue) * 100, 100) : 0;
+    
+    let totalCal = 0;
+    let totalProt = 0;
+    const categories = new Set<string>();
+    
+    data.forEach(item => {
+      totalCal += Number(item.energia_kcal) || 0;
+      totalProt += Number(item.proteina_g) || 0;
+      categories.add(String(item.categoria_id));
+    });
+    
+    return {
+      avgCalories: Math.round(totalCal / data.length),
+      avgProtein: (totalProt / data.length).toFixed(1),
+      uniqueCategories: categories.size
+    };
   }
+
+  // ========================================================================
+  // ACTIONS
+  // ========================================================================
 
   retryLoad(): void {
-    this.obtenerDietas();
+    this.obtenerAlimentos();
   }
 
-  exportData(): void {
-    console.log('Exportando datos...', this.filteredData);
+  openModalAlimentos(item?: Alimento, edit?: boolean): void {
+    const modalRef = this.modalService.open(AltaAlimento, {
+      backdrop: 'static',
+      size: 'lg',
+      scrollable: true
+    });
+
+    modalRef.componentInstance.misAlimentosDataSource = this.allAlimentos;
+    modalRef.componentInstance.alimentoData = edit ? item : null;
+    modalRef.componentInstance.isEdit = !!edit;
+
+    modalRef.result.then(
+      (result) => {
+        if (result?.success) {
+          const action = result.isEdit ? 'actualizado' : 'creado';
+          Swal.fire({
+            icon: 'success',
+            title: `Alimento ${action}`,
+            text: 'Se guardó correctamente.',
+            confirmButtonText: 'Aceptar'
+          }).then(() => {
+            this.obtenerAlimentos();
+          });
+        }
+      },
+      () => {}
+    );
+  }
+
+  // ========================================================================
+  // UTILITIES
+  // ========================================================================
+
+  categoryNameById(id: any): string {
+    const key = id !== null && id !== undefined ? String(id) : '';
+    return this.categoryMap.get(key) ?? (key || '—');
   }
 
   getCategoryColor(category: string): string {
@@ -379,50 +633,17 @@ setupDataSourceConfig(): void {
     return colors[index];
   }
 
-
-  openModalAlimentos(item?: any, edit?: boolean): void {
-    const modalRef = this.modalService.open(AltaAlimento, {
-      backdrop: 'static',
-      size: 'lg',
-      scrollable: true
-    });
-
-    if (item && edit) {
-      modalRef.componentInstance.alimentoData = item;
-      modalRef.componentInstance.isEdit = true;
-    } else {
-      modalRef.componentInstance.alimentoData = null;
-      modalRef.componentInstance.isEdit = false;
-    }
-
-    modalRef.result.then(
-      (result) => {
-        if (result?.success) {
-          const action = result.isEdit ? 'actualizado' : 'creado';
-          Swal.fire({
-            icon: 'success',
-            title: `Alimento ${action}`,
-            text: 'Se guardó correctamente.',
-            confirmButtonText: 'Aceptar'
-          }).then(() => {
-            this.obtenerDietas();
-          });
-        }
-      },
-      () => { }
-    );
+  truncateText(text: string, maxLength: number): string {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength).trim() + '...';
   }
 
-  categoryNameById(id: any): string {
-    const key = id !== null && id !== undefined ? String(id) : '';
-    return this.categoryMap.get(key) ?? (key || '—');
-  }
-
+  trackById: TrackByFunction<Alimento> = (index: number, item: Alimento): string => {
+    return item.id;
+  };
 
   get currentDisplayedColumns(): string[] {
-    if (this.isTablet) {
-      return this.displayedColumnsTablet;
-    }
-    return this.displayedColumns;
+    return this.isTablet ? this.displayedColumnsTablet : this.displayedColumns;
   }
 }
