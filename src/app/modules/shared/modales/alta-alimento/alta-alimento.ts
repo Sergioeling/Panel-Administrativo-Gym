@@ -58,6 +58,7 @@ export class AltaAlimento implements OnInit, OnDestroy {
 
   @Input() alimentoData: AlimentoData | null = null;
   @Input() isEdit: boolean = false;
+  @Input() readOnly: boolean = false;
   @Input() misAlimentosDataSource!: any[]; 
 
   loading = false;
@@ -71,6 +72,7 @@ export class AltaAlimento implements OnInit, OnDestroy {
   alimentoDropdownVisible: boolean[] = [];
 
 
+  
   constructor() {
     this.alimentoForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],

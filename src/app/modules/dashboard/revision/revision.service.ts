@@ -116,4 +116,47 @@ rechazarDocumentoNutricionista(documentoId: number, motivo: string) {
   );
 }
 
+getAlimentosPendientes() {
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
+
+  return this.http.get<any>(
+    'http://localhost/Backend/Rutas.php?alimentos-pendientes',
+    { headers }
+  );
+}
+
+getAlimentoDetalle(id: number) {
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
+
+  return this.http.post<any>(
+    'http://localhost/Backend/Rutas.php?alimento-detalle',
+    { id },
+    { headers }
+  );
+}
+
+aprobarAlimento(id: number) {
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
+
+  return this.http.put<any>(
+    'http://localhost/Backend/Rutas.php?alimento-aprobar',
+    { id },
+    { headers }
+  );
+}
+
+
+
 }

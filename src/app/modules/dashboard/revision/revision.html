@@ -3,9 +3,7 @@
   <!-- HEADER -->
   <div class="page-header">
     <h1>Lista de solicitudes</h1>
-    <p>
-      Gestiona las solicitudes de nuevos Nutricionistas y nuevos platillos
-    </p>
+    <p>Gestiona las solicitudes de nuevos Nutricionistas, Platillos y Alimentos</p>
   </div>
 
   <!-- ================= STATS ================= -->
@@ -32,6 +30,15 @@
       <div>
         <h2>{{ solicitudesPlatillos }}</h2>
         <span>Solicitudes de Platillos</span>
+      </div>
+    </div>
+
+    <!-- NUEVA TARJETA -->
+    <div class="stat-card">
+      <div class="stat-icon info">🥦</div>
+      <div>
+        <h2>{{ solicitudesAlimentos }}</h2>
+        <span>Solicitudes de Alimentos</span>
       </div>
     </div>
 
@@ -65,16 +72,10 @@
         <ng-container matColumnDef="archivos">
           <th mat-header-cell *matHeaderCellDef>Archivos</th>
           <td mat-cell *matCellDef="let e">
-            <button
-              class="btn-link-primary"
-              *ngIf="e.archivos"
-              (click)="verArchivos(e)">
+            <button class="btn-link-primary" *ngIf="e.archivos" (click)="verArchivos(e)">
               Ver archivos
             </button>
-
-            <span *ngIf="!e.archivos" class="no-files">
-              Sin archivos
-            </span>
+            <span *ngIf="!e.archivos" class="no-files">Sin archivos</span>
           </td>
         </ng-container>
 
@@ -86,17 +87,16 @@
         <ng-container matColumnDef="estado">
           <th mat-header-cell *matHeaderCellDef>Estado</th>
           <td mat-cell *matCellDef="let e">
-            <span class="estado" [class]="e.estado">
-              {{ e.estado }}
-            </span>
+            <span class="estado" [class]="e.estado">{{ e.estado }}</span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="acciones">
           <th mat-header-cell *matHeaderCellDef>Acciones</th>
           <td mat-cell *matCellDef="let e">
-            <!--<button class="btn-approve" (click)="aprobar(e)">Aprobar</button>-->
-            <button class="btn-reject" (click)="rechazarNutricionista(e)">Rechazar</button>
+            <button class="btn-reject" (click)="rechazarNutricionista(e)">
+              Rechazar
+            </button>
           </td>
         </ng-container>
 
@@ -122,10 +122,8 @@
 
         <ng-container matColumnDef="detalles">
           <th mat-header-cell *matHeaderCellDef>Detalles</th>
-          <td mat-cell *matCellDef="let p">
-            <button
-              class="btn-link-primary"
-              (click)="verDetallesPlatillo(p)">
+          <td mat-cell *matCellDef="let e">
+            <button class="btn-link-primary" (click)="verDetallesPlatillo(e)">
               Ver detalles
             </button>
           </td>
@@ -144,9 +142,7 @@
         <ng-container matColumnDef="estado">
           <th mat-header-cell *matHeaderCellDef>Estado</th>
           <td mat-cell *matCellDef="let e">
-            <span class="estado" [class]="e.estado">
-              {{ e.estado }}
-            </span>
+            <span class="estado" [class]="e.estado">{{ e.estado }}</span>
           </td>
         </ng-container>
 
@@ -163,6 +159,63 @@
       </table>
 
       <mat-paginator #paginatorPlat [pageSize]="5"></mat-paginator>
+    </div>
+  </section>
+
+  <!-- ================= ALIMENTOS ================= -->
+  <section class="section">
+    <h3>Solicitudes de Alimentos</h3>
+
+    <div class="table-card">
+      <table mat-table [dataSource]="dataAlimentos" class="users-table">
+
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef>Alimento</th>
+          <td mat-cell *matCellDef="let e">{{ e.nombre }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="detalles">
+          <th mat-header-cell *matHeaderCellDef>Detalles</th>
+          <td mat-cell *matCellDef="let el">
+            <button
+              class="btn-link-primary"
+              (click)="verDetalleAlimento(el); $event.stopPropagation()">
+              Ver detalles
+            </button>
+          </td>
+        </ng-container>
+
+
+        <ng-container matColumnDef="categoria">
+          <th mat-header-cell *matHeaderCellDef>Categoría</th>
+          <td mat-cell *matCellDef="let e">{{ e.categoria }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="nutricionista">
+          <th mat-header-cell *matHeaderCellDef>Nutricionista</th>
+          <td mat-cell *matCellDef="let e">{{ e.nutricionista }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let e">
+            <span class="estado" [class]="e.estado">{{ e.estado }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let e">
+            <button class="btn-approve" (click)="aprobarAlimento(e)">Aprobar</button>
+            <button class="btn-reject" (click)="rechazarAlimento(e)">Rechazar</button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumnsAlimentos"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumnsAlimentos"></tr>
+      </table>
+
+      <mat-paginator #paginatorAlimentos [pageSize]="5"></mat-paginator>
     </div>
   </section>
 
