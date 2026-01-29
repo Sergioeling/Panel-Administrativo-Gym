@@ -7,6 +7,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RevisionService } from './revision.service';
 import { AltaPlatillos } from '../../shared/modales/alta-platillos/alta-platillos';
 import { VistaDocumentos } from '../../shared/modales/vista-documentos/vista-documentos';
+import { AltaAlimento } from '../../shared/modales/alta-alimento/alta-alimento';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -60,6 +61,7 @@ export class RevisionComponent implements OnInit, AfterViewInit {
   // ===== NUEVO: ALIMENTOS =====
   displayedColumnsAlimentos = [
     'nombre',
+    'detalles',
     'categoria',
     'nutricionista',
     'estado',
@@ -333,6 +335,31 @@ export class RevisionComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+
+ verDetalleAlimento(item: any): void {
+  this.revisionService.getAlimentoDetalle(item.id).subscribe({
+    next: (resp: any) => {
+      const alimentoCompleto = resp?.data ?? resp;
+
+      const modalRef = this.modalService.open(AltaAlimento, {
+          backdrop: 'static',
+          size: 'lg',
+          scrollable: true
+        });
+
+        modalRef.componentInstance.readOnly = true; // 👈 PRIMERO
+        modalRef.componentInstance.isEdit = true;
+        modalRef.componentInstance.alimentoData = alimentoCompleto;
+
+    },
+    error: (err: any) => {
+      console.error('Error al cargar detalle del alimento', err);
+    }
+  });
+}
+
+
 
   // ===== NUEVO: ACCIONES ALIMENTOS (VACÍAS A PROPÓSITO) =====
   aprobarAlimento(item: any): void {

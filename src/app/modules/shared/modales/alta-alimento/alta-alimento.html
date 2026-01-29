@@ -388,11 +388,16 @@
             <i class="fas fa-times me-2"></i>
             Cancelar
         </button>
-        <button type="button" class="btn btn-{{ isEdit ? 'primary' : 'success' }} order-1 order-md-2"
-            (click)="onSubmit()" [disabled]="loading || alimentoForm.invalid">
+        <button
+            *ngIf="!readOnly"
+            type="button"
+            class="btn btn-{{ isEdit ? 'primary' : 'success' }} order-1 order-md-2"
+            (click)="onSubmit()"
+            [disabled]="loading || alimentoForm.invalid">
             <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
             <i *ngIf="!loading" class="fas fa-{{ isEdit ? 'save' : 'plus' }} me-2"></i>
             {{ submitButtonText }}
         </button>
+
     </div>
 </div>

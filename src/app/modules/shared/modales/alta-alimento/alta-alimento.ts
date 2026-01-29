@@ -58,6 +58,8 @@ export class AltaAlimento implements OnInit, OnDestroy {
 
   @Input() alimentoData: AlimentoData | null = null;
   @Input() isEdit: boolean = false;
+  @Input() readOnly: boolean = false;
+
 
   loading = false;
   loadingCategorias = false;

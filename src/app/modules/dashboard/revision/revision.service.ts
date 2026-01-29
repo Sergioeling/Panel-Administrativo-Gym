@@ -129,5 +129,19 @@ getAlimentosPendientes() {
   );
 }
 
+getAlimentoDetalle(id: number) {
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
+
+  return this.http.post<any>(
+    'http://localhost/Backend/Rutas.php?alimento-detalle',
+    { id },
+    { headers }
+  );
+}
+
 
 }

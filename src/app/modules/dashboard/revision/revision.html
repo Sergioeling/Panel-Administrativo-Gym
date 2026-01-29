@@ -174,6 +174,18 @@
           <td mat-cell *matCellDef="let e">{{ e.nombre }}</td>
         </ng-container>
 
+        <ng-container matColumnDef="detalles">
+          <th mat-header-cell *matHeaderCellDef>Detalles</th>
+          <td mat-cell *matCellDef="let el">
+            <button
+              class="btn-link-primary"
+              (click)="verDetalleAlimento(el); $event.stopPropagation()">
+              Ver detalles
+            </button>
+          </td>
+        </ng-container>
+
+
         <ng-container matColumnDef="categoria">
           <th mat-header-cell *matHeaderCellDef>Categoría</th>
           <td mat-cell *matCellDef="let e">{{ e.categoria }}</td>
