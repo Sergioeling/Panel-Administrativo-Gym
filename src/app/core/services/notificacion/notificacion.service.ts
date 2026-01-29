@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AppSettingsService } from '../../../app-settings.service';
-import { BehaviorSubject, Observable, Subject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, firstValueFrom, throwError } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 
 export interface Notification {
@@ -110,18 +110,21 @@ export class NotificationService implements OnDestroy {
    * Inicia el long polling
    */
   private startLongPolling() {
-    if (!this.userId || this.isPolling) {
-      console.log('⚠️ No se puede iniciar long polling:', { 
-        userId: this.userId, 
-        isPolling: this.isPolling 
-      });
-      return;
-    }
-    
-    this.isPolling = true;
-    console.log('🔄 Long polling iniciado con last_id:', this.lastNotificationId);
-    this.longPollCount();
+  if (!this.userId || this.isPolling) {
+    console.log('⚠️ No se puede iniciar long polling:', { 
+      userId: this.userId, 
+      isPolling: this.isPolling 
+    });
+    return;
   }
+  
+  // ✅ ESPERAR 2 segundos para que la app se estabilice en SSR
+  setTimeout(() => {
+    this.isPolling = true;
+    console.log('🔄 Long polling iniciado (con delay para SSR)');
+    this.longPollCount();
+  }, 2000);
+}
 
   /**
    * Ejecuta una petición de long polling
@@ -197,10 +200,11 @@ export class NotificationService implements OnDestroy {
    * Carga las notificaciones completas
    */
   loadNotifications(): Observable<any> {
-    if (!this.userId) {
-      console.log('⚠️ No hay userId');
-      return new Observable(observer => observer.complete());
-    }
+  if (!this.userId) {
+    console.error('🚨 CRÍTICO: No hay userId configurado. Asegúrate de llamar setUserId() primero');
+    console.trace('Stack trace para depuración');
+    return throwError(() => new Error('NotificationService no está inicializado. Llamar setUserId() primero.'));
+  }
 
     console.log('📥 Cargando notificaciones completas...');
 
@@ -347,6 +351,14 @@ export class NotificationService implements OnDestroy {
       this.isPolling = false;
     }
   }
+
+  get isReady(): boolean {
+  return this.userId !== null && this.isInitialized;
+}
+
+get currentUserId(): number | null {
+  return this.userId;
+}
 
   /**
    * Cleanup
