@@ -158,5 +158,23 @@ aprobarAlimento(id: number) {
 }
 
 
+  rechazarAlimento(id: number, motivo: string) {
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
+
+  return this.http.put<any>(
+    'http://localhost/Backend/Rutas.php?alimento-rechazar',
+    {
+      id,
+      motivo
+    },
+    { headers }
+  );
+
+
+}
 
 }

@@ -382,7 +382,47 @@ aprobarAlimento(alimento: any): void {
   });
 }
 
-  rechazarAlimento(item: any): void {
-    // pendiente de implementar
-  }
+  rechazarAlimento(alimento: any) {
+  Swal.fire({
+    title: 'Rechazar alimento',
+    input: 'textarea',
+    inputLabel: 'Motivo del rechazo',
+    inputPlaceholder: 'Escribe el motivo...',
+    inputAttributes: {
+      'aria-label': 'Motivo del rechazo'
+    },
+    showCancelButton: true,
+    confirmButtonText: 'Rechazar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#dc3545',
+    inputValidator: (value) => {
+      if (!value) {
+        return 'El motivo es obligatorio';
+      }
+      return null;
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.revisionService.rechazarAlimento(alimento.id, result.value)
+        .subscribe({
+          next: () => {
+            Swal.fire(
+              'Rechazado',
+              'El alimento fue rechazado y se notificó al usuario',
+              'success'
+            );
+            this.cargarAlimentosPendientes();
+          },
+          error: () => {
+            Swal.fire(
+              'Error',
+              'No se pudo rechazar el alimento',
+              'error'
+            );
+          }
+        });
+    }
+  });
+}
+
 }
