@@ -35,7 +35,7 @@ export class RevisionService {
         );
       }
 
-      revisionPlatillo(id: number, estado: number, motivo?: string) {
+      revisionPlatillo(id: number, estado: number, id_Usuario: number, motivo?: string) {
         const token = localStorage.getItem('token');
 
         const headers = new HttpHeaders({
@@ -47,7 +47,8 @@ export class RevisionService {
           {
             id,
             estado,
-            motivo
+            motivo,
+            id_Usuario
           },
           { headers }
         );
@@ -143,7 +144,8 @@ getAlimentoDetalle(id: number) {
   );
 }
 
-aprobarAlimento(id: number) {
+
+aprobarAlimento(id: number, id_usuario: number) {
   const token = localStorage.getItem('token');
 
   const headers = new HttpHeaders({
@@ -152,13 +154,13 @@ aprobarAlimento(id: number) {
 
   return this.http.put<any>(
     'http://localhost/Backend/Rutas.php?alimento-aprobar',
-    { id },
+    { id, id_usuario },
     { headers }
   );
 }
 
 
-  rechazarAlimento(id: number, motivo: string) {
+  rechazarAlimento(id: number, id_usuario: number, motivo: string) {
   const token = localStorage.getItem('token');
 
   const headers = new HttpHeaders({
@@ -169,6 +171,7 @@ aprobarAlimento(id: number) {
     'http://localhost/Backend/Rutas.php?alimento-rechazar',
     {
       id,
+      id_usuario,
       motivo
     },
     { headers }

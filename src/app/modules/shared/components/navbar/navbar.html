@@ -90,8 +90,11 @@
                         <!-- Contenido -->
                         <div class="flex-1 min-w-0" (click)="showNoti(noti); $event.stopPropagation()">
                             <p class="font-semibold text-sm text-gray-900 mb-1">{{ noti.titulo }}</p>
-                            <p class="text-xs text-gray-600 leading-relaxed">
+                            <p class="text-xs text-gray-600 leading-relaxed" *ngIf="userRole == 'admin'">
                                 Revisa la solicitud de <strong>{{noti.usuario_nombre}}</strong> para unirse a PowerGym
+                            </p>
+                            <p class="text-xs text-gray-600 leading-relaxed" *ngIf="userRole != 'admin'">
+                                {{noti.mensaje}}
                             </p>
                             <div class="flex items-center gap-2 mt-2">
                                 <span class="text-[10px] text-gray-400">

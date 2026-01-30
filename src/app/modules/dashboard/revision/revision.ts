@@ -123,6 +123,7 @@ export class RevisionComponent implements OnInit, AfterViewInit {
         if (resp.status === 'success') {
           this.dataPlatillos.data = resp.data.map((p: any) => ({
             id: p.platillo_id,
+            creador_id: p.creador_id,
             platillo: p.platillo,
             nutricionista: p.nutricionista,
             tiempo: `${p.tiempo_preparacion} min`,
@@ -134,7 +135,7 @@ export class RevisionComponent implements OnInit, AfterViewInit {
                 : 'rechazado'
           }));
 
-          this.calcularTotales();
+          this.calcularTotales(); 
         }
       },
       error: (err) => {
@@ -150,6 +151,7 @@ export class RevisionComponent implements OnInit, AfterViewInit {
         if (resp.status === 'success') {
           this.dataAlimentos.data = resp.data.map((a: any) => ({
             id: a.alimento_id,
+            id_usuario: a.id_usuario,
             nombre: a.nombre,
             categoria: a.categoria,
             nutricionista: a.nutricionista,
@@ -189,7 +191,7 @@ export class RevisionComponent implements OnInit, AfterViewInit {
 
   aprobar(item: any): void {
     this.revisionService
-      .revisionPlatillo(item.id, 1)
+      .revisionPlatillo(item.id, 1, item.creador_id)
       .subscribe({
         next: () => {
           this.cargarPlatillosPendientes();
@@ -224,7 +226,7 @@ export class RevisionComponent implements OnInit, AfterViewInit {
         const motivo = result.value;
 
         this.revisionService
-          .revisionPlatillo(item.id, 0, motivo)
+          .revisionPlatillo(item.id, 0, item.creador_id, motivo)
           .subscribe({
             next: () => {
               Swal.fire({
@@ -362,7 +364,7 @@ export class RevisionComponent implements OnInit, AfterViewInit {
 
 
 aprobarAlimento(alimento: any): void {
-  this.revisionService.aprobarAlimento(alimento.id).subscribe({
+  this.revisionService.aprobarAlimento(alimento.id, alimento.id_usuario).subscribe({
     next: (resp: any) => {
       if (resp?.success) {
         Swal.fire({
@@ -403,7 +405,7 @@ aprobarAlimento(alimento: any): void {
     }
   }).then((result) => {
     if (result.isConfirmed) {
-      this.revisionService.rechazarAlimento(alimento.id, result.value)
+      this.revisionService.rechazarAlimento(alimento.id, alimento.id_usuario, result.value)
         .subscribe({
           next: () => {
             Swal.fire(
