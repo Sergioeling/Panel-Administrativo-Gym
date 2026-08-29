@@ -92,7 +92,6 @@ export class Login {
               const userRole = this.authService.getUserRole();
               if (userRole) {
                 this.router.navigate(['/dashboard']);
-                window.location.reload();
               }
             }, 2100); 
           }

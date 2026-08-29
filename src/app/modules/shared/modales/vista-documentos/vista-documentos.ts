@@ -13,6 +13,8 @@ import Swal from 'sweetalert2';
 })
 export class VistaDocumentos {
 
+  private readonly documentosBaseUrl = 'https://dtinutricion.arvispace.com/documentos/';
+
   private _usuario!: {
     id: number;
     nombre: string;
@@ -39,6 +41,10 @@ export class VistaDocumentos {
     private revisionService: RevisionService,
     private cdr: ChangeDetectorRef
   ) {}
+
+  getArchivoUrl(doc: any): string {
+  return this.documentosBaseUrl + doc.nombre_almacenado;
+}
 
   obtenerDocumentos(): void {
     this.loading = true;
